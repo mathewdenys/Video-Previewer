@@ -1,0 +1,7 @@
+/info/
+/media/
+/.vscode/
+test.*
+*.code-workspace
+*.exe
+*.obj
