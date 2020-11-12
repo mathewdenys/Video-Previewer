@@ -5,3 +5,4 @@ test.*
 *.code-workspace
 *.exe
 *.obj
+*.DS_Store
