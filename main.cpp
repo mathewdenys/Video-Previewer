@@ -23,6 +23,7 @@
 #endif
 
 using std::string;
+using std::vector;
 
 // Abstract base class for storing a single configuration option
 class AbstractConfigOption
@@ -66,7 +67,7 @@ class ConfigParser
 {
 private:
     string configFilePath;
-    std::vector<std::unique_ptr<AbstractConfigOption> > options;
+    vector<std::unique_ptr<AbstractConfigOption> > options;
 
     bool isInt(const string& testString)
     {
@@ -150,66 +151,72 @@ public:
     }
 };
 
+class Frame
+{
+private:
+    cv::Mat data;
+    int frameNumber;
+
+public:
+
+};
+
+// Wrapper class for a cv::VideoCapture object, with convenient get / set functions
+class Video
+{
+private:
+    cv::VideoCapture vc;
+
+public:
+    Video(const string& path) : vc{ path }
+    {
+        if (!vc.isOpened())
+            std::cout << "Could not open video: " << path << '\n';
+    }
+    void setFrame(int num)  { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    int  getFrame()         { return vc.get(cv::CAP_PROP_POS_FRAMES); }
+    int  numberOfFrames()   { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+};
+
 class VideoPreview
 {
 private:
-    cv::VideoCapture video;
-    std::vector<cv::Mat>      frames;
-    std::vector<std::unique_ptr<AbstractConfigOption> > options;
+    Video video;
+    ConfigParser options;
+    vector<Frame> frames;
 
 public:
-    VideoPreview(const string& videoPathIn, const string& configPathIn)
+    VideoPreview(const string& videoPath, const string& configPath) : video{ videoPath }, options{ configPath }
     {
-        // import the video file
-        video = cv::VideoCapture(videoPathIn);
-        if (!video.isOpened())
-            std::cout << "Could not open video: " << videoPathIn << '\n';
-
-        // load the configuration file and make `options`
-        options.reserve(2); // temporary value for now
-        ConfigParser parser(configPathIn);
-        parser.print();
-
         // create the frames
-        // ...
 
     }
+
+    //
+    void makeFrames()
+    {
+        int totalFrames = video.numberOfFrames();
+        // read in the number of frames to output from `options`
+    }
+
+    void printConfig() { options.print(); }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
 {
-    std::string videoPath{ "media/sunrise.mp4" };
-    std::string configPath{ "media/.videopreviewconfig" };
-    
-    VideoPreview vid(videoPath, configPath);
-    
+    string videoPath{ "media/sunrise.mp4" };
+    string configPath{ "media/.videopreviewconfig" };
+
+    VideoPreview vidprev(videoPath, configPath);
+    vidprev.printConfig();
+
     /*ConfigOption o1{ "optionOne" };
-    std::cout << o1.getName() << std::endl;
-    ConfigOption o2{ "optionTwo" };
-    std::cout << o2.getName() << std::endl;
-    ConfigOptionBool o3{ "optionBool", true };
-    std::cout << o3.getName() << std::endl;*/
-    
-    
+       std::cout << o1.getName() << std::endl;
+       ConfigOption o2{ "optionTwo" };
+       std::cout << o2.getName() << std::endl;
+       ConfigOptionBool o3{ "optionBool", true };
+       std::cout << o3.getName() << std::endl;*/
+
+
     return 0;
 }
