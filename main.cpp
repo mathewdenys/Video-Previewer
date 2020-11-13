@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -20,9 +21,6 @@
 #pragma GCC diagnostic pop
 #endif
 #endif
-
-using configPair = std::pair<std::string, std::string>;
-
 
 enum class OptionType
 {
@@ -91,17 +89,28 @@ public:
     }
 };
 
+
+
+
+
+
+
+
+
+
+
+
 class ConfigParser
 {
 private:
     std::string configFilePath;
-    std::map<std::string, std::string> configPairs;
+    std::vector<std::unique_ptr<ConfigOption>> options;
 
     // ConfigParser::lineParser() parses a single line of the configuration file
     // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
     // Assumes each line is formatted as `LHS = RHS`
     // For now the spaces are mandatory. Eventually I will handle e.g. `LHS=RHS`, and comment lines
-    configPair lineParser(std::string& strIn)
+    std::unique_ptr<ConfigOption> lineParser(const std::string& strIn)
     {
         std::string key;
         std::string val;
@@ -110,11 +119,17 @@ private:
         ss >> key; // LHS of equals sign
         ss >> val; // The equals sign (will be overritten)
         ss >> val; // RHS of equals sign
-        configPair pair{ key, val };
-        return pair;
+        
+        if (optionTypeIdentifier(val) == OptionType::boolean)
+            return std::make_unique<ConfigOptionBool>(ConfigOptionBool(key, stringToBool(val)));
+        
+        else if (optionTypeIdentifier(val) == OptionType::integer)
+            return std::make_unique<ConfigOptionInt>(ConfigOptionInt(key, stringToInt(val)));
+        
+        return std::make_unique<ConfigOptionString>(ConfigOptionString(key, val)); // default to string
     }
     
-    // test if the string `testString` corresponods to an integer
+    // test if the string `testString` corresponds to an integer
     // uses the std::stringstream extraction operator, which performs casts if it can
     bool isInt(const std::string& testString)
     {
@@ -140,11 +155,11 @@ private:
         return myInt;
     }
     
-    OptionType optionTypeIdentifier(const configPair& pair)
+    OptionType optionTypeIdentifier(const std::string& val)
     {
-        if (pair.second == "true" || pair.second == "false")
+        if (val == "true" || val == "false")
             return OptionType::boolean;
-        else if (isInt(pair.second))
+        else if (isInt(val))
             return OptionType::integer;
         return OptionType::string; // Assume to be a string by default (do better checking for validity here)
     }
@@ -156,35 +171,23 @@ public:
         if (!file)
             std::cerr << configFilePath << " could not be opened\n";
 
-        std::map<std::string, std::string> configPairsIn; // why am I declaring a dummy variable only to assign it to configPairs later?
+        options.reserve(2); // dummy value for now
 
         while (file)
         {
             std::string strInput;
             std::getline(file, strInput);
             if (strInput.length() != 0)     // Ignore blank lines
-                configPairsIn.insert(lineParser(strInput));
+                options.push_back( lineParser(strInput) );
         }
-
-        configPairs = configPairsIn;
     }
     
-    ConfigOption pairToConfigOption(const configPair& pair)
-    {
-        if (optionTypeIdentifier(pair) == OptionType::boolean)
-            return ConfigOptionBool(pair.first, stringToBool(pair.second));
-        else if (optionTypeIdentifier(pair) == OptionType::integer)
-            return ConfigOptionInt(pair.first, stringToInt(pair.second));
-        else
-            return ConfigOptionString(pair.first, pair.second);
-    }
-    
-    std::map<std::string, std::string> getPairs() { return configPairs; }
+    //std::vector<std::unique_ptr<ConfigOption>> getOptions() { return options; }
 
     void print()
     {
-        for ( auto el : configPairs )
-            std::cout << el.first << "\n\t" << el.second << std::endl;
+        for ( auto& el : options )
+            el->print();
     }
 };
 
@@ -193,7 +196,7 @@ class VideoPreview
 private:
     cv::VideoCapture          video;
     std::vector<cv::Mat>      frames;
-    std::vector<ConfigOption> options;
+    std::vector<std::unique_ptr<ConfigOption>> options;
     
 public:
     VideoPreview(const std::string& videoPathIn, const std::string& configPathIn)
@@ -206,17 +209,32 @@ public:
         // load the configuration file and make `options`
         options.reserve(2); // temporary value for now
         ConfigParser parser(configPathIn);
-        for (auto& pair : parser.getPairs())
-            options.push_back(parser.pairToConfigOption(pair));
-        
-        for (auto& el : options)
-            el.print();
-        
+        parser.print();
         
         // create the frames
+        // ...
             
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
