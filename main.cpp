@@ -67,7 +67,7 @@ class ConfigParser
 {
 private:
     string configFilePath;
-    vector<std::unique_ptr<AbstractConfigOption> > options;
+    vector<std::shared_ptr<AbstractConfigOption> > options;
 
     bool isInt(const string& testString)
     {
@@ -106,7 +106,7 @@ private:
     // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
     // Assumes each line is formatted as `LHS = RHS`
     // For now the spaces are mandatory. Eventually I will handle e.g. `LHS=RHS`, and comment lines
-    std::unique_ptr<AbstractConfigOption> lineParser(const string& strIn)
+    std::shared_ptr<AbstractConfigOption> lineParser(const string& strIn)
     {
         string key;
         string val;
@@ -118,11 +118,11 @@ private:
 
         switch(optionTypeIdentifier(val)) { // defaults to string when option type is undefined or string
         case OptionType::boolean:
-            return std::make_unique<ConfigOption<bool> >   (key, stringToBool(val));
+            return std::make_shared<ConfigOption<bool> >   (key, stringToBool(val));
         case OptionType::integer:
-            return std::make_unique<ConfigOption<int> >    (key, stringToInt(val));
+            return std::make_shared<ConfigOption<int> >    (key, stringToInt(val));
         default:
-            return std::make_unique<ConfigOption<string> > (key, val);
+            return std::make_shared<ConfigOption<string> > (key, val);
         }
     }
 
@@ -144,9 +144,19 @@ public:
         }
     }
 
+    std::shared_ptr<AbstractConfigOption> getOption(string optionName) // Think about memory management involved in returning this pointer!!!
+    {
+        for ( auto el : options)
+        {
+            if (el->getName() == optionName) // todo implement error handling in the case that the option doesn't exist
+                return el;
+        }
+        return options[0]; // This case should ever be reached. BAD. Ihave put it here to satisfy the compiler. ADDRESS!
+    }
+
     void print()
     {
-        for ( auto& el : options )
+        for ( auto el : options )
             el->print();
     }
 };
