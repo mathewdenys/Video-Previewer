@@ -29,13 +29,22 @@ using std::vector;
 class AbstractConfigOption
 {
 private:
-    string optionName;
+    string optionID;
+    const static std::map<string,string> nameMap;
 
 public:
-    AbstractConfigOption(const string& nameIn) : optionName{ nameIn } {}
-    string getName() { return optionName; }
-    virtual void print() = 0;
+    AbstractConfigOption(const string& id) : optionID{ id } {}
+    string getID()   { return optionID; }
+    string getName() { return nameMap.at(optionID); } // to do: do error checking
+    void   print()   { std::cout << getName() << ": " << getValue() << '\n'; }
+    virtual int  getValue() = 0;
     virtual ~AbstractConfigOption() {}
+};
+
+// A map between the optionIDs (as used in the configuration file) and the optionNames (as used when printing)
+const std::map<string,string> AbstractConfigOption::nameMap = {
+    {"number_of_frames", "Number of frames to show"},
+    {"show_frame_info",  "Show indiviual frame information"}
 };
 
 // Templated class for specific implementations of AbstractConfigOption
@@ -47,11 +56,24 @@ private:
     T optionValue;
 
 public:
-    ConfigOption(const string& nameIn, const T valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
-    T getValue() { return optionValue; }
-    virtual void print() { std::cout << getName() << ": " << getValue() << '\n'; }
+    ConfigOption(const string& nameIn, const T valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } { }
+    void setValue(T valIn) { optionValue = valIn; }
+    int  getValue(); // defined using template specification below
     virtual ~ConfigOption() {};
 };
+
+template<>
+int ConfigOption<bool>::getValue() { return int(optionValue); }
+
+template<>
+int ConfigOption<int>::getValue()  { return optionValue; }
+
+template<>
+int ConfigOption<string>::getValue()
+{
+    // todo implement enum look up
+    return -1; // dummy value for now
+}
 
 // Enumerates the data types that a configuration option may be
 enum class OptionType
