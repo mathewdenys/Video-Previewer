@@ -81,15 +81,6 @@ int ConfigOption<string>::getValue()
     return -1; // Dummy value for now
 }
 
-// Enumerates the data types that a configuration option may be. Used in `configParser` to
-enum class OptionType
-{
-    undefined = -1,
-    boolean, // 0
-    integer, // 1
-    string,  // 2
-};
-
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
 // Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
@@ -163,18 +154,6 @@ private:
         return true;
     }
 
-    // Determines the data type of the option value stored in the string `str`
-    // Assumed to be a string by default if nothing else matches
-    OptionType optionTypeIdentifier(const string& str)
-    {
-        if (str == "true" || str == "false")
-            return OptionType::boolean;
-        else if (isInt(str))
-            return OptionType::integer;
-        else
-            return OptionType::string;
-    }
-
     // Parses a single line of the configuration file and returns a pointer to a ConfigOption
     // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
     // Assumes each line is formatted as `LHS = RHS` (for now the spaces are mandatory)
@@ -189,14 +168,12 @@ private:
         ss >> val; // The equals sign (will be overritten)
         ss >> val; // RHS of equals sign
 
-        switch(optionTypeIdentifier(val)) {
-        case OptionType::boolean:
+        if (val == "true" || val == "false")
             return std::make_shared<ConfigOption<bool> >   (key, stringToBool(val));
-        case OptionType::integer:
+        else if (isInt(val))
             return std::make_shared<ConfigOption<int> >    (key, stringToInt(val));
-        default:
+        else
             return std::make_shared<ConfigOption<string> > (key, val);
-        }
     }
 };
 
