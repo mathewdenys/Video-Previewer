@@ -190,6 +190,8 @@ private:
     int frameNumber;
 
 public:
+    Frame(cv::Mat& dataIn, int frameNumberIn)
+        : data{ dataIn }, frameNumber{ frameNumberIn } {}
 
 };
 
@@ -205,9 +207,10 @@ public:
         if (!vc.isOpened())
             std::cout << "Could not open video: " << path << '\n';
     }
-    void setFrame(int num)  { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    int  getFrame()         { return vc.get(cv::CAP_PROP_POS_FRAMES); }
-    int  numberOfFrames()   { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
+    int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    void writeCurrentFrame(cv::Mat frameOut) { vc.read(frameOut); }
 };
 
 class VideoPreview
@@ -220,15 +223,25 @@ private:
 public:
     VideoPreview(const string& videoPath, const string& configPath) : video{ videoPath }, options{ configPath }
     {
-        // create the frames
-
+        makeFrames();
     }
 
-    //
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        // read in the number of frames to output from `options`
+        int NFrames{ options.getOption("number_of_frames")->getValue() };
+        int frameSampling = totalFrames/NFrames + 1;
+        
+        frames.clear();
+
+        cv::Mat currentFrameMat;
+        for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
+        {
+            video.setFrameNumber(frameNumber);
+            video.writeCurrentFrame(currentFrameMat);
+            Frame currentFrame{ currentFrameMat, frameNumber };
+            frames.push_back(currentFrame);
+        }
     }
 
     void printConfig() { options.print(); }
@@ -241,14 +254,7 @@ int main( int argc, char** argv ) // takes one input argument: the name of the i
 
     VideoPreview vidprev(videoPath, configPath);
     vidprev.printConfig();
-
-    /*ConfigOption o1{ "optionOne" };
-       std::cout << o1.getName() << std::endl;
-       ConfigOption o2{ "optionTwo" };
-       std::cout << o2.getName() << std::endl;
-       ConfigOptionBool o3{ "optionBool", true };
-       std::cout << o3.getName() << std::endl;*/
-
+    vidprev.makeFrames();
 
     return 0;
 }
