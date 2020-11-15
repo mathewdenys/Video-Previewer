@@ -210,7 +210,7 @@ public:
     void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
     int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    void writeCurrentFrame(cv::Mat frameOut) { vc.read(frameOut); }
+    void writeCurrentFrame(cv::Mat& frameOut) { vc.read(frameOut); }
 };
 
 class VideoPreview
@@ -218,7 +218,7 @@ class VideoPreview
 private:
     Video video;
     ConfigParser options;
-    vector<Frame> frames;
+    vector<std::unique_ptr<Frame> > frames;
 
 public:
     VideoPreview(const string& videoPath, const string& configPath) : video{ videoPath }, options{ configPath }
@@ -231,16 +231,19 @@ public:
         int totalFrames = video.numberOfFrames();
         int NFrames{ options.getOption("number_of_frames")->getValue() };
         int frameSampling = totalFrames/NFrames + 1;
-        
-        frames.clear();
 
-        cv::Mat currentFrameMat;
+        frames.clear();
+        int i  = 0;
         for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
         {
+            cv::Mat currentFrameMat;
             video.setFrameNumber(frameNumber);
             video.writeCurrentFrame(currentFrameMat);
-            Frame currentFrame{ currentFrameMat, frameNumber };
-            frames.push_back(currentFrame);
+            frames.push_back(std::make_unique<Frame>(currentFrameMat, frameNumber));
+            i++;
+        }
+    }
+
         }
     }
 
