@@ -81,7 +81,7 @@ int ConfigOption<string>::getValue()
     return -1; // Dummy value for now
 }
 
-// Enumerates the data types that a configuration option may be
+// Enumerates the data types that a configuration option may be. Used in `configParser` to
 enum class OptionType
 {
     undefined = -1,
@@ -90,32 +90,56 @@ enum class OptionType
     string,  // 2
 };
 
+using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
+
 // Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
 class ConfigParser
 {
+public:
+    ConfigParser(const string& pathIn) : configFilePath{ pathIn }
+    {
+        // TODO: Break this code out into a function(s), which the constructor calls
+        // TODO: Implement code that allows for more than one configuration file
+
+        std::ifstream file{ configFilePath };
+        if (!file)
+            std::cerr << configFilePath << " could not be opened\n";
+
+        // TODO: Consider resersving memory for `options`. This could be related to the number of lines in the config file, although not all lines...
+        // TODO: will necessarily correspond to a configuration option. Alternatively, there are probably never going to be a "large" number of...
+        // TODO: config options, so this may not be too necessary
+
+        while (file)
+        {
+            string strInput;
+            std::getline(file, strInput);
+            if (strInput.length() != 0) // Ignore blank lines
+                options.push_back( lineParser(strInput) );
+        }
+    }
+
+    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
+    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
+    // It is up to the caller to verify if nullptr has been returned.
+    config_ptr getOption(string optionID)
+    {
+        for ( auto& option : options)
+        {
+            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
+                return option;
+        }
+        return nullptr;
+    }
+
+    void print()
+    {
+        for ( auto& option : options )
+            option->print();
+    }
+
 private:
     string configFilePath;
-    vector<std::shared_ptr<AbstractConfigOption> > options;
-
-    bool isInt(const string& testString)
-    {
-        int myInt;
-        std::stringstream testStringStream{ testString };
-        if(!(testStringStream >> myInt)) // std::stringstream extraction operator performs casts if it can
-            return false;
-        return true;
-    }
-
-    // Determines the data type of the option value stored in the string `str`
-    // Assumed to be a string by default if nothing else matches
-    OptionType optionTypeIdentifier(const string& str)
-    {
-        if (str == "true" || str == "false")
-            return OptionType::boolean;
-        else if (isInt(str))
-            return OptionType::integer;
-        return OptionType::string;
-    }
+    vector<config_ptr> options;
 
     bool stringToBool(const string& str)
     {
@@ -130,21 +154,42 @@ private:
         return myInt;
     }
 
+    bool isInt(const string& str)
+    {
+        int myInt;
+        std::stringstream ss{ str };
+        if(!(ss >> myInt)) // std::stringstream extraction operator performs casts if it can returns false otherwise
+            return false;
+        return true;
+    }
+
+    // Determines the data type of the option value stored in the string `str`
+    // Assumed to be a string by default if nothing else matches
+    OptionType optionTypeIdentifier(const string& str)
+    {
+        if (str == "true" || str == "false")
+            return OptionType::boolean;
+        else if (isInt(str))
+            return OptionType::integer;
+        else
+            return OptionType::string;
+    }
+
     // Parses a single line of the configuration file and returns a pointer to a ConfigOption
     // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
-    // Assumes each line is formatted as `LHS = RHS`
-    // For now the spaces are mandatory. Eventually I will handle e.g. `LHS=RHS`, and comment lines
-    std::shared_ptr<AbstractConfigOption> lineParser(const string& strIn)
+    // Assumes each line is formatted as `LHS = RHS` (for now the spaces are mandatory)
+    config_ptr lineParser(const string& strIn)
     {
         string key;
         string val;
 
+        // TODO: Make this much more sophisticated. Whitespace should not matter. Comment lines should be ignored etc.
         std::stringstream ss{ strIn };
         ss >> key; // LHS of equals sign
         ss >> val; // The equals sign (will be overritten)
         ss >> val; // RHS of equals sign
 
-        switch(optionTypeIdentifier(val)) { // defaults to string when option type is undefined or string
+        switch(optionTypeIdentifier(val)) {
         case OptionType::boolean:
             return std::make_shared<ConfigOption<bool> >   (key, stringToBool(val));
         case OptionType::integer:
@@ -152,40 +197,6 @@ private:
         default:
             return std::make_shared<ConfigOption<string> > (key, val);
         }
-    }
-
-public:
-    ConfigParser(const string& pathIn) : configFilePath{ pathIn }
-    {
-        std::ifstream file{ configFilePath };
-        if (!file)
-            std::cerr << configFilePath << " could not be opened\n";
-
-        options.reserve(2); // Dummy value for now
-
-        while (file)
-        {
-            string strInput;
-            std::getline(file, strInput);
-            if (strInput.length() != 0) // Ignore blank lines
-                options.push_back( lineParser(strInput) );
-        }
-    }
-
-    std::shared_ptr<AbstractConfigOption> getOption(string optionName) // Think about memory management involved in returning this pointer!!!
-    {
-        for ( auto el : options)
-        {
-            if (el->getName() == optionName) // todo implement error handling in the case that the option doesn't exist
-                return el;
-        }
-        return options[0]; // This case should ever be reached. BAD. Ihave put it here to satisfy the compiler. ADDRESS!
-    }
-
-    void print()
-    {
-        for ( auto el : options )
-            el->print();
     }
 };
 
