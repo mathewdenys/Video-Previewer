@@ -26,41 +26,46 @@
 using std::string;
 using std::vector;
 
-// Abstract base class for storing a single configuration option
+// Abstract base class for storing a single configuration option. One of the the derived `ConfigOption<T>`
+// classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
 class AbstractConfigOption
 {
+public:
+    AbstractConfigOption(const string& id) : optionID{ id } {}
+    virtual int  getValue() = 0;
+    string       getID()   { return optionID; }
+    string       getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
+    void         print()   { std::cout << getName() << ": " << getValue() << '\n'; }
+
 private:
     string optionID;
     const static std::map<string,string> nameMap;
-
-public:
-    AbstractConfigOption(const string& id) : optionID{ id } {}
-    string getID()   { return optionID; }
-    string getName() { return nameMap.at(optionID); } // to do: do error checking
-    void   print()   { std::cout << getName() << ": " << getValue() << '\n'; }
-    virtual int  getValue() = 0;
-    virtual ~AbstractConfigOption() {}
 };
 
-// A map between the optionIDs (as used in the configuration file) and the optionNames (as used when printing)
+// A map between `optionID` strings and a human-readable string explaining the corresponding option. Each
+// `AbstractConfigOption` class has an `optionID`, which uniquely identifies which configuration option it
+// corresponds to. However, when we want to print a list of the configuration options, we need a human-readable
+// version of this. `AbstractConfigOption::nameMap` provides this mapping.
 const std::map<string,string> AbstractConfigOption::nameMap = {
     {"number_of_frames", "Number of frames to show"},
-    {"show_frame_info",  "Show indiviual frame information"}
+    {"show_frame_info",  "Show indiviual frame information"},
+    // Add further entries here as new configuration options are introduced
 };
 
 // Templated class for specific implementations of AbstractConfigOption
-// e.g. ConfigOption<bool> corresponds to a configuration option of data type bool
+//      e.g. ConfigOption<bool> corresponds to a configuration option of data type bool
+// Each class has an `optionValue` of templated type `T`. The member function `getValue()` returns this value as
+// an int (or an enum). By making the return type consistent, `getValue()` could be made a virtual function.
 template <class T>
 class ConfigOption : public AbstractConfigOption
 {
-private:
-    T optionValue;
-
 public:
     ConfigOption(const string& nameIn, const T valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } { }
     void setValue(T valIn) { optionValue = valIn; }
-    int  getValue(); // defined using template specification below
-    virtual ~ConfigOption() {};
+    int  getValue(); // Defined using template specification below
+
+private:
+    T optionValue;
 };
 
 template<>
@@ -72,8 +77,8 @@ int ConfigOption<int>::getValue()  { return optionValue; }
 template<>
 int ConfigOption<string>::getValue()
 {
-    // todo implement enum look up
-    return -1; // dummy value for now
+    // TODO: implement enum look up once I have a "string-type" confiuration option
+    return -1; // Dummy value for now
 }
 
 // Enumerates the data types that a configuration option may be
