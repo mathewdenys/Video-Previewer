@@ -177,26 +177,33 @@ private:
     }
 };
 
+// Data and functions relavant to a single frame of a video
 class Frame
 {
+public:
+    Frame(cv::Mat& dataIn, int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
+    int     getFrameNumber() { return frameNumber; }
+    cv::Mat getData()        { return data; }
+
+    // Export a bitmap (.bmp) of the frame.
+    // The file will be saved in the directeory determined by `exportPath`.
+    // Naming of the individual images is taken care of internally.
+    void exportBitmap(string& exportPath)
+    {
+        string fileName = exportPath + "/frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
+        cv::imwrite(fileName, getData());
+    }
+
 private:
     cv::Mat data;
     int frameNumber;
 
-public:
-    Frame(cv::Mat& dataIn, int frameNumberIn)
-        : data{ dataIn }, frameNumber{ frameNumberIn } {}
-    int getFrameNumber() { return frameNumber; }
-    cv::Mat getData() { return data; }
-
 };
 
-// Wrapper class for a cv::VideoCapture object, with convenient get / set functions
+// Data and functions relevant to a single video file.
+// Essentially a wrapper class for a cv::VideoCapture object
 class Video
 {
-private:
-    cv::VideoCapture vc;
-
 public:
     Video(const string& path) : vc{ path }
     {
@@ -206,18 +213,18 @@ public:
     void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
     int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    void writeCurrentFrame(cv::Mat& frameOut) { vc.read(frameOut); }
+    void writeCurrentFrame(cv::Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `cv::Mat` corresponding to the currently selected frame
+
+private:
+    cv::VideoCapture vc;
 };
 
+// The main class associated with previewing a single video. `VideoPreview` has three core components:
+//      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
+//      2. `frames`:  a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
+//      3. `options`: a `ConfigParser`.            Deals with any options supplied by configuration files
 class VideoPreview
 {
-private:
-    string videoPath;
-    string configPath;
-    Video video;
-    ConfigParser options;
-    vector<std::unique_ptr<Frame> > frames;
-
 public:
     VideoPreview(const string& videoPathIn, const string& configPathIn)
         : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }, options{ configPathIn }
@@ -225,6 +232,7 @@ public:
         makeFrames();
     }
 
+    // Reads in appropriate configuration options and writes over the `frames` vector
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
@@ -243,19 +251,25 @@ public:
         }
     }
 
+    // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
-        // todo parse videoPath and create a specific directory (e.g. the file "sunrise.mp4" gets the directory ".videopreview/sunrise/"
+        // TODO: parse videoPath and create a specific directory (e.g. the file "sunrise.mp4" gets the directory ".videopreview/sunrise/")
+        // TODO: Make the exportPath a member of VideoPreview objects
         system("mkdir media/.videopreview");
-
+        string exportPath = "media/.videopreview";
         for (auto& frame : frames)
-        {
-            string filename = "media/.videopreview/frame" + std::to_string(frame->getFrameNumber()+1) +".bmp";
-            cv::imwrite(filename, frame->getData());
-        }
+            frame->exportBitmap(exportPath);
     }
 
     void printConfig() { options.print(); }
+
+private:
+    string videoPath;
+    string configPath;
+    Video video;
+    ConfigParser options;
+    vector<std::unique_ptr<Frame> > frames;
 };
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
