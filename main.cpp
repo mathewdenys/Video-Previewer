@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <sys/stat.h> // for mkdir
 
 #if defined(__has_warning)
 #if __has_warning("-Wreserved-id-macro")
@@ -192,6 +193,8 @@ private:
 public:
     Frame(cv::Mat& dataIn, int frameNumberIn)
         : data{ dataIn }, frameNumber{ frameNumberIn } {}
+    int getFrameNumber() { return frameNumber; }
+    cv::Mat getData() { return data; }
 
 };
 
@@ -216,12 +219,15 @@ public:
 class VideoPreview
 {
 private:
+    string videoPath;
+    string configPath;
     Video video;
     ConfigParser options;
     vector<std::unique_ptr<Frame> > frames;
 
 public:
-    VideoPreview(const string& videoPath, const string& configPath) : video{ videoPath }, options{ configPath }
+    VideoPreview(const string& videoPathIn, const string& configPathIn)
+        : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }, options{ configPathIn }
     {
         makeFrames();
     }
@@ -244,6 +250,15 @@ public:
         }
     }
 
+    void exportFrames()
+    {
+        // todo parse videoPath and create a specific directory (e.g. the file "sunrise.mp4" gets the directory ".videopreview/sunrise/"
+        system("mkdir media/.videopreview");
+
+        for (auto& frame : frames)
+        {
+            string filename = "media/.videopreview/frame" + std::to_string(frame->getFrameNumber()+1) +".bmp";
+            cv::imwrite(filename, frame->getData());
         }
     }
 
@@ -257,7 +272,7 @@ int main( int argc, char** argv ) // takes one input argument: the name of the i
 
     VideoPreview vidprev(videoPath, configPath);
     vidprev.printConfig();
-    vidprev.makeFrames();
+    vidprev.exportFrames();
 
     return 0;
 }
