@@ -13,7 +13,7 @@
 #endif
 #endif
 
-#include <opencv2/core/mat.hpp>  // for basic OpenCV structures (cv::Mat, Scalar)
+#include <opencv2/core/mat.hpp>  // for basic OpenCV structures (Mat, Scalar)
 #include <opencv2/imgcodecs.hpp> // for reading and writing
 #include <opencv2/videoio.hpp>
 
@@ -25,6 +25,7 @@
 
 using std::string;
 using std::vector;
+using cv::Mat;
 
 // Abstract base class for storing a single configuration option. One of the the derived `ConfigOption<T>`
 // classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
@@ -181,9 +182,9 @@ private:
 class Frame
 {
 public:
-    Frame(cv::Mat& dataIn, int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
-    int     getFrameNumber() { return frameNumber; }
-    cv::Mat getData()        { return data; }
+    Frame(Mat& dataIn, int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
+    int getFrameNumber() { return frameNumber; }
+    Mat getData()        { return data; }
 
     // Export a bitmap (.bmp) of the frame.
     // The file will be saved in the directeory determined by `exportPath`.
@@ -195,7 +196,7 @@ public:
     }
 
 private:
-    cv::Mat data;
+    Mat data;
     int frameNumber;
 
 };
@@ -213,7 +214,7 @@ public:
     void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
     int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    void writeCurrentFrame(cv::Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `cv::Mat` corresponding to the currently selected frame
+    void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
 private:
     cv::VideoCapture vc;
@@ -243,7 +244,7 @@ public:
         int i  = 0;
         for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
         {
-            cv::Mat currentFrameMat;
+            Mat currentFrameMat;
             video.setFrameNumber(frameNumber);
             video.writeCurrentFrame(currentFrameMat);
             frames.push_back(std::make_unique<Frame>(currentFrameMat, frameNumber));
