@@ -169,11 +169,11 @@ private:
         ss >> val; // RHS of equals sign
 
         if (val == "true" || val == "false")
-            return std::make_shared<ConfigOption<bool> >   (key, stringToBool(val));
-        else if (isInt(val))
-            return std::make_shared<ConfigOption<int> >    (key, stringToInt(val));
-        else
-            return std::make_shared<ConfigOption<string> > (key, val);
+            return std::make_shared<ConfigOption<bool> > (key, stringToBool(val));
+        if (isInt(val))
+            return std::make_shared<ConfigOption<int> >  (key, stringToInt(val));
+
+        return std::make_shared<ConfigOption<string> > (key, val);
     }
 };
 
