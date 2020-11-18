@@ -100,17 +100,19 @@ public:
         else if ( getValue()->getString().first )
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
+    
+    using NameMap = std::map<string,string>;
 
 private:
     string optionID;
-    const static std::map<string,string> nameMap;
+    const static NameMap nameMap;
 };
 
 // A map between `optionID` strings and a human-readable string explaining the corresponding option. Each
 // `AbstractConfigOption` class has an `optionID`, which uniquely identifies which configuration option it
 // corresponds to. However, when we want to print a list of the configuration options, we need a human-readable
 // version of this. `AbstractConfigOption::nameMap` provides this mapping.
-const std::map<string,string> AbstractConfigOption::nameMap = {
+const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
     {"number_of_frames", "Number of frames to show"},
     {"show_frame_info",  "Show indiviual frame information"},
     // Add further entries here as new configuration options are introduced
