@@ -3,6 +3,7 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include <utility>    // for std::pair
 #include <map>
 #include <sys/stat.h> // for mkdir
 
@@ -25,7 +26,61 @@
 
 using std::string;
 using std::vector;
+using std::pair;
 using cv::Mat;
+
+// Base class for storing a configuration value. Can store the value as either a bool, int, or string (and
+// this can be expanded as needed). ConfigValue itself should not be used, but rather its derived classes.
+// The "get" functions return a pair in which the first element holds a boolean which indicates if that given
+// data type is being used, and the second element holds the value itself. it is up to the caller to verify
+// that the data type is what they were expecting.
+class ConfigValue
+{
+public:
+    virtual pair<bool,bool>   getBool()   { return {false, false}; }
+    virtual pair<bool,int>    getInt()    { return {false, 0}; }
+    virtual pair<bool,string> getString() { return {false, ""}; }
+    friend std::ostream& operator<<(std::ostream& os, ConfigValue& acv);
+};
+
+std::ostream& operator<<(std::ostream& os, ConfigValue& acv)
+{
+    if( acv.getBool().first )
+        os << acv.getBool().second;
+    else if( acv.getInt().first )
+        os << acv.getInt().second;
+    else if( acv.getString().first )
+        os << acv.getString().second;
+    return os;
+}
+
+class BoolConfigValue : public ConfigValue
+{
+public:
+    BoolConfigValue(bool valIn) : value{ valIn } {}
+    pair<bool,bool> getBool() override { return {true, value}; }
+private:
+    bool value;
+};
+
+class IntConfigValue : public ConfigValue
+{
+public:
+    IntConfigValue(int valIn) : value{ valIn } {}
+    pair<bool,int> getInt() override { return {true, value}; }
+private:
+    int value;
+};
+
+class StringConfigValue : public ConfigValue
+{
+public:
+    StringConfigValue(string valIn) : value{ valIn } {}
+    pair<bool,string> getString() override { return {true, value}; }
+private:
+    string value;
+};
+
 
 // Abstract base class for storing a single configuration option. One of the the derived `ConfigOption<T>`
 // classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
@@ -33,10 +88,18 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
-    virtual int  getValue() = 0;
-    string       getID()   { return optionID; }
-    string       getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
-    void         print()   { std::cout << getName() << ": " << getValue() << '\n'; }
+    virtual ConfigValue* getValue() = 0;
+    string  getID()   { return optionID; }
+    string  getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
+    void    print()
+    {
+        if ( getValue()->getBool().first )
+            std::cout << getName() << ": " << getValue()->getBool().second << '\n';
+        else if ( getValue()->getInt().first )
+            std::cout << getName() << ": " << getValue()->getInt().second << '\n';
+        else if ( getValue()->getString().first )
+            std::cout << getName() << ": " << getValue()->getString().second << '\n';
+    }
 
 private:
     string optionID;
@@ -53,34 +116,41 @@ const std::map<string,string> AbstractConfigOption::nameMap = {
     // Add further entries here as new configuration options are introduced
 };
 
-// Templated class for specific implementations of AbstractConfigOption
-//      e.g. ConfigOption<bool> corresponds to a configuration option of data type bool
-// Each class has an `optionValue` of templated type `T`. The member function `getValue()` returns this value as
-// an int (or an enum). By making the return type consistent, `getValue()` could be made a virtual function.
-template <class T>
-class ConfigOption : public AbstractConfigOption
+// Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
+// configuration option is stored as. // TODO: revist class templating here
+class BoolConfigOption : public AbstractConfigOption
 {
 public:
-    ConfigOption(const string& nameIn, const T valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } { }
-    void setValue(T valIn) { optionValue = valIn; }
-    int  getValue(); // Defined using template specification below
-
+    BoolConfigOption(const string& nameIn, const bool valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
+    void setValue(const bool valIn) { optionValue = BoolConfigValue{ valIn }; }
+    virtual ConfigValue* getValue() override { return new BoolConfigValue{optionValue.getBool().second}; }
+    
 private:
-    T optionValue;
+    BoolConfigValue optionValue;
 };
 
-template<>
-int ConfigOption<bool>::getValue() { return int(optionValue); }
-
-template<>
-int ConfigOption<int>::getValue()  { return optionValue; }
-
-template<>
-int ConfigOption<string>::getValue()
+class IntConfigOption : public AbstractConfigOption
 {
-    // TODO: implement enum look up once I have a "string-type" confiuration option
-    return -1; // Dummy value for now
-}
+public:
+    IntConfigOption(const string& nameIn, const int valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
+    void setValue(const int valIn) { optionValue = IntConfigValue{ valIn }; }
+    virtual ConfigValue* getValue() override { return new IntConfigValue{optionValue.getInt().second}; }
+    
+private:
+    IntConfigValue optionValue;
+};
+
+class StringConfigOption : public AbstractConfigOption
+{
+public:
+    StringConfigOption(const string& nameIn, const string valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
+    void setValue(const string valIn) { optionValue = StringConfigValue{ valIn }; }
+    virtual ConfigValue* getValue() override { return new StringConfigValue{optionValue.getString().second}; }
+    
+private:
+    StringConfigValue optionValue;
+};
+
 
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
@@ -170,11 +240,11 @@ private:
         ss >> val; // RHS of equals sign
 
         if (val == "true" || val == "false")
-            return std::make_shared<ConfigOption<bool> > (key, stringToBool(val));
+            return std::make_shared<BoolConfigOption>   (key, stringToBool(val));
         if (isInt(val))
-            return std::make_shared<ConfigOption<int> >  (key, stringToInt(val));
+            return std::make_shared<IntConfigOption>    (key, stringToInt(val));
 
-        return std::make_shared<ConfigOption<string> > (key, val);
+        return     std::make_shared<StringConfigOption> (key, val);
     }
 };
 
@@ -237,7 +307,7 @@ public:
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        int NFrames{ options.getOption("number_of_frames")->getValue() };
+        int NFrames{ options.getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
         int frameSampling = totalFrames/NFrames + 1;
 
         frames.clear();
@@ -275,12 +345,19 @@ private:
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
 {
+    std::cout << "test\n";
+    StringConfigValue temp{"here"};
+    std::cout << "Bool: " << temp.getBool().first << '\t' << temp.getBool().second << std::endl;
+    std::cout << "Int: " << temp.getInt().first << '\t' << temp.getInt().second << std::endl;
+    std::cout << "String: " << temp.getString().first << '\t' << temp.getString().second << std::endl;
+
+    
     string videoPath{ "media/sunrise.mp4" };
     string configPath{ "media/.videopreviewconfig" };
 
     VideoPreview vidprev(videoPath, configPath);
     vidprev.printConfig();
     vidprev.exportFrames();
-
+    
     return 0;
 }
