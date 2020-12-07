@@ -181,13 +181,14 @@ private:
 };
 
 
+
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
 // Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
-class ConfigParser
+class ConfigFileParser
 {
 public:
-    ConfigParser(const string& pathIn) : configFilePath{ pathIn }
+    ConfigFileParser(const string& pathIn) : configFilePath{ pathIn }
     {
         // TODO: Break this code out into a function(s), which the constructor calls
         // TODO: Implement code that allows for more than one configuration file
@@ -273,9 +274,12 @@ private:
         if (isInt(val))
             return std::make_shared<IntConfigOption>    (key, stringToInt(val));
 
-        return     std::make_shared<StringConfigOption> (key, val);
+        return std::make_shared<StringConfigOption> (key, val);
     }
 };
+
+
+
 
 // Data and functions relavant to a single frame of a video
 class Frame
@@ -322,7 +326,7 @@ private:
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
 //      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
 //      2. `frames`:  a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
-//      3. `options`: a `ConfigParser`.            Deals with any options supplied by configuration files
+//      3. `options`: a `ConfigFileParser`.        Deals with any options supplied by configuration files
 class VideoPreview
 {
 public:
@@ -368,7 +372,7 @@ private:
     string videoPath;
     string configPath;
     Video video;
-    ConfigParser options;
+    ConfigFileParser options;
     vector<std::unique_ptr<Frame> > frames;
 };
 
