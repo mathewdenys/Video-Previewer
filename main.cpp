@@ -235,10 +235,8 @@ public:
     config_ptr getOption(string optionID)
     {
         for ( auto& option : options)
-        {
             if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
                 return option;
-        }
         return nullptr;
     }
 
@@ -330,6 +328,8 @@ public:
         validateOptions(parserLocal);
         validateOptions(parserUser);
         validateOptions(parserGlobal);
+
+        mergeOptions();
     }
 
 
@@ -338,6 +338,7 @@ private:
     ConfigFileParser parserLocal;
     ConfigFileParser parserUser;
     ConfigFileParser parserGlobal;
+    vector<config_ptr> options;
 
     // Validate the option IDs for each option in a single `ConfigFileParser`
     // TODO: validate the data type as well
@@ -347,6 +348,26 @@ private:
         for (auto option : options)
             if (!option->verifyID())
                 std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << parser.getFilePath() << "\"\n";
+    }
+
+    // Merge the options vectors from each parser into a single vector
+    // For now I naively prioritise any option in the local configuration file, then the user options, then global options
+    // TODO: use more "complicated" inheritance priorities for the configuration options
+    void mergeOptions()
+    {
+        options = parserLocal.getOptions();
+        for (auto userOption : parserUser.getOptions()) // Add any "user" options that aren't specified in the "local" options
+        {
+            string id{ userOption->getID() };
+            if (parserLocal.getOption(id) == nullptr)
+                options.push_back(parserUser.getOption(id));
+        }
+        for (auto globalOption : parserGlobal.getOptions()) // Add any "global" options that aren't specified in either the "local" or "user" options
+        {
+            string id{ globalOption->getID() };
+            if (parserLocal.getOption(id) == nullptr && parserUser.getOption(id) == nullptr)
+                options.push_back(parserGlobal.getOption(id));
+        }
     }
 };
 
