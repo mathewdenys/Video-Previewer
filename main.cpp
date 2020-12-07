@@ -249,12 +249,6 @@ public:
 
     string getFilePath() { return configFilePath; }
 
-    void print()
-    {
-        for ( auto& option : options )
-            option->print();
-    }
-
 private:
     string configFilePath;
     vector<config_ptr> options;
