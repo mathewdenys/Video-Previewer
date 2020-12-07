@@ -190,12 +190,19 @@ class ConfigFileParser
 public:
     ConfigFileParser(const string& pathIn) : configFilePath{ pathIn }
     {
-        // TODO: Break this code out into a function(s), which the constructor calls
-        // TODO: Implement code that allows for more than one configuration file
+        parseFile();
+    }
 
+    void parseFile()
+    {
         std::ifstream file{ configFilePath };
         if (!file)
+        {
             std::cerr << configFilePath << " could not be opened\n";
+            return; // leave `options` vector empty
+        }
+
+        options.clear();
 
         // TODO: Consider resersving memory for `options`. This could be related to the number of lines in the config file, although not all lines...
         // TODO: will necessarily correspond to a configuration option. Alternatively, there are probably never going to be a "large" number of...
