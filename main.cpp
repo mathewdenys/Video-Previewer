@@ -201,6 +201,7 @@ public:
     ConfigFileParser(const string& pathIn) : configFilePath{ pathIn }
     {
         parseFile();
+        validateOptions();
     }
 
     void parseFile()
@@ -310,13 +311,21 @@ private:
 
         return std::make_shared<StringConfigOption> (key, val);
     }
+
+    // Validate the option IDs for each option stored in the `options` vector
+    // TODO: validate the data type as well
+    void validateOptions()
+    {
+        for (auto option : options)
+            if (!option->verifyID())
+                std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+    }
 };
 
 
-// Container class for holding configuration options. Has three main purposes
+// Container class for holding configuration options. Has two main purposes
 //      1. Holding `ConfigFileParser` objects for each configuration file (local, user, global)
 //      2. Combining the multiple configuration files into a single set of configuration options
-//      3. Checking the validity of the options (i.e. are the options ids recognised?) and their data types
 class ConfigOptionsContainer
 {
 public:
@@ -325,10 +334,6 @@ public:
         parserUser  { homeDirectory + "/.videopreviewconfig" },
         parserGlobal{ "/etc/videopreviewconfig" }
     {
-        validateOptions(parserLocal);
-        validateOptions(parserUser);
-        validateOptions(parserGlobal);
-
         mergeOptions();
     }
 
@@ -356,16 +361,6 @@ private:
     ConfigFileParser parserUser;
     ConfigFileParser parserGlobal;
     vector<config_ptr> options;
-
-    // Validate the option IDs for each option in a single `ConfigFileParser`
-    // TODO: validate the data type as well
-    void validateOptions(ConfigFileParser& parser)
-    {
-        vector<config_ptr> options = parser.getOptions();
-        for (auto option : options)
-            if (!option->verifyID())
-                std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << parser.getFilePath() << "\"\n";
-    }
 
     // Merge the options vectors from each parser into a single vector
     // For now I naively prioritise any option in the local configuration file, then the user options, then global options
