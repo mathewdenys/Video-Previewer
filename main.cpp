@@ -6,6 +6,7 @@
 #include <utility>    // for std::pair
 #include <map>
 #include <sys/stat.h> // for mkdir
+#include <cstdlib>    // for std::getenv
 
 #if defined(__has_warning)
 #if __has_warning("-Wreserved-id-macro")
@@ -296,6 +297,27 @@ private:
     }
 };
 
+
+// Container class for holding configuration options. Has three main purposes
+//      1. Holding `ConfigFileParser` objects for each configuration file (local, user, global)
+//      2. Combining the multiple configuration files into a single set of configuration options
+//      3. Checking the validity of the options (i.e. are the options ids recognised?) and their data types
+class ConfigOptionsContainer
+{
+public:
+    ConfigOptionsContainer() :
+        optionsLocal { "media/.videopreviewconfig" }, // TODO: don't hard code
+        optionsUser  { homeDirectory + "/.videopreviewconfig" },
+        optionsGlobal{ "/etc/videopreviewconfig" }
+    {}
+
+
+private:
+    string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
+    ConfigFileParser optionsLocal;
+    ConfigFileParser optionsUser;
+    ConfigFileParser optionsGlobal;
+};
 
 
 
