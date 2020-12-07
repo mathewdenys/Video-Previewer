@@ -316,9 +316,19 @@ private:
     // TODO: validate the data type as well
     void validateOptions()
     {
+        int index = 0;
+        vector<int> invalidIndices;
         for (auto option : options)
+        {
             if (!option->verifyID())
+            {
                 std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+                invalidIndices.push_back(index);
+            }
+            ++index;
+        }
+        for (auto index : invalidIndices)
+            options.erase(options.begin()+index); // Remove invalid options from the `options` vector
     }
 };
 
