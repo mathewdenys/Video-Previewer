@@ -205,8 +205,10 @@ public:
         {
             string strInput;
             std::getline(file, strInput);
-            if (strInput.length() != 0) // Ignore blank lines
-                options.push_back( lineParser(strInput) );
+            std::stringstream ss{ strInput };
+            ss >> std::ws; // remove leading white space
+            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
+                options.push_back( lineParser(ss) );
         }
     }
 
@@ -257,17 +259,26 @@ private:
 
     // Parses a single line of the configuration file and returns a pointer to a ConfigOption
     // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
-    // Assumes each line is formatted as `LHS = RHS` (for now the spaces are mandatory)
-    config_ptr lineParser(const string& strIn)
+    // Assumes each line is formatted as `key = val`; all white space is ignored; does not handle comment lines
+    config_ptr lineParser(std::stringstream& ss)
     {
         string key;
         string val;
 
-        // TODO: Make this much more sophisticated. Whitespace should not matter. Comment lines should be ignored etc.
-        std::stringstream ss{ strIn };
-        ss >> key; // LHS of equals sign
-        ss >> val; // The equals sign (will be overritten)
-        ss >> val; // RHS of equals sign
+        char c;
+        bool reachedEqualsSign = false;
+        while (ss.get(c))
+        {
+            if (c == '#') // ignore comments
+                break;
+            if (c == '=') // switch from writing to `key` to `val` when of RHS of equals sign
+                reachedEqualsSign = true;
+            else if (!reachedEqualsSign)
+                key.push_back(c);
+            else
+                val.push_back(c);
+            ss >> std::ws; // always remove any following white space
+        }
 
         if (val == "true" || val == "false")
             return std::make_shared<BoolConfigOption>   (key, stringToBool(val));
