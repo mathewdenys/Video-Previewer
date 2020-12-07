@@ -194,6 +194,38 @@ private:
 
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
+// Container class for a std::vector of config_ptrs, with helper functions
+class ConfigOptionsVector
+{
+public:
+    ConfigOptionsVector(vector<config_ptr> optionsIn ) : options{ optionsIn } {}
+    ConfigOptionsVector() {}
+
+    void push_back(config_ptr option)  { options.push_back(option); }
+    void clear() { options.clear(); }
+    void removeInvalidOption(int index) { options.erase(options.begin()+index); }
+
+    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
+    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
+    // It is up to the caller to verify if nullptr has been returned.
+    config_ptr getOption(const string optionID) const
+    {
+        for ( auto& option : options)
+            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
+                return option;
+        return nullptr;
+    }
+
+    // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
+    vector<config_ptr>::iterator begin(){ return options.begin(); }
+    vector<config_ptr>::iterator end()  { return options.end();   }
+    vector<config_ptr>::const_iterator begin() const { return options.begin(); }
+    vector<config_ptr>::const_iterator end()   const { return options.end();   }
+
+private:
+    vector<config_ptr> options;
+};
+
 // Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
 class ConfigFileParser
 {
@@ -230,19 +262,8 @@ public:
         }
     }
 
-    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
-    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
-    // It is up to the caller to verify if nullptr has been returned.
-    config_ptr getOption(string optionID)
-    {
-        for ( auto& option : options)
-            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
-                return option;
-        return nullptr;
-    }
-
     // Return a const reference to the `options` vector
-    const vector<config_ptr>& getOptions()
+    const ConfigOptionsVector& getOptions()
     {
         return options;
     }
@@ -251,7 +272,7 @@ public:
 
 private:
     string configFilePath;
-    vector<config_ptr> options;
+    ConfigOptionsVector options;
 
     bool stringToBool(const string& str)
     {
@@ -322,7 +343,7 @@ private:
             ++index;
         }
         for (auto index : invalidIndices)
-            options.erase(options.begin()+index); // Remove invalid options from the `options` vector
+            options.removeInvalidOption(index); // Remove invalid options from the `options` vector
     }
 };
 
@@ -340,16 +361,11 @@ public:
     {
         mergeOptions();
     }
-
-    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
-    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
-    // It is up to the caller to verify if nullptr has been returned.
-    config_ptr getOption(string optionID)
+    
+    // Return a const reference to the `options` vector
+    const ConfigOptionsVector& getOptions()
     {
-        for ( auto& option : options)
-            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
-                return option;
-        return nullptr;
+        return options;
     }
 
     void print()
@@ -364,7 +380,7 @@ private:
     ConfigFileParser parserLocal;
     ConfigFileParser parserUser;
     ConfigFileParser parserGlobal;
-    vector<config_ptr> options;
+    ConfigOptionsVector options;
 
     // Merge the options vectors from each parser into a single vector
     // For now I naively prioritise any option in the local configuration file, then the user options, then global options
@@ -375,14 +391,14 @@ private:
         for (auto userOption : parserUser.getOptions()) // Add any "user" options that aren't specified in the "local" options
         {
             string id{ userOption->getID() };
-            if (parserLocal.getOption(id) == nullptr)
-                options.push_back(parserUser.getOption(id));
+            if (parserLocal.getOptions().getOption(id) == nullptr)
+                options.push_back(parserUser.getOptions().getOption(id));
         }
         for (auto globalOption : parserGlobal.getOptions()) // Add any "global" options that aren't specified in either the "local" or "user" options
         {
             string id{ globalOption->getID() };
-            if (parserLocal.getOption(id) == nullptr && parserUser.getOption(id) == nullptr)
-                options.push_back(parserGlobal.getOption(id));
+            if (parserLocal.getOptions().getOption(id) == nullptr && parserUser.getOptions().getOption(id) == nullptr)
+                options.push_back(parserGlobal.getOptions().getOption(id));
         }
     }
 };
@@ -448,7 +464,7 @@ public:
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        int NFrames{ options.getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
+        int NFrames{ options.getOptions().getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
         int frameSampling = totalFrames/NFrames + 1;
 
         frames.clear();
