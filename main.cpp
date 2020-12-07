@@ -37,9 +37,10 @@ using cv::Mat;
 class ConfigValue
 {
 public:
-    virtual pair<bool,bool>   getBool()   { return {false, false}; }
-    virtual pair<bool,int>    getInt()    { return {false, 0}; }
-    virtual pair<bool,string> getString() { return {false, ""}; }
+    // const functions allow `ConfigValue` objects (and derived classes) to be returned by const pointer
+    virtual pair<bool,bool>   getBool()   const { return {false, false}; }
+    virtual pair<bool,int>    getInt()    const { return {false, 0}; }
+    virtual pair<bool,string> getString() const { return {false, ""}; }
     friend std::ostream& operator<<(std::ostream& os, ConfigValue& acv);
 };
 
@@ -58,7 +59,7 @@ class BoolConfigValue : public ConfigValue
 {
 public:
     BoolConfigValue(bool valIn) : value{ valIn } {}
-    pair<bool,bool> getBool() override { return {true, value}; }
+    pair<bool,bool> getBool() const override { return {true, value}; }
 private:
     bool value;
 };
@@ -67,7 +68,7 @@ class IntConfigValue : public ConfigValue
 {
 public:
     IntConfigValue(int valIn) : value{ valIn } {}
-    pair<bool,int> getInt() override { return {true, value}; }
+    pair<bool,int> getInt() const override { return {true, value}; }
 private:
     int value;
 };
@@ -76,7 +77,7 @@ class StringConfigValue : public ConfigValue
 {
 public:
     StringConfigValue(string valIn) : value{ valIn } {}
-    pair<bool,string> getString() override { return {true, value}; }
+    pair<bool,string> getString() const override { return {true, value}; }
 private:
     string value;
 };
@@ -88,7 +89,7 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
-    virtual ConfigValue* getValue() = 0;
+    virtual const ConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     string  getID()   { return optionID; }
     string  getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
     void    print()
@@ -100,7 +101,8 @@ public:
         else if ( getValue()->getString().first )
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
-    
+    virtual ~AbstractConfigOption() {};
+
     using NameMap = std::map<string,string>;
 
 private:
@@ -123,34 +125,59 @@ const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
 class BoolConfigOption : public AbstractConfigOption
 {
 public:
-    BoolConfigOption(const string& nameIn, const bool valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
-    void setValue(const bool valIn) { optionValue = BoolConfigValue{ valIn }; }
-    virtual ConfigValue* getValue() override { return new BoolConfigValue{optionValue.getBool().second}; }
-    
+    BoolConfigOption(const string& nameIn, const bool valIn) :
+        AbstractConfigOption{ nameIn },
+        optionValue{ new BoolConfigValue{ valIn } } {}
+
+    void setValue(const bool valIn)
+    {
+        delete optionValue;
+        optionValue = new BoolConfigValue{ valIn };
+    }
+    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual ~BoolConfigOption() override { delete optionValue;}
+
 private:
-    BoolConfigValue optionValue;
+    BoolConfigValue* optionValue;
 };
 
 class IntConfigOption : public AbstractConfigOption
 {
 public:
-    IntConfigOption(const string& nameIn, const int valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
-    void setValue(const int valIn) { optionValue = IntConfigValue{ valIn }; }
-    virtual ConfigValue* getValue() override { return new IntConfigValue{optionValue.getInt().second}; }
-    
+    IntConfigOption(const string& nameIn, const int valIn) :
+        AbstractConfigOption{ nameIn },
+        optionValue{ new IntConfigValue{ valIn } } {}
+
+    void setValue(const int valIn)
+    {
+        delete optionValue;
+        optionValue = new IntConfigValue{ valIn };
+
+    }
+    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual ~IntConfigOption() override { delete optionValue; }
+
 private:
-    IntConfigValue optionValue;
+    IntConfigValue* optionValue;
 };
 
 class StringConfigOption : public AbstractConfigOption
 {
 public:
-    StringConfigOption(const string& nameIn, const string valIn) : AbstractConfigOption{ nameIn }, optionValue{ valIn } {}
-    void setValue(const string valIn) { optionValue = StringConfigValue{ valIn }; }
-    virtual ConfigValue* getValue() override { return new StringConfigValue{optionValue.getString().second}; }
-    
+    StringConfigOption(const string& nameIn, const string valIn) :
+        AbstractConfigOption{ nameIn },
+        optionValue{ new StringConfigValue{ valIn } } {}
+
+    void setValue(const string valIn)
+    {
+        delete optionValue;
+        optionValue = new StringConfigValue{ valIn };
+    }
+    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual ~StringConfigOption() override { delete optionValue; }
+
 private:
-    StringConfigValue optionValue;
+    StringConfigValue* optionValue;
 };
 
 
@@ -347,19 +374,12 @@ private:
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
 {
-    std::cout << "test\n";
-    StringConfigValue temp{"here"};
-    std::cout << "Bool: " << temp.getBool().first << '\t' << temp.getBool().second << std::endl;
-    std::cout << "Int: " << temp.getInt().first << '\t' << temp.getInt().second << std::endl;
-    std::cout << "String: " << temp.getString().first << '\t' << temp.getString().second << std::endl;
-
-    
     string videoPath{ "media/sunrise.mp4" };
     string configPath{ "media/.videopreviewconfig" };
 
     VideoPreview vidprev(videoPath, configPath);
     vidprev.printConfig();
     vidprev.exportFrames();
-    
+
     return 0;
 }
