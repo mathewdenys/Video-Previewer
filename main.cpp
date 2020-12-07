@@ -332,6 +332,23 @@ public:
         mergeOptions();
     }
 
+    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
+    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
+    // It is up to the caller to verify if nullptr has been returned.
+    config_ptr getOption(string optionID)
+    {
+        for ( auto& option : options)
+            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
+                return option;
+        return nullptr;
+    }
+
+    void print()
+    {
+        for ( auto& option : options )
+            option->print();
+    }
+
 
 private:
     string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
@@ -418,12 +435,12 @@ private:
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
 //      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
 //      2. `frames`:  a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
-//      3. `options`: a `ConfigFileParser`.        Deals with any options supplied by configuration files
+//      3. `options`: a `ConfigOptionsContainer`.  Deals with any options supplied by configuration files
 class VideoPreview
 {
 public:
     VideoPreview(const string& videoPathIn, const string& configPathIn)
-        : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }, options{ configPathIn }
+        : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }
     {
         makeFrames();
     }
@@ -464,7 +481,7 @@ private:
     string videoPath;
     string configPath;
     Video video;
-    ConfigFileParser options;
+    ConfigOptionsContainer options;
     vector<std::unique_ptr<Frame> > frames;
 };
 
