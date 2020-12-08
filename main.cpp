@@ -228,7 +228,10 @@ public:
 
     void push_back(config_ptr option)  { options.push_back(option); }
     void clear() { options.clear(); }
-    void removeInvalidOption(int index) { options.erase(options.begin()+index); }
+
+    using iterator = vector<config_ptr>::iterator;
+    void erase(iterator i) { options.erase(i); }
+    void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
 
     // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
@@ -355,24 +358,34 @@ private:
     // Validate the option IDs and data types for each option stored in the `options` vector
     void validateOptions()
     {
-        int index = 0;
-        vector<int> invalidIndices;
-        for (auto option : options)
+        auto isValidID
         {
-            if (!option->verifyID())
+            [this](config_ptr option) // capture `this` for getFilePath()
             {
-                std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
-                invalidIndices.push_back(index);
+                if (!option->verifyID())
+                {
+                    std::cerr << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+                    return true;
+                }
+                return false;
             }
-            else if (!option->validDataType())
+        };
+
+        auto isValidDataType
+        {
+            [this](config_ptr option) // capture `this` for getFilePath()
             {
-                std::cout << "Ignoring option with invalid value \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n"; // TODO: output the invalid value, and why it is invalid
-                invalidIndices.push_back(index);
+                if (!option->validDataType())
+                {
+                    std::cerr << "Ignoring option with invalid value \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";     // TODO: output the invalid value, and why it is invalid
+                    return true;
+                }
+                return false;
             }
-            ++index;
-        }
-        for (auto index : invalidIndices)
-            options.removeInvalidOption(index); // Remove invalid options from the `options` vector
+        };
+
+        options.erase( std::remove_if(options.begin(), options.end(), isValidID),       options.end() );
+        options.erase( std::remove_if(options.begin(), options.end(), isValidDataType), options.end() );
     }
 };
 
