@@ -499,11 +499,18 @@ private:
     vector<std::unique_ptr<Frame> > frames;
 };
 
-int main( int argc, char** argv ) // takes one input argument: the name of the input video file
+int main( int argc, char** argv ) // Accepts one input argument: the name of the input video file
 {
-    string videoPath{ "media/sunrise.mp4" };
+    if (argc < 2)
+    {
+        std::cout << "Not enough arguments: expected a file path. Aborting.\n";
+        return 1;
+    }
 
-    VideoPreview vidprev(videoPath);
+    if (argc > 2)
+        std::cerr << "Ignoring additional arguments.\n";
+
+    VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
     vidprev.printConfig();
     vidprev.exportFrames();
 
