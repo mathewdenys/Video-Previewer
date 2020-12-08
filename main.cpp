@@ -102,6 +102,14 @@ public:
         else if ( getValue()->getString().first )
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
+    bool verifyID()
+    {
+        bool validID = false;
+        for (auto el : nameMap)
+            if (el.first == optionID)
+                validID = true;
+        return validID;
+    }
     virtual ~AbstractConfigOption() {};
 
     using NameMap = std::map<string,string>;
@@ -115,6 +123,7 @@ private:
 // `AbstractConfigOption` class has an `optionID`, which uniquely identifies which configuration option it
 // corresponds to. However, when we want to print a list of the configuration options, we need a human-readable
 // version of this. `AbstractConfigOption::nameMap` provides this mapping.
+// The `first` elements also provide a look up of all the valid option IDs that the program recognises.
 const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
     {"number_of_frames", "Number of frames to show"},
     {"show_frame_info",  "Show indiviual frame information"},
@@ -233,6 +242,14 @@ public:
         return nullptr;
     }
 
+    // Return a const reference to the `options` vector
+    const vector<config_ptr>& getOptions()
+    {
+        return options;
+    }
+
+    string getFilePath() { return configFilePath; }
+
     void print()
     {
         for ( auto& option : options )
@@ -306,17 +323,31 @@ class ConfigOptionsContainer
 {
 public:
     ConfigOptionsContainer() :
-        optionsLocal { "media/.videopreviewconfig" }, // TODO: don't hard code
-        optionsUser  { homeDirectory + "/.videopreviewconfig" },
-        optionsGlobal{ "/etc/videopreviewconfig" }
-    {}
+        parserLocal { "media/.videopreviewconfig" }, // TODO: don't hard code
+        parserUser  { homeDirectory + "/.videopreviewconfig" },
+        parserGlobal{ "/etc/videopreviewconfig" }
+    {
+        validateOptions(parserLocal);
+        validateOptions(parserUser);
+        validateOptions(parserGlobal);
+    }
 
 
 private:
     string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
-    ConfigFileParser optionsLocal;
-    ConfigFileParser optionsUser;
-    ConfigFileParser optionsGlobal;
+    ConfigFileParser parserLocal;
+    ConfigFileParser parserUser;
+    ConfigFileParser parserGlobal;
+
+    // Validate the option IDs for each option in a single `ConfigFileParser`
+    // TODO: validate the data type as well
+    void validateOptions(ConfigFileParser& parser)
+    {
+        vector<config_ptr> options = parser.getOptions();
+        for (auto option : options)
+            if (!option->verifyID())
+                std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << parser.getFilePath() << "\"\n";
+    }
 };
 
 
