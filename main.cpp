@@ -102,6 +102,7 @@ public:
         else if ( getValue()->getString().first )
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
+
     bool verifyID()
     {
         bool validID = false;
@@ -110,6 +111,16 @@ public:
                 validID = true;
         return validID;
     }
+
+    bool validDataType()
+    {
+        if ( getID() == "number_of_frames" )
+            return optionValueIsPositiveInteger();
+        if ( getID() == "show_frame_info" )
+            return optionValueIsBool();
+        return false; // covers case of invalid ID TODO: should probably replace with error checking
+    }
+
     virtual ~AbstractConfigOption() {};
 
     using NameMap = std::map<string,string>;
@@ -117,6 +128,19 @@ public:
 private:
     string optionID;
     const static NameMap nameMap;
+
+    bool optionValueIsBool()
+    {
+        return getValue()->getBool().first;
+    }
+
+    bool optionValueIsPositiveInteger()
+    {
+        pair<bool,int> ovalue = getValue()->getInt();
+        if ( ovalue.first && ovalue.second > 0 )
+            return true;
+        return false;
+    }
 };
 
 // A map between `optionID` strings and a human-readable string explaining the corresponding option. Each
@@ -128,6 +152,7 @@ const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
     {"number_of_frames", "Number of frames to show"},
     {"show_frame_info",  "Show indiviual frame information"},
     // Add further entries here as new configuration options are introduced
+    // Be sure to also add an entry to validateDataType()
 };
 
 // Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
@@ -327,8 +352,7 @@ private:
         return std::make_shared<StringConfigOption> (key, val);
     }
 
-    // Validate the option IDs for each option stored in the `options` vector
-    // TODO: validate the data type as well
+    // Validate the option IDs and data types for each option stored in the `options` vector
     void validateOptions()
     {
         int index = 0;
@@ -338,6 +362,11 @@ private:
             if (!option->verifyID())
             {
                 std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+                invalidIndices.push_back(index);
+            }
+            else if (!option->validDataType())
+            {
+                std::cout << "Ignoring option with invalid value \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n"; // TODO: output the invalid value, and why it is invalid
                 invalidIndices.push_back(index);
             }
             ++index;
