@@ -42,19 +42,7 @@ public:
     virtual pair<bool,bool>   getBool()   const { return {false, false}; }
     virtual pair<bool,int>    getInt()    const { return {false, 0}; }
     virtual pair<bool,string> getString() const { return {false, ""}; }
-    friend std::ostream& operator<<(std::ostream& os, ConfigValue& acv);
 };
-
-std::ostream& operator<<(std::ostream& os, ConfigValue& acv)
-{
-    if( acv.getBool().first )
-        os << acv.getBool().second;
-    else if( acv.getInt().first )
-        os << acv.getInt().second;
-    else if( acv.getString().first )
-        os << acv.getString().second;
-    return os;
-}
 
 class BoolConfigValue : public ConfigValue
 {
