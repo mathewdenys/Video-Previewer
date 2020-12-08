@@ -483,7 +483,7 @@ public:
 
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // Modified from https://stackoverflow.com/a/8520815
-    void determineExportPath()
+    string& determineExportPath()
     {
         string directoryPath;
         string fileName;
@@ -503,6 +503,8 @@ public:
             fileName.erase(periodIndex);
 
         exportPath = directoryPath + ".videopreview/" + fileName + "/";
+
+        return exportPath;
     }
 
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
