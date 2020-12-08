@@ -35,13 +35,16 @@ using cv::Mat;
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. it is up to the caller to verify
 // that the data type is what they were expecting.
-class ConfigValue
+class AbstractConfigValue
 {
 public:
     // const functions allow `ConfigValue` objects (and derived classes) to be returned by const pointer
     virtual pair<bool,bool>   getBool()   const { return {false, false}; }
     virtual pair<bool,int>    getInt()    const { return {false, 0}; }
     virtual pair<bool,string> getString() const { return {false, ""}; }
+
+protected:
+    AbstractConfigValue() = default; // Declaring the constructor as protected to mark ConfigValue as "abstract"
 };
 
 class BoolConfigValue : public ConfigValue
@@ -53,7 +56,7 @@ private:
     bool value;
 };
 
-class IntConfigValue : public ConfigValue
+class IntConfigValue : public AbstractConfigValue
 {
 public:
     IntConfigValue(int valIn) : value{ valIn } {}
@@ -62,7 +65,7 @@ private:
     int value;
 };
 
-class StringConfigValue : public ConfigValue
+class StringConfigValue : public AbstractConfigValue
 {
 public:
     StringConfigValue(string valIn) : value{ valIn } {}
@@ -78,7 +81,7 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
-    virtual const ConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
+    virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     string  getID()   { return optionID; }
     string  getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
     void    print()
@@ -157,7 +160,7 @@ public:
         delete optionValue;
         optionValue = new BoolConfigValue{ valIn };
     }
-    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual const AbstractConfigValue* getValue() override { return optionValue; }
     virtual ~BoolConfigOption() override { delete optionValue;}
 
 private:
@@ -177,7 +180,7 @@ public:
         optionValue = new IntConfigValue{ valIn };
 
     }
-    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual const AbstractConfigValue* getValue() override { return optionValue; }
     virtual ~IntConfigOption() override { delete optionValue; }
 
 private:
@@ -196,7 +199,7 @@ public:
         delete optionValue;
         optionValue = new StringConfigValue{ valIn };
     }
-    virtual const ConfigValue* getValue() override { return optionValue; }
+    virtual const AbstractConfigValue* getValue() override { return optionValue; }
     virtual ~StringConfigOption() override { delete optionValue; }
 
 private:
