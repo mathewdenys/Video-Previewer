@@ -6,6 +6,7 @@
 #include <utility>    // for std::pair
 #include <map>
 #include <sys/stat.h> // for mkdir
+#include <cstdlib>    // for std::getenv
 
 #if defined(__has_warning)
 #if __has_warning("-Wreserved-id-macro")
@@ -101,6 +102,14 @@ public:
         else if ( getValue()->getString().first )
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
+    bool verifyID()
+    {
+        bool validID = false;
+        for (auto el : nameMap)
+            if (el.first == optionID)
+                validID = true;
+        return validID;
+    }
     virtual ~AbstractConfigOption() {};
 
     using NameMap = std::map<string,string>;
@@ -114,6 +123,7 @@ private:
 // `AbstractConfigOption` class has an `optionID`, which uniquely identifies which configuration option it
 // corresponds to. However, when we want to print a list of the configuration options, we need a human-readable
 // version of this. `AbstractConfigOption::nameMap` provides this mapping.
+// The `first` elements also provide a look up of all the valid option IDs that the program recognises.
 const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
     {"number_of_frames", "Number of frames to show"},
     {"show_frame_info",  "Show indiviual frame information"},
@@ -184,18 +194,58 @@ private:
 
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
+// Container class for a std::vector of config_ptrs, with helper functions
+class ConfigOptionsVector
+{
+public:
+    ConfigOptionsVector(vector<config_ptr> optionsIn ) : options{ optionsIn } {}
+    ConfigOptionsVector() {}
+
+    void push_back(config_ptr option)  { options.push_back(option); }
+    void clear() { options.clear(); }
+    void removeInvalidOption(int index) { options.erase(options.begin()+index); }
+
+    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
+    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
+    // It is up to the caller to verify if nullptr has been returned.
+    config_ptr getOption(const string optionID) const
+    {
+        for ( auto& option : options)
+            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
+                return option;
+        return nullptr;
+    }
+
+    // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
+    vector<config_ptr>::iterator begin(){ return options.begin(); }
+    vector<config_ptr>::iterator end()  { return options.end();   }
+    vector<config_ptr>::const_iterator begin() const { return options.begin(); }
+    vector<config_ptr>::const_iterator end()   const { return options.end();   }
+
+private:
+    vector<config_ptr> options;
+};
+
 // Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
 class ConfigFileParser
 {
 public:
     ConfigFileParser(const string& pathIn) : configFilePath{ pathIn }
     {
-        // TODO: Break this code out into a function(s), which the constructor calls
-        // TODO: Implement code that allows for more than one configuration file
+        parseFile();
+        validateOptions();
+    }
 
+    void parseFile()
+    {
         std::ifstream file{ configFilePath };
         if (!file)
+        {
             std::cerr << configFilePath << " could not be opened\n";
+            return; // leave `options` vector empty
+        }
+
+        options.clear();
 
         // TODO: Consider resersving memory for `options`. This could be related to the number of lines in the config file, although not all lines...
         // TODO: will necessarily correspond to a configuration option. Alternatively, there are probably never going to be a "large" number of...
@@ -212,28 +262,17 @@ public:
         }
     }
 
-    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
-    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
-    // It is up to the caller to verify if nullptr has been returned.
-    config_ptr getOption(string optionID)
+    // Return a const reference to the `options` vector
+    const ConfigOptionsVector& getOptions()
     {
-        for ( auto& option : options)
-        {
-            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
-                return option;
-        }
-        return nullptr;
+        return options;
     }
 
-    void print()
-    {
-        for ( auto& option : options )
-            option->print();
-    }
+    string getFilePath() { return configFilePath; }
 
 private:
     string configFilePath;
-    vector<config_ptr> options;
+    ConfigOptionsVector options;
 
     bool stringToBool(const string& str)
     {
@@ -287,8 +326,82 @@ private:
 
         return std::make_shared<StringConfigOption> (key, val);
     }
+
+    // Validate the option IDs for each option stored in the `options` vector
+    // TODO: validate the data type as well
+    void validateOptions()
+    {
+        int index = 0;
+        vector<int> invalidIndices;
+        for (auto option : options)
+        {
+            if (!option->verifyID())
+            {
+                std::cout << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+                invalidIndices.push_back(index);
+            }
+            ++index;
+        }
+        for (auto index : invalidIndices)
+            options.removeInvalidOption(index); // Remove invalid options from the `options` vector
+    }
 };
 
+
+// Container class for holding configuration options. Has two main purposes
+//      1. Holding `ConfigFileParser` objects for each configuration file (local, user, global)
+//      2. Combining the multiple configuration files into a single set of configuration options
+class ConfigOptionsContainer
+{
+public:
+    ConfigOptionsContainer() :
+        parserLocal { "media/.videopreviewconfig" }, // TODO: don't hard code
+        parserUser  { homeDirectory + "/.videopreviewconfig" },
+        parserGlobal{ "/etc/videopreviewconfig" }
+    {
+        mergeOptions();
+    }
+
+    // Return a const reference to the `options` vector
+    const ConfigOptionsVector& getOptions()
+    {
+        return options;
+    }
+
+    void print()
+    {
+        for ( auto& option : options )
+            option->print();
+    }
+
+
+private:
+    string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
+    ConfigFileParser parserLocal;
+    ConfigFileParser parserUser;
+    ConfigFileParser parserGlobal;
+    ConfigOptionsVector options;
+
+    // Merge the options vectors from each parser into a single vector
+    // For now I naively prioritise any option in the local configuration file, then the user options, then global options
+    // TODO: use more "complicated" inheritance priorities for the configuration options
+    void mergeOptions()
+    {
+        options = parserLocal.getOptions();
+        for (auto userOption : parserUser.getOptions()) // Add any "user" options that aren't specified in the "local" options
+        {
+            string id{ userOption->getID() };
+            if (parserLocal.getOptions().getOption(id) == nullptr)
+                options.push_back(parserUser.getOptions().getOption(id));
+        }
+        for (auto globalOption : parserGlobal.getOptions()) // Add any "global" options that aren't specified in either the "local" or "user" options
+        {
+            string id{ globalOption->getID() };
+            if (parserLocal.getOptions().getOption(id) == nullptr && parserUser.getOptions().getOption(id) == nullptr)
+                options.push_back(parserGlobal.getOptions().getOption(id));
+        }
+    }
+};
 
 
 
@@ -337,12 +450,12 @@ private:
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
 //      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
 //      2. `frames`:  a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
-//      3. `options`: a `ConfigFileParser`.        Deals with any options supplied by configuration files
+//      3. `options`: a `ConfigOptionsContainer`.  Deals with any options supplied by configuration files
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn, const string& configPathIn)
-        : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }, options{ configPathIn }
+    VideoPreview(const string& videoPathIn)
+        : videoPath{ videoPathIn }, video{ videoPathIn }
     {
         makeFrames();
     }
@@ -351,7 +464,7 @@ public:
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        int NFrames{ options.getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
+        int NFrames{ options.getOptions().getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
         int frameSampling = totalFrames/NFrames + 1;
 
         frames.clear();
@@ -381,18 +494,16 @@ public:
 
 private:
     string videoPath;
-    string configPath;
     Video video;
-    ConfigFileParser options;
+    ConfigOptionsContainer options;
     vector<std::unique_ptr<Frame> > frames;
 };
 
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
 {
     string videoPath{ "media/sunrise.mp4" };
-    string configPath{ "media/.videopreviewconfig" };
 
-    VideoPreview vidprev(videoPath, configPath);
+    VideoPreview vidprev(videoPath);
     vidprev.printConfig();
     vidprev.exportFrames();
 
