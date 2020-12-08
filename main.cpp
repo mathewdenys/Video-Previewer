@@ -418,7 +418,7 @@ public:
     // Naming of the individual images is taken care of internally.
     void exportBitmap(string& exportPath)
     {
-        string fileName = exportPath + "/frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
+        string fileName = exportPath + "frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
         cv::imwrite(fileName, getData());
     }
 
@@ -458,6 +458,7 @@ public:
         : videoPath{ videoPathIn }, video{ videoPathIn }
     {
         makeFrames();
+        determineExportPath();
     }
 
     // Reads in appropriate configuration options and writes over the `frames` vector
@@ -479,13 +480,34 @@ public:
         }
     }
 
+    // Parse `videopath` in order to determine the directory to which temporary files should be stored
+    // Modified from https://stackoverflow.com/a/8520815
+    void determineExportPath()
+    {
+        string directoryPath;
+        string fileName;
+
+        // Extract the directory path and file name from videoPath
+        // These are separated by the last slash in videoPath
+        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
+        if (std::string::npos != lastSlashIndex)
+        {
+            directoryPath = videoPath.substr(0,lastSlashIndex+1);
+            fileName       = videoPath.substr(lastSlashIndex+1);
+        }
+
+        // Remove extension from fileName
+        const size_t periodIndex = fileName.rfind('.');
+        if (std::string::npos != periodIndex)
+            fileName.erase(periodIndex);
+
+        exportPath = directoryPath + ".videopreview/" + fileName + "/";
+    }
+
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
-        // TODO: parse videoPath and create a specific directory (e.g. the file "sunrise.mp4" gets the directory ".videopreview/sunrise/")
-        // TODO: Make the exportPath a member of VideoPreview objects
-        system("mkdir media/.videopreview");
-        string exportPath = "media/.videopreview";
+        system(("mkdir -p " + exportPath).c_str());
         for (auto& frame : frames)
             frame->exportBitmap(exportPath);
     }
@@ -494,10 +516,13 @@ public:
 
 private:
     string videoPath;
+    string exportPath;
     Video video;
     ConfigOptionsContainer options;
     vector<std::unique_ptr<Frame> > frames;
 };
+
+
 
 int main( int argc, char** argv ) // Accepts one input argument: the name of the input video file
 {
