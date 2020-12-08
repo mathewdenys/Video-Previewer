@@ -436,7 +436,7 @@ public:
     Video(const string& path) : vc{ path }
     {
         if (!vc.isOpened())
-            std::cout << "Could not open video: " << path << '\n';
+            throw std::invalid_argument("File " + path + " either could not be opened or is not a valid video file. Aborting.\n");
     }
     void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
@@ -501,18 +501,23 @@ private:
 
 int main( int argc, char** argv ) // Accepts one input argument: the name of the input video file
 {
-    if (argc < 2)
+    try
     {
-        std::cout << "Not enough arguments: expected a file path. Aborting.\n";
+        if (argc < 2)
+            throw std::invalid_argument("Not enough arguments: expected a file path. Aborting.\n");
+
+        if (argc > 2)
+            std::cerr << "Ignoring additional arguments.\n";
+
+        VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
+        vidprev.printConfig();
+        vidprev.exportFrames();
+    }
+    catch (std::exception& exception)
+    {
+        std::cerr << exception.what();
         return 1;
     }
-
-    if (argc > 2)
-        std::cerr << "Ignoring additional arguments.\n";
-
-    VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
-    vidprev.printConfig();
-    vidprev.exportFrames();
 
     return 0;
 }
