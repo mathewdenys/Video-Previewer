@@ -354,8 +354,8 @@ private:
 class ConfigOptionsContainer
 {
 public:
-    ConfigOptionsContainer() :
-        parserLocal { "media/.videopreviewconfig" }, // TODO: don't hard code
+    ConfigOptionsContainer(string configFilePath) :
+        parserLocal { configFilePath },
         parserUser  { homeDirectory + "/.videopreviewconfig" },
         parserGlobal{ "/etc/videopreviewconfig" }
     {
@@ -455,10 +455,11 @@ class VideoPreview
 {
 public:
     VideoPreview(const string& videoPathIn)
-        : videoPath{ videoPathIn }, video{ videoPathIn }
+        : videoPath{ videoPathIn }, video{ videoPathIn }, options{ determineConfigPath() }
     {
         makeFrames();
         determineExportPath();
+        determineConfigPath();
     }
 
     // Reads in appropriate configuration options and writes over the `frames` vector
@@ -504,6 +505,22 @@ public:
         exportPath = directoryPath + ".videopreview/" + fileName + "/";
     }
 
+    // Parse `videopath` in order to determine the directory to which temporary files should be stored
+    // Returns exportPath, for use in the `options` constructor
+    // Modified from https://stackoverflow.com/a/8520815
+    string& determineConfigPath()
+    {
+        // Extract the directory path from videoPath
+        // These are separated by the last slash in videoPath
+        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
+        if (std::string::npos != lastSlashIndex)
+            configPath = videoPath.substr(0,lastSlashIndex+1);
+
+        configPath += ".videopreviewconfig";
+
+        return configPath;
+    }
+
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
@@ -515,8 +532,9 @@ public:
     void printConfig() { options.print(); }
 
 private:
-    string videoPath;
-    string exportPath;
+    string videoPath;  // path to the video file
+    string exportPath; // path the the directory for exporting temporary files to
+    string configPath; // path to the configuration file
     Video video;
     ConfigOptionsContainer options;
     vector<std::unique_ptr<Frame> > frames;
