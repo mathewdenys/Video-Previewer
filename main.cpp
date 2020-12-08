@@ -361,7 +361,7 @@ public:
     {
         mergeOptions();
     }
-    
+
     // Return a const reference to the `options` vector
     const ConfigOptionsVector& getOptions()
     {
@@ -454,8 +454,8 @@ private:
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn, const string& configPathIn)
-        : videoPath{ videoPathIn }, configPath{ configPathIn }, video{ videoPathIn }
+    VideoPreview(const string& videoPathIn)
+        : videoPath{ videoPathIn }, video{ videoPathIn }
     {
         makeFrames();
     }
@@ -494,7 +494,6 @@ public:
 
 private:
     string videoPath;
-    string configPath;
     Video video;
     ConfigOptionsContainer options;
     vector<std::unique_ptr<Frame> > frames;
@@ -503,9 +502,8 @@ private:
 int main( int argc, char** argv ) // takes one input argument: the name of the input video file
 {
     string videoPath{ "media/sunrise.mp4" };
-    string configPath{ "media/.videopreviewconfig" };
 
-    VideoPreview vidprev(videoPath, configPath);
+    VideoPreview vidprev(videoPath);
     vidprev.printConfig();
     vidprev.exportFrames();
 
