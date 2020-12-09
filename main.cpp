@@ -242,6 +242,23 @@ public:
                 return option;
         return nullptr;
     }
+    
+    // Add a new configuration option to the `options` vector.
+    // If the option already exists in `options`, the current value is removed first, to avoid conflicts
+    void setOption(AbstractConfigOption& optionIn)
+    {
+        auto IDexists
+        {
+            [&optionIn](config_ptr option)
+            {
+                return option->getID() == optionIn.getID();
+            }
+        };
+        
+        options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
+        config_ptr newOptionPtr = std::make_shared<AbstractConfigOption>(optionIn.getID(), optionIn.getValue());
+        options.push_back(newOptionPtr);
+    }
 
 private:
     vector<config_ptr> options;
@@ -405,6 +422,11 @@ public:
     {
         return options;
     }
+    
+    void setOption(AbstractConfigOption& optionIn)
+    {
+        options.setOption(optionIn);
+    }
 
     void print()
     {
@@ -529,9 +551,19 @@ public:
     VideoPreview(const string& videoPathIn)
         : videoPath{ videoPathIn }, video{ videoPathIn }, options{ determineConfigPath() }
     {
-        makeFrames();
         determineExportPath();
         determineConfigPath();
+        updatePreview();
+    }
+    
+    // Everything that needs to be run in order to update the actual video preview that the user sees
+    // Needs to be run on start-up, and whenever configuration options are changed
+    void updatePreview()
+    {
+        makeFrames();
+        exportFrames();
+        exportPreviewVideos();
+        
     }
 
     // Reads in appropriate configuration options and writes over the `frames` vector
@@ -593,6 +625,12 @@ public:
         configPath += ".videopreviewconfig";
 
         return configPath;
+    }
+    
+    void setOption(AbstractConfigOption& optionIn)
+    {
+        options.setOption(optionIn);
+        // TODO: update anything that may be affected by the new option
     }
 
     // Exports all frames in the `frames` vector as bitmaps
