@@ -36,49 +36,40 @@ using cv::Mat;
 // Base class for storing a configuration value. Can store the value as either a bool, int, or string (and
 // this can be expanded as needed). ConfigValue itself should not be used, but rather its derived classes.
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
-// data type is being used, and the second element holds the value itself. it is up to the caller to verify
+// data type is being used, and the second element holds the value itself. It is up to the caller to verify
 // that the data type is what they were expecting.
 class AbstractConfigValue
 {
 public:
     // const functions allow `ConfigValue` objects (and derived classes) to be returned by const pointer
-    virtual pair<bool,bool>   getBool()   const { return {false, false}; }
-    virtual pair<bool,int>    getInt()    const { return {false, 0}; }
-    virtual pair<bool,string> getString() const { return {false, ""}; }
-
-protected:
-    AbstractConfigValue() = default; // Declaring the constructor as protected to mark ConfigValue as "abstract"
+    virtual pair<bool,bool>   getBool()   const = 0;
+    virtual pair<bool,int>    getInt()    const = 0;
+    virtual pair<bool,string> getString() const = 0;
 };
 
 
-// Specific derived classes of AbstractConfigValue. Each class corresponds to a separate data type to which the
-// configuration option is stored as
-class BoolConfigValue : public AbstractConfigValue
+template <class T>
+class ConfigValue : public AbstractConfigValue
 {
 public:
-    BoolConfigValue(bool valIn) : value{ valIn } {}
-    pair<bool,bool> getBool() const override { return {true, value}; }
+    ConfigValue(T valIn) : value{ valIn } {}
+    pair<bool,bool>   getBool()   const;
+    pair<bool,int>    getInt()    const;
+    pair<bool,string> getString() const;
+
 private:
-    bool value;
+    T value;
 };
 
-class IntConfigValue : public AbstractConfigValue
-{
-public:
-    IntConfigValue(int valIn) : value{ valIn } {}
-    pair<bool,int> getInt() const override { return {true, value}; }
-private:
-    int value;
-};
+// Partial template specialization
+template<class T> pair<bool,bool> ConfigValue<T>::getBool()    const { return {false, false}; }
+template<>        pair<bool,bool> ConfigValue<bool>::getBool() const { return {true,  value}; }
 
-class StringConfigValue : public AbstractConfigValue
-{
-public:
-    StringConfigValue(string valIn) : value{ valIn } {}
-    pair<bool,string> getString() const override { return {true, value}; }
-private:
-    string value;
-};
+template<class T> pair<bool,int> ConfigValue<T>::getInt()   const { return {false, 0}; }
+template<>        pair<bool,int> ConfigValue<int>::getInt() const { return {true,  value}; }
+
+template<class T> pair<bool,string> ConfigValue<T>::getString()      const { return {false, ""}; }
+template<>        pair<bool,string> ConfigValue<string>::getString() const { return {true,  value}; }
 
 
 // Enum class that enumerates the valid data types that a RecognisedConfigOption may have
@@ -194,63 +185,25 @@ const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOpti
 
 
 // Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
-// configuration option is stored as. // TODO: revist class templating here
-class BoolConfigOption : public AbstractConfigOption
+// configuration option is stored as.
+template<class T>
+class ConfigOption : public AbstractConfigOption
 {
 public:
-    BoolConfigOption(const string& nameIn, const bool valIn) :
+    ConfigOption(const string& nameIn, const T valIn) :
         AbstractConfigOption{ nameIn },
-        optionValue{ new BoolConfigValue{ valIn } } {}
+        optionValue{ new ConfigValue<T>{ valIn } } {}
 
     void setValue(const bool valIn)
     {
         delete optionValue;
-        optionValue = new BoolConfigValue{ valIn };
+        optionValue = new ConfigValue<T>{ valIn };
     }
     virtual const AbstractConfigValue* getValue() override { return optionValue; }
-    virtual ~BoolConfigOption() override { delete optionValue;}
+    virtual ~ConfigOption() override { delete optionValue;}
 
 private:
-    BoolConfigValue* optionValue;
-};
-
-class IntConfigOption : public AbstractConfigOption
-{
-public:
-    IntConfigOption(const string& nameIn, const int valIn) :
-        AbstractConfigOption{ nameIn },
-        optionValue{ new IntConfigValue{ valIn } } {}
-
-    void setValue(const int valIn)
-    {
-        delete optionValue;
-        optionValue = new IntConfigValue{ valIn };
-
-    }
-    virtual const AbstractConfigValue* getValue() override { return optionValue; }
-    virtual ~IntConfigOption() override { delete optionValue; }
-
-private:
-    IntConfigValue* optionValue;
-};
-
-class StringConfigOption : public AbstractConfigOption
-{
-public:
-    StringConfigOption(const string& nameIn, const string valIn) :
-        AbstractConfigOption{ nameIn },
-        optionValue{ new StringConfigValue{ valIn } } {}
-
-    void setValue(const string valIn)
-    {
-        delete optionValue;
-        optionValue = new StringConfigValue{ valIn };
-    }
-    virtual const AbstractConfigValue* getValue() override { return optionValue; }
-    virtual ~StringConfigOption() override { delete optionValue; }
-
-private:
-    StringConfigValue* optionValue;
+    ConfigValue<T>* optionValue;
 };
 
 
@@ -368,11 +321,11 @@ private:
 
         // TODO: bundle up this code for reuse
         if (val == "true" || val == "false")
-            return std::make_shared<BoolConfigOption>   (id, stringToBool(val));
+            return std::make_shared< ConfigOption<bool> >   (id, stringToBool(val));
         if (isInt(val))
-            return std::make_shared<IntConfigOption>    (id, stringToInt(val));
+            return std::make_shared< ConfigOption<int> >    (id, stringToInt(val));
 
-        return std::make_shared<StringConfigOption> (id, val);
+        return std::make_shared< ConfigOption<string> > (id, val);
     }
 
     // Parses an entire file and adds the resulting `config_ptr`s to the `options` vector
