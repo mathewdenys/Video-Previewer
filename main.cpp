@@ -242,7 +242,7 @@ public:
                 return option;
         return nullptr;
     }
-    
+
     // Add a new configuration option to the `options` vector.
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
     void setOption(AbstractConfigOption& optionIn)
@@ -254,10 +254,18 @@ public:
                 return option->getID() == optionIn.getID();
             }
         };
-        
+
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-        config_ptr newOptionPtr = std::make_shared<AbstractConfigOption>(optionIn.getID(), optionIn.getValue());
-        options.push_back(newOptionPtr);
+
+        if (optionIn.getValue()->getBool().first )
+            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().second));
+
+        if (optionIn.getValue()->getInt().first )
+            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().second));
+
+        if (optionIn.getValue()->getString().first )
+            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().second));
+
     }
 
 private:
@@ -422,7 +430,7 @@ public:
     {
         return options;
     }
-    
+
     void setOption(AbstractConfigOption& optionIn)
     {
         options.setOption(optionIn);
@@ -555,15 +563,16 @@ public:
         determineConfigPath();
         updatePreview();
     }
-    
+
     // Everything that needs to be run in order to update the actual video preview that the user sees
     // Needs to be run on start-up, and whenever configuration options are changed
     void updatePreview()
     {
+        printConfig();
         makeFrames();
         exportFrames();
         exportPreviewVideos();
-        
+
     }
 
     // Reads in appropriate configuration options and writes over the `frames` vector
@@ -626,11 +635,11 @@ public:
 
         return configPath;
     }
-    
+
     void setOption(AbstractConfigOption& optionIn)
     {
         options.setOption(optionIn);
-        // TODO: update anything that may be affected by the new option
+        updatePreview();
     }
 
     // Exports all frames in the `frames` vector as bitmaps
@@ -689,9 +698,8 @@ int main( int argc, char** argv )
             std::cerr << "Ignoring additional arguments.\n";
 
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
-        vidprev.printConfig();
-        vidprev.exportFrames();
-        vidprev.exportPreviewVideos();
+        ConfigOption<bool> updatedOption{"show_frame_info",false};
+        vidprev.setOption(updatedOption);
     }
     catch (std::exception& exception)
     {
