@@ -493,8 +493,38 @@ public:
     int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
     void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
+    // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
+    void exportVideo(string exportPath, int frameBegin, int frameEnd)
+    {
+        string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
+        cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getFrameSize());
+        setFrameNumber(frameBegin);
+
+        std::cout << '\t' << fileName << '\n';
+
+        int frameNumber = frameBegin;
+        while(frameNumber < frameEnd)
+        {
+            Mat frame;
+            vc >> frame;
+            if (frame.empty())
+                break;
+            vw.write(frame);
+            ++frameNumber;
+        }
+    }
+
 private:
     cv::VideoCapture vc;
+
+    double getFPS() { return vc.get(cv::CAP_PROP_FPS); }
+
+    cv::Size getFrameSize()
+    {
+        int width  = vc.get(cv::CAP_PROP_FRAME_WIDTH);
+        int height = vc.get(cv::CAP_PROP_FRAME_HEIGHT);
+        return cv::Size(width,height);
+    }
 };
 
 
@@ -583,7 +613,31 @@ public:
             frame->exportBitmap(exportPath);
     }
 
+    // Exports a "preview video" for each frame in the `frames` vector
+    void exportPreviewVideos()
+    {
+        system(("mkdir -p " + exportPath).c_str());
+        vector<int> frameNumbers;
+        frameNumbers.reserve(frames.size()+1);
+
+        for (auto& frame : frames)
+            frameNumbers.push_back(frame->getFrameNumber());
+        frameNumbers.push_back(video.numberOfFrames());
+
+        std::cout << "exporting videos\n";
+        int index = 0;
+        while ( index < frameNumbers.size()-1 )
+        {
+            video.exportVideo(exportPath, frameNumbers[index], frameNumbers[index+1]);
+            ++index;
+        }
+
+    }
+
     void printConfig() { options.print(); }
+
+    //TODO: Make a destructor that clears up the temporary directory
+    //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
 
 private:
     string videoPath;  // path to the video file
@@ -609,6 +663,7 @@ int main( int argc, char** argv )
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
         vidprev.printConfig();
         vidprev.exportFrames();
+        vidprev.exportPreviewVideos();
     }
     catch (std::exception& exception)
     {
