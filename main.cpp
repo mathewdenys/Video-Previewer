@@ -27,6 +27,7 @@
 
 
 using std::string;
+using std::array;
 using std::vector;
 using std::pair;
 using cv::Mat;
@@ -80,6 +81,35 @@ private:
 };
 
 
+// Enum class that enumerates the valid data types that a RecognisedConfigOption may have
+enum class DataType
+{
+    BOOLEAN,
+    POSITIVE_INTEGER,
+};
+
+
+// Class for storing information about configuration options that the program recognises
+class RecognisedConfigOption
+{
+public:
+    RecognisedConfigOption(string idIn, string descriptionIn, DataType dataTypeIn) :
+        id          { idIn },
+        description { descriptionIn },
+        dataType    { dataTypeIn }
+    {}
+
+    string&   getID()          { return id; }
+    string&   getDescription() { return description; }
+    DataType& getDataType()    { return dataType; }
+
+private:
+    string id;
+    string description;   // Human-readable description
+    DataType dataType;
+};
+
+
 
 // Abstract base class for storing a single configuration option. One of the the derived `ConfigOptionX`
 // classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
@@ -89,7 +119,14 @@ public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
     virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     string  getID()   { return optionID; }
-    string  getName() { return nameMap.at(optionID); }
+    string  getName()
+    {
+        for (auto el : recognisedConfigOptions)
+            if (el.getID() == optionID)
+                return el.getDescription();
+        return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
+
+    }
 
     void print()
     {
@@ -103,31 +140,31 @@ public:
 
     bool validID()
     {
-        bool valid = false;
-        for (auto el : nameMap)
-            if (el.first == optionID)
-                valid = true;
-        return valid;
+        for (auto el : recognisedConfigOptions)
+            if (el.getID() == optionID)
+                return true;
+        return false;
     }
 
     bool validDataType()
     {
-        if ( getID() == "number_of_frames" )
-            return optionValueIsPositiveInteger();
-        if ( getID() == "show_frame_info" )
-            return optionValueIsBool();
-        // Add further entries here as new configuration options are introduced
-        // Be usre to also add an entry to AbstractConfigOption::nameMap
-        return false; // covers case of invalid ID TODO: should probably replace with error checking
+        for (auto el : recognisedConfigOptions)
+            if (el.getID() == optionID)
+            {
+                if (el.getDataType() == DataType::BOOLEAN)
+                    return optionValueIsBool();
+                if (el.getDataType() == DataType::POSITIVE_INTEGER)
+                    return optionValueIsPositiveInteger();
+            }
+        return false; // If the ID has been validated, this should never to reached.
     }
 
     virtual ~AbstractConfigOption() {};
 
-    using NameMap = std::map<string,string>;
-
 private:
     string optionID;
-    const static NameMap nameMap;
+
+    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
 
     bool optionValueIsBool()
     {
@@ -143,17 +180,17 @@ private:
     }
 };
 
-// A map between `optionID` strings and a human-readable string explaining the corresponding option. Each
-// `AbstractConfigOption` class has an `optionID`, which uniquely identifies which configuration option it
-// corresponds to. However, when we want to print a list of the configuration options, we need a human-readable
-// version of this. `AbstractConfigOption::nameMap` provides this mapping.
-// The `first` elements also provide a look up of all the valid option IDs that the program recognises.
-const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
-    {"number_of_frames", "Number of frames to show"},
-    {"show_frame_info",  "Show indiviual frame information"},
-    // Add further entries here as new configuration options are introduced
-    // Be sure to also add an entry to validateDataType()
+// An array that contains every RecognisedConfigOption that the program "understands"
+//      Add further entries here as new configuration options are introduced
+//      The size argument in the declariation of recognisedConfigOptions will need to be updated
+//      Additional entries may need to be added to the DataType enum class. In this case a function should
+//      be added to AbstrictConfigOption() to validate this data type (like optionValueIsBool()), and a
+//      corresponding if statement to validDataType()
+const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
+    RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::POSITIVE_INTEGER),
+    RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::BOOLEAN),
 };
+
 
 
 // Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
