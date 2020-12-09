@@ -25,10 +25,12 @@
 #endif
 #endif
 
+
 using std::string;
 using std::vector;
 using std::pair;
 using cv::Mat;
+
 
 // Base class for storing a configuration value. Can store the value as either a bool, int, or string (and
 // this can be expanded as needed). ConfigValue itself should not be used, but rather its derived classes.
@@ -47,7 +49,10 @@ protected:
     AbstractConfigValue() = default; // Declaring the constructor as protected to mark ConfigValue as "abstract"
 };
 
-class BoolConfigValue : public ConfigValue
+
+// Specific derived classes of AbstractConfigValue. Each class corresponds to a separate data type to which the
+// configuration option is stored as
+class BoolConfigValue : public AbstractConfigValue
 {
 public:
     BoolConfigValue(bool valIn) : value{ valIn } {}
@@ -75,7 +80,8 @@ private:
 };
 
 
-// Abstract base class for storing a single configuration option. One of the the derived `ConfigOption<T>`
+
+// Abstract base class for storing a single configuration option. One of the the derived `ConfigOptionX`
 // classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
 class AbstractConfigOption
 {
@@ -83,8 +89,9 @@ public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
     virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     string  getID()   { return optionID; }
-    string  getName() { return nameMap.at(optionID); } // TODO: implement error checking (i.e. does optionID exist)
-    void    print()
+    string  getName() { return nameMap.at(optionID); }
+
+    void print()
     {
         if ( getValue()->getBool().first )
             std::cout << getName() << ": " << getValue()->getBool().second << '\n';
@@ -94,13 +101,13 @@ public:
             std::cout << getName() << ": " << getValue()->getString().second << '\n';
     }
 
-    bool verifyID()
+    bool validID()
     {
-        bool validID = false;
+        bool valid = false;
         for (auto el : nameMap)
             if (el.first == optionID)
-                validID = true;
-        return validID;
+                valid = true;
+        return valid;
     }
 
     bool validDataType()
@@ -109,6 +116,8 @@ public:
             return optionValueIsPositiveInteger();
         if ( getID() == "show_frame_info" )
             return optionValueIsBool();
+        // Add further entries here as new configuration options are introduced
+        // Be usre to also add an entry to AbstractConfigOption::nameMap
         return false; // covers case of invalid ID TODO: should probably replace with error checking
     }
 
@@ -145,6 +154,7 @@ const AbstractConfigOption::NameMap AbstractConfigOption::nameMap = {
     // Add further entries here as new configuration options are introduced
     // Be sure to also add an entry to validateDataType()
 };
+
 
 // Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
 // configuration option is stored as. // TODO: revist class templating here
@@ -217,35 +227,43 @@ public:
     ConfigOptionsVector(vector<config_ptr> optionsIn ) : options{ optionsIn } {}
     ConfigOptionsVector() {}
 
+    using iterator = vector<config_ptr>::iterator;
+    using const_iterator = vector<config_ptr>::const_iterator;
+
+    // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
+    iterator begin(){ return options.begin(); }
+    iterator end()  { return options.end();   }
+    const_iterator begin() const { return options.begin(); }
+    const_iterator end()   const { return options.end();   }
+
+    // The following functions provide a similar public interface as a std::vector (while limiting direct access to `options`)
+    void erase(iterator i) { options.erase(i); }
+    void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
     void push_back(config_ptr option)  { options.push_back(option); }
     void clear() { options.clear(); }
 
-    using iterator = vector<config_ptr>::iterator;
-    void erase(iterator i) { options.erase(i); }
-    void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
-
-    // Return a `config_ptr` to the `ConfigOption<T>` in `options` corresponding to `optionID`.
+    // Return a `config_ptr` to the element in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
     // It is up to the caller to verify if nullptr has been returned.
     config_ptr getOption(const string optionID) const
     {
         for ( auto& option : options)
-            if (option->getID() == optionID) // TODO: Implement error handling in the case that the option doesn't exist (or is it enough to return nullptr?)
+            if (option->getID() == optionID)
                 return option;
         return nullptr;
     }
-
-    // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
-    vector<config_ptr>::iterator begin(){ return options.begin(); }
-    vector<config_ptr>::iterator end()  { return options.end();   }
-    vector<config_ptr>::const_iterator begin() const { return options.begin(); }
-    vector<config_ptr>::const_iterator end()   const { return options.end();   }
 
 private:
     vector<config_ptr> options;
 };
 
-// Parses a single configuration file and stores the various configuration options internally as a vector of pointers to ConfigOption classes
+
+
+// Parses a single configuration file and stores the various configuration options internally as a vector of `config_ptr`s.
+// Has three main purposes:
+//      1. Parse a configuration file to obtain a set of ConfigOptions
+//      2. Validate that the ConfigOptions a) correspond to a valid optionID, and b) have a valid data type
+//      3. Store the valid `ConfigOptions` in a `ConfigOptionsVector`
 class ConfigFileParser
 {
 public:
@@ -253,32 +271,6 @@ public:
     {
         parseFile();
         validateOptions();
-    }
-
-    void parseFile()
-    {
-        std::ifstream file{ configFilePath };
-        if (!file)
-        {
-            std::cerr << configFilePath << " could not be opened\n";
-            return; // leave `options` vector empty
-        }
-
-        options.clear();
-
-        // TODO: Consider resersving memory for `options`. This could be related to the number of lines in the config file, although not all lines...
-        // TODO: will necessarily correspond to a configuration option. Alternatively, there are probably never going to be a "large" number of...
-        // TODO: config options, so this may not be too necessary
-
-        while (file)
-        {
-            string strInput;
-            std::getline(file, strInput);
-            std::stringstream ss{ strInput };
-            ss >> std::ws; // remove leading white space
-            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
-                options.push_back( lineParser(ss) );
-        }
     }
 
     // Return a const reference to the `options` vector
@@ -316,11 +308,10 @@ private:
     }
 
     // Parses a single line of the configuration file and returns a pointer to a ConfigOption
-    // Returns a std::pair where the key is the name of the configuration option, and the val is the corresponding value
-    // Assumes each line is formatted as `key = val`; all white space is ignored; does not handle comment lines
+    // Assumes each line is formatted as `id = val`; all white space is ignored; does not handle comment lines
     config_ptr lineParser(std::stringstream& ss)
     {
-        string key;
+        string id;
         string val;
 
         char c;
@@ -329,21 +320,45 @@ private:
         {
             if (c == '#') // ignore comments
                 break;
-            if (c == '=') // switch from writing to `key` to `val` when of RHS of equals sign
+            if (c == '=') // switch from writing to `id` to `val` when of RHS of equals sign
                 reachedEqualsSign = true;
             else if (!reachedEqualsSign)
-                key.push_back(c);
+                id.push_back(c);
             else
                 val.push_back(c);
             ss >> std::ws; // always remove any following white space
         }
 
+        // TODO: bundle up this code for reuse
         if (val == "true" || val == "false")
-            return std::make_shared<BoolConfigOption>   (key, stringToBool(val));
+            return std::make_shared<BoolConfigOption>   (id, stringToBool(val));
         if (isInt(val))
-            return std::make_shared<IntConfigOption>    (key, stringToInt(val));
+            return std::make_shared<IntConfigOption>    (id, stringToInt(val));
 
-        return std::make_shared<StringConfigOption> (key, val);
+        return std::make_shared<StringConfigOption> (id, val);
+    }
+
+    // Parses an entire file and adds the resulting `config_ptr`s to the `options` vector
+    void parseFile()
+    {
+        std::ifstream file{ configFilePath };
+        if (!file)
+        {
+            std::cerr << configFilePath << " could not be opened\n";
+            return; // leave `options` vector empty
+        }
+
+        options.clear();
+
+        while (file)
+        {
+            string strInput;
+            std::getline(file, strInput);
+            std::stringstream ss{ strInput };
+            ss >> std::ws; // remove leading white space
+            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
+                options.push_back( lineParser(ss) );
+        }
     }
 
     // Validate the option IDs and data types for each option stored in the `options` vector
@@ -353,7 +368,7 @@ private:
         {
             [this](config_ptr option) // capture `this` for getFilePath()
             {
-                if (!option->verifyID())
+                if (!option->validID())
                 {
                     std::cerr << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
                     return true;
@@ -461,6 +476,8 @@ private:
 
 };
 
+
+
 // Data and functions relevant to a single video file.
 // Essentially a wrapper class for a cv::VideoCapture object
 class Video
@@ -479,6 +496,8 @@ public:
 private:
     cv::VideoCapture vc;
 };
+
+
 
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
 //      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
@@ -576,8 +595,8 @@ private:
 };
 
 
-
-int main( int argc, char** argv ) // Accepts one input argument: the name of the input video file
+// Accepts one input argument: the name of the input video file
+int main( int argc, char** argv )
 {
     try
     {
