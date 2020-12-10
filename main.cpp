@@ -291,56 +291,112 @@ private:
 
 
 
-// Parses a single configuration file and stores the various configuration options internally as a vector of `config_ptr`s.
-// Has three main purposes:
-//      1. Parse a configuration file to obtain a set of ConfigOptions
-//      2. Validate that the ConfigOptions a) correspond to a valid optionID, and b) have a valid data type
-//      3. Store the valid `ConfigOptions` in a `ConfigOptionsVector`
-class ConfigFileParser
+// Container class for holding configuration options. Has three main purposes
+//      1. Reading in options from configuration files
+//          1a. Merging all the cnfiguration files into a single set of options
+//          1b. Validating the format of the configuration options for use elsewhere
+//      2. Storing the current state of the configuration options
+//          2a. Providing a public interface for changing configuration options
+//      3. Writing options to configuration files
+class ConfigOptionsContainer
 {
 public:
-    ConfigFileParser(const string& pathIn) : configFilePath{ pathIn }
+    ConfigOptionsContainer(string configFilePathIn) :
+        localConfigFilePath{ configFilePathIn }
     {
-        parseFile();
-        validateOptions();
+        configOptions = readAndMergeOptions();
     }
 
-    // Return a const reference to the `options` vector
-    const ConfigOptionsVector& getOptions()
+    string getFilePath()
     {
-        return options;
+        return localConfigFilePath;
     }
 
-    string getFilePath() { return configFilePath; }
+    const ConfigOptionsVector&  getOptions()
+    {
+        return configOptions;
+    }
+
+    void setOption(AbstractConfigOption& optionIn)
+    {
+        configOptions.setOption(optionIn);
+    }
+
+    void print()
+    {
+        for ( auto& option : configOptions )
+            option->print();
+    }
 
 private:
-    string configFilePath;
-    ConfigOptionsVector options;
+    string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
+    string localConfigFilePath;
+    ConfigOptionsVector configOptions;
 
-    bool stringToBool(const string& str)
+    // Parse each of the configuration files and merge them into a single vector of `config_ptr`s
+    // For now I naively prioritise the local configuration file, then user options, then global options
+    // TODO: use more "complicated" inheritance priorities for the configuration options
+    ConfigOptionsVector readAndMergeOptions()
     {
-        return (str == "true"); // assumes the only inputs are "true" or "false"
+        ConfigOptionsVector optionsLocal  = parseAndValidateFile(localConfigFilePath);
+        ConfigOptionsVector optionsUser   = parseAndValidateFile(homeDirectory + "/.videopreviewconfig");
+        ConfigOptionsVector optionsGlobal = parseAndValidateFile("/etc/videopreviewconfig");
+
+        ConfigOptionsVector optionsMerged{ optionsLocal };
+
+        for (auto userOption : optionsUser) // Add any "user" options that aren't specified in the "local" options
+        {
+            string id{ userOption->getID() };
+            if (optionsLocal.getOption(id) == nullptr)
+                optionsMerged.push_back(optionsUser.getOption(id));
+        }
+
+        for (auto globalOption : optionsGlobal) // Add any "global" options that aren't specified in either the "local" or "user" options
+        {
+            string id{ globalOption->getID() };
+            if (optionsLocal.getOption(id) == nullptr && optionsUser.getOption(id) == nullptr)
+                optionsMerged.push_back(optionsGlobal.getOption(id));
+        }
+
+        return optionsMerged;
     }
 
-    int stringToInt(const string& str)
+
+    ConfigOptionsVector parseAndValidateFile(const string& filePath)
     {
-        int myInt;
-        std::stringstream ss{ str };
-        ss >> myInt;
-        return myInt;
+        ConfigOptionsVector optionsParsed = parseFile(filePath);
+        removeInvalidOptions(optionsParsed);
+        return optionsParsed;
     }
 
-    bool isInt(const string& str)
+    // Parse a single configuration file and return a vector of `config_ptr`s
+    ConfigOptionsVector parseFile(const string& filePath)
     {
-        int myInt;
-        std::stringstream ss{ str };
-        if(!(ss >> myInt)) // std::stringstream extraction operator performs casts if it can returns false otherwise
-            return false;
-        return true;
+        std::ifstream file{ filePath };
+        if (!file)
+        {
+            std::cerr << filePath << " could not be opened\n";
+            // TODO: throw an exception
+        }
+
+        ConfigOptionsVector optionsParsed;
+
+        while (file)
+        {
+            string line;
+            std::getline(file, line);
+            std::stringstream ss{ line };
+            ss >> std::ws; // remove leading white space
+            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
+                optionsParsed.push_back( lineParser(ss) );
+        }
+
+        return optionsParsed;
     }
 
-    // Parses a single line of the configuration file and returns a pointer to a ConfigOption
-    // Assumes each line is formatted as `id = val`; all white space is ignored; does not handle comment lines
+    // Parse a single line of the configuration file and return a pointer to a ConfigOption
+    // Each line is assumed to be formatted as `id = val`; all white space is ignored
+    //      i.e. blank lines and comment lines are not handled
     config_ptr lineParser(std::stringstream& ss)
     {
         string id;
@@ -361,7 +417,7 @@ private:
             ss >> std::ws; // always remove any following white space
         }
 
-        // TODO: bundle up this code for reuse
+        // TODO: bundle up this code for reuse?
         if (val == "true" || val == "false")
             return std::make_shared< ConfigOption<bool> >   (id, stringToBool(val));
         if (isInt(val))
@@ -370,31 +426,11 @@ private:
         return std::make_shared< ConfigOption<string> > (id, val);
     }
 
-    // Parses an entire file and adds the resulting `config_ptr`s to the `options` vector
-    void parseFile()
-    {
-        std::ifstream file{ configFilePath };
-        if (!file)
-        {
-            std::cerr << configFilePath << " could not be opened\n";
-            return; // leave `options` vector empty
-        }
-
-        options.clear();
-
-        while (file)
-        {
-            string strInput;
-            std::getline(file, strInput);
-            std::stringstream ss{ strInput };
-            ss >> std::ws; // remove leading white space
-            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
-                options.push_back( lineParser(ss) );
-        }
-    }
-
-    // Validate the option IDs and data types for each option stored in the `options` vector
-    void validateOptions()
+    // Remove invalid options from a given vector of `config_ptr`s
+    // An invalid option is one which either
+    //      a) has an unrecognised `optionID`, or
+    //      b) has a `value` with an invalid value of of invalid data type for the given `optionID`
+    void removeInvalidOptions(ConfigOptionsVector& options)
     {
         auto isValidID
         {
@@ -425,66 +461,27 @@ private:
         options.erase( std::remove_if(options.begin(), options.end(), isValidID),       options.end() );
         options.erase( std::remove_if(options.begin(), options.end(), isValidDataType), options.end() );
     }
-};
 
-
-// Container class for holding configuration options. Has two main purposes
-//      1. Holding `ConfigFileParser` objects for each configuration file (local, user, global)
-//      2. Combining the multiple configuration files into a single set of configuration options
-class ConfigOptionsContainer
-{
-public:
-    ConfigOptionsContainer(string configFilePath) :
-        parserLocal { configFilePath },
-        parserUser  { homeDirectory + "/.videopreviewconfig" },
-        parserGlobal{ "/etc/videopreviewconfig" }
+    bool stringToBool(const string& str)
     {
-        mergeOptions();
+        return (str == "true"); // assumes the only inputs are "true" or "false"
     }
 
-    // Return a const reference to the `options` vector
-    const ConfigOptionsVector& getOptions()
+    int stringToInt(const string& str)
     {
-        return options;
+        int myInt;
+        std::stringstream ss{ str };
+        ss >> myInt;
+        return myInt;
     }
 
-    void setOption(AbstractConfigOption& optionIn)
+    bool isInt(const string& str)
     {
-        options.setOption(optionIn);
-    }
-
-    void print()
-    {
-        for ( auto& option : options )
-            option->print();
-    }
-
-
-private:
-    string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
-    ConfigFileParser parserLocal;
-    ConfigFileParser parserUser;
-    ConfigFileParser parserGlobal;
-    ConfigOptionsVector options;
-
-    // Merge the options vectors from each parser into a single vector
-    // For now I naively prioritise any option in the local configuration file, then the user options, then global options
-    // TODO: use more "complicated" inheritance priorities for the configuration options
-    void mergeOptions()
-    {
-        options = parserLocal.getOptions();
-        for (auto userOption : parserUser.getOptions()) // Add any "user" options that aren't specified in the "local" options
-        {
-            string id{ userOption->getID() };
-            if (parserLocal.getOptions().getOption(id) == nullptr)
-                options.push_back(parserUser.getOptions().getOption(id));
-        }
-        for (auto globalOption : parserGlobal.getOptions()) // Add any "global" options that aren't specified in either the "local" or "user" options
-        {
-            string id{ globalOption->getID() };
-            if (parserLocal.getOptions().getOption(id) == nullptr && parserUser.getOptions().getOption(id) == nullptr)
-                options.push_back(parserGlobal.getOptions().getOption(id));
-        }
+        int myInt;
+        std::stringstream ss{ str };
+        if(!(ss >> myInt)) // std::stringstream extraction operator performs casts if it can returns false otherwise
+            return false;
+        return true;
     }
 };
 
