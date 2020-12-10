@@ -388,16 +388,18 @@ private:
             std::stringstream ss{ line };
             ss >> std::ws; // remove leading white space
             if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
-                optionsParsed.push_back( lineParser(ss) );
+                optionsParsed.push_back( makeOptionFromStrings(parseLine(ss)) );
         }
 
         return optionsParsed;
     }
 
-    // Parse a single line of the configuration file and return a pointer to a ConfigOption
-    // Each line is assumed to be formatted as `id = val`; all white space is ignored
-    //      i.e. blank lines and comment lines are not handled
-    config_ptr lineParser(std::stringstream& ss)
+    using id_val_pair = std::pair<string,string>;
+
+    // Parse a single line of the configuration file and return a std::pair containing strings representing the
+    // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
+    // lines are not handled.
+    id_val_pair parseLine(std::stringstream& ss)
     {
         string id;
         string val;
@@ -417,9 +419,18 @@ private:
             ss >> std::ws; // always remove any following white space
         }
 
-        // TODO: bundle up this code for reuse?
+        return id_val_pair{ id, val };
+    }
+
+    // Return a `config_ptr` from an `id_val_pair`
+    config_ptr makeOptionFromStrings(id_val_pair inputPair)
+    {
+        string id  = inputPair.first;
+        string val = inputPair.second;
+
         if (val == "true" || val == "false")
             return std::make_shared< ConfigOption<bool> >   (id, stringToBool(val));
+
         if (isInt(val))
             return std::make_shared< ConfigOption<int> >    (id, stringToInt(val));
 
