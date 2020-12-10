@@ -151,6 +151,12 @@ public:
         return false; // If the ID has been validated, this should never to reached.
     }
 
+    // Retrun a string of the form "id = val", for writing the configuration option to a file
+    string configFileString()
+    {
+        return getID() + " = " + getValueAsString();
+    }
+
     virtual ~AbstractConfigOption() {};
 
 private:
@@ -320,6 +326,13 @@ public:
         configOptions.setOption(optionIn);
     }
 
+    void saveOption(config_ptr option, const string& filePath)
+    {
+        if (!option->validID() || !option->validDataType())
+            throw std::runtime_error("Invalid option");
+        writeOptionToFile(option, filePath);
+    }
+
     void print()
     {
         for ( auto& option : configOptions )
@@ -358,7 +371,6 @@ private:
 
         return optionsMerged;
     }
-
 
     ConfigOptionsVector parseAndValidateFile(const string& filePath)
     {
@@ -418,6 +430,55 @@ private:
         }
 
         return id_val_pair{ id, val };
+    }
+
+    // Write the configuration option stored in the `config_ptr` `option` to the file `filePath`, which is can be
+    // a new file, but is intended to be a preexisting configuration file. If the file already specifies a value
+    // for the option in question it will be overwritten. If it includes more than one specification of the option,
+    // the first will be overwritten and additonal ones will be removed.
+    void writeOptionToFile(config_ptr option, const string& filePath)
+    {
+        // Open the file for reading any preexisting content
+        std::ifstream file{ filePath };
+        if (!file)
+            throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
+
+        // Open a temporary file for writing to
+        string tempFilePath{ filePath + "temp" };
+        std::ofstream tempFile{ tempFilePath };
+        if (!tempFile)
+            throw std::runtime_error("Temporary file \"" + filePath + "\" could not be opened.\n");
+
+        // Copy content from the preexisting file to the temporary file
+        // If the preexisting file already specifies the given option, it is replaced
+        string line;
+        bool optionReplaced = false;
+        while (std::getline(file, line))
+        {
+            std::stringstream ss{ line };
+            ss >> std::ws; // Remove leading white space
+
+            if ( ss.rdbuf()->in_avail() == 0 ||          // Copy blank lines unchanged to temp file
+                 ss.peek() == '#' ||                     // Copy comment lines unchanged to temp file
+                 parseLine(ss).first != option->getID()  // Copy "other" configuration options unchanged to temp file
+                 )
+            {
+                tempFile << line << std::endl;
+                continue;
+            }
+
+            // The first time that the given option is found in the file, the new value is written to the temp file
+            // If the same option is specified again later in the file it is ignored
+            if (!optionReplaced)
+            {
+                tempFile << option->configFileString() << std::endl;
+                optionReplaced = true;
+            }
+        }
+
+        // Move contents of tempFilePath to filePath and delete tempFilePath
+        system( ("rm " + filePath).c_str() );
+        system( ("mv " + tempFilePath + ' ' + filePath).c_str() );
     }
 
     // Return a `config_ptr` from an `id_val_pair`
@@ -659,6 +720,11 @@ public:
         return configPath;
     }
 
+    config_ptr getOption(const string& optionID)
+    {
+        return options.getOptions().getOption(optionID);
+    }
+
     void setOption(AbstractConfigOption& optionIn)
     {
         try {  options.setOption(optionIn); }
@@ -668,6 +734,17 @@ public:
             return;
         }
         updatePreview();
+    }
+
+    void saveOption(config_ptr option)
+    {
+        // For now options are saved to the local configuration file
+        // TODO: allow for flexibility as to which configuration file it is saved to
+        try { options.saveOption(option, configPath); }
+        catch (std::runtime_error& exception)
+        {
+            std::cerr << "Could not save option: " << exception.what();
+        }
     }
 
     // Exports all frames in the `frames` vector as bitmaps
@@ -726,8 +803,9 @@ int main( int argc, char** argv )
             std::cerr << "Ignoring additional arguments.\n";
 
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
-        ConfigOption<int> updatedOption{"number_of_frames",0};
+        ConfigOption<int> updatedOption{"number_of_frames",5};
         vidprev.setOption(updatedOption);
+        vidprev.saveOption(vidprev.getOption("number_of_frames"));
     }
     catch (std::exception& exception)
     {
