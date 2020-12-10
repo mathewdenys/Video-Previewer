@@ -123,11 +123,11 @@ public:
     void print()
     {
         if ( getValue()->getBool().first )
-            std::cout << getName() << ": " << getValueAsString() << '\n';
+            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
         else if ( getValue()->getInt().first )
-            std::cout << getName() << ": " << getValueAsString() << '\n';
+            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
         else if ( getValue()->getString().first )
-            std::cout << getName() << ": " << getValueAsString() << '\n';
+            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
     }
 
     bool validID()
@@ -585,6 +585,7 @@ public:
     void exportBitmap(string& exportPath)
     {
         string fileName = exportPath + "frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
+        std::cout << '\t' << fileName << '\n';
         cv::imwrite(fileName, getData());
     }
 
@@ -666,6 +667,7 @@ public:
     // Needs to be run on start-up, and whenever configuration options are changed
     void updatePreview()
     {
+        std::cout << "Updating preview\n";
         printConfig();
         makeFrames();
         exportFrames();
@@ -741,7 +743,11 @@ public:
 
     void setOption(AbstractConfigOption& optionIn)
     {
-        try {  optionsHandler.setOption(optionIn); }
+        try
+        {
+            std::cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << '\n';
+            optionsHandler.setOption(optionIn);
+        }
         catch ( std::runtime_error& exception )
         {
             std::cerr << exception.what();
@@ -765,6 +771,7 @@ public:
     void exportFrames()
     {
         system(("mkdir -p " + exportPath).c_str());
+        std::cout << "Exporting frame bitmaps\n";
         for (auto& frame : frames)
             frame->exportBitmap(exportPath);
     }
@@ -780,7 +787,7 @@ public:
             frameNumbers.push_back(frame->getFrameNumber());
         frameNumbers.push_back(video.numberOfFrames());
 
-        std::cout << "exporting videos\n";
+        std::cout << "Exporting video previews\n";
         int index = 0;
         while ( index < frameNumbers.size()-1 )
         {
@@ -790,7 +797,11 @@ public:
 
     }
 
-    void printConfig() { optionsHandler.print(); }
+    void printConfig()
+    {
+        std::cout << "Current configuration options:\n";
+        optionsHandler.print();
+    }
 
     //TODO: Make a destructor that clears up the temporary directory
     //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
