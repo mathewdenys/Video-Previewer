@@ -374,7 +374,15 @@ private:
 
     ConfigOptionsVector parseAndValidateFile(const string& filePath)
     {
-        ConfigOptionsVector optionsParsed = parseFile(filePath);
+        ConfigOptionsVector optionsParsed;
+        try
+        {
+            optionsParsed = parseFile(filePath);
+        }
+        catch (std::runtime_error& exception)
+        {
+            std::cerr << "Could not parse file \"" + filePath + "\" : " << exception.what();
+        }
         removeInvalidOptions(optionsParsed);
         return optionsParsed;
     }
@@ -384,17 +392,13 @@ private:
     {
         std::ifstream file{ filePath };
         if (!file)
-        {
-            std::cerr << filePath << " could not be opened\n";
-            // TODO: throw an exception
-        }
+            throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
 
         ConfigOptionsVector optionsParsed;
 
-        while (file)
+        string line;
+        while (std::getline(file, line))
         {
-            string line;
-            std::getline(file, line);
             std::stringstream ss{ line };
             ss >> std::ws; // remove leading white space
             if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
