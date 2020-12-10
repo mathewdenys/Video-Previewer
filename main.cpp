@@ -522,7 +522,7 @@ private:
             {
                 if (!option->validID())
                 {
-                    std::cerr << "Ignoring unrecognized option \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";
+                    std::cerr << "Ignoring unrecognized option \"" << option->getID() << "\"\n";
                     return true;
                 }
                 return false;
@@ -535,7 +535,7 @@ private:
             {
                 if (!option->validDataType())
                 {
-                    std::cerr << "Ignoring option with invalid value \"" << option->getID() << "\" in configuration file \"" << getFilePath() << "\"\n";     // TODO: output the invalid value, and why it is invalid
+                    std::cerr << "Ignoring option with invalid value \"" << option->getID() << "\"\n";
                     return true;
                 }
                 return false;
