@@ -390,6 +390,8 @@ private:
     // Parse a single configuration file and return a vector of `config_ptr`s
     ConfigOptionsVector parseFile(const string& filePath)
     {
+
+        std::cout << "Parsing \"" << filePath << "\"\n";
         std::ifstream file{ filePath };
         if (!file)
             throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
