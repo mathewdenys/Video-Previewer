@@ -295,17 +295,17 @@ private:
 
 
 
-// Container class for holding configuration options. Has three main purposes
+// Container class for dealing with configuration options. Has three main purposes
 //      1. Reading in options from configuration files
 //          1a. Merging all the cnfiguration files into a single set of options
 //          1b. Validating the format of the configuration options for use elsewhere
 //      2. Storing the current state of the configuration options
 //          2a. Providing a public interface for changing configuration options
 //      3. Writing options to configuration files
-class ConfigOptionsContainer
+class ConfigOptionsHandler
 {
 public:
-    ConfigOptionsContainer(string configFilePathIn) :
+    ConfigOptionsHandler(string configFilePathIn) :
         localConfigFilePath{ configFilePathIn }
     {
         configOptions = readAndMergeOptions();
@@ -638,14 +638,14 @@ private:
 
 
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
-//      1. `video`:   a `Video` object.            Deals with the core video file which is being previewed
-//      2. `frames`:  a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
-//      3. `options`: a `ConfigOptionsContainer`.  Deals with any options supplied by configuration files
+//      1. `video`:          a `Video` object.            Deals with the core video file which is being previewed
+//      2. `frames`:         a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
+//      3. `optionsHandler`: a `ConfigOptionsHandler`.    Deals with any options supplied by configuration files
 class VideoPreview
 {
 public:
     VideoPreview(const string& videoPathIn)
-        : videoPath{ videoPathIn }, video{ videoPathIn }, options{ determineConfigPath() }
+        : videoPath{ videoPathIn }, video{ videoPathIn }, optionsHandler{ determineConfigPath() }
     {
         determineExportPath();
         determineConfigPath();
@@ -667,7 +667,7 @@ public:
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        int NFrames{ options.getOptions().getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
+        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
         int frameSampling = totalFrames/NFrames + 1;
 
         frames.clear();
@@ -709,7 +709,7 @@ public:
     }
 
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
-    // Returns exportPath, for use in the `options` constructor
+    // Returns exportPath, for use in the `optionsHandler` constructor
     // Modified from https://stackoverflow.com/a/8520815
     string& determineConfigPath()
     {
@@ -726,12 +726,12 @@ public:
 
     config_ptr getOption(const string& optionID)
     {
-        return options.getOptions().getOption(optionID);
+        return optionsHandler.getOptions().getOption(optionID);
     }
 
     void setOption(AbstractConfigOption& optionIn)
     {
-        try {  options.setOption(optionIn); }
+        try {  optionsHandler.setOption(optionIn); }
         catch ( std::runtime_error& exception )
         {
             std::cerr << exception.what();
@@ -744,7 +744,7 @@ public:
     {
         // For now options are saved to the local configuration file
         // TODO: allow for flexibility as to which configuration file it is saved to
-        try { options.saveOption(option, configPath); }
+        try { optionsHandler.saveOption(option, configPath); }
         catch (std::runtime_error& exception)
         {
             std::cerr << "Could not save option: " << exception.what();
@@ -780,7 +780,7 @@ public:
 
     }
 
-    void printConfig() { options.print(); }
+    void printConfig() { optionsHandler.print(); }
 
     //TODO: Make a destructor that clears up the temporary directory
     //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
@@ -790,7 +790,7 @@ private:
     string exportPath; // path the the directory for exporting temporary files to
     string configPath; // path to the configuration file
     Video video;
-    ConfigOptionsContainer options;
+    ConfigOptionsHandler optionsHandler;
     vector<std::unique_ptr<Frame> > frames;
 };
 
