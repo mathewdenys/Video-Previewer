@@ -109,6 +109,7 @@ class AbstractConfigOption
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
     virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
+    virtual string getValueAsString() = 0;
     string  getID()   { return optionID; }
     string  getName()
     {
@@ -122,11 +123,11 @@ public:
     void print()
     {
         if ( getValue()->getBool().first )
-            std::cout << getName() << ": " << getValue()->getBool().second << '\n';
+            std::cout << getName() << ": " << getValueAsString() << '\n';
         else if ( getValue()->getInt().first )
-            std::cout << getName() << ": " << getValue()->getInt().second << '\n';
+            std::cout << getName() << ": " << getValueAsString() << '\n';
         else if ( getValue()->getString().first )
-            std::cout << getName() << ": " << getValue()->getString().second << '\n';
+            std::cout << getName() << ": " << getValueAsString() << '\n';
     }
 
     bool validID()
@@ -200,11 +201,16 @@ public:
         optionValue = new ConfigValue<T>{ valIn };
     }
     virtual const AbstractConfigValue* getValue() override { return optionValue; }
+    virtual string getValueAsString() override;
     virtual ~ConfigOption() override { delete optionValue;}
 
 private:
     ConfigValue<T>* optionValue;
 };
+
+template<> string ConfigOption<bool>::getValueAsString()   { return (optionValue->getBool().second ? "true" : "false"); }
+template<> string ConfigOption<int>::getValueAsString()    { return std::to_string(optionValue->getInt().second); }
+template<> string ConfigOption<string>::getValueAsString() { return optionValue->getString().second; }
 
 
 
@@ -252,15 +258,7 @@ public:
 
         if (!optionIn.validDataType())
         {
-            string value;
-
-            if (optionIn.getValue()->getBool().first)
-                value = optionIn.getValue()->getBool().second ? "true" : "false";
-            if (optionIn.getValue()->getInt().first)
-                value = std::to_string(optionIn.getValue()->getInt().second);
-            if (optionIn.getValue()->getString().first)
-                value = optionIn.getValue()->getString().second;
-
+            string value = optionIn.getValueAsString();
             throw std::runtime_error("Could not set option due to invalid value: \"" + optionIn.getID() + "\" cannot have the value \"" + value + "\".\n");
         }
 
