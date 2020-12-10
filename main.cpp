@@ -247,6 +247,23 @@ public:
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
     void setOption(AbstractConfigOption& optionIn)
     {
+        if (!optionIn.validID())
+            throw std::runtime_error("Could not set option due to invalid ID \"" + optionIn.getID() + "\".\n");
+
+        if (!optionIn.validDataType())
+        {
+            string value;
+
+            if (optionIn.getValue()->getBool().first)
+                value = optionIn.getValue()->getBool().second ? "true" : "false";
+            if (optionIn.getValue()->getInt().first)
+                value = std::to_string(optionIn.getValue()->getInt().second);
+            if (optionIn.getValue()->getString().first)
+                value = optionIn.getValue()->getString().second;
+
+            throw std::runtime_error("Could not set option due to invalid value: \"" + optionIn.getID() + "\" cannot have the value \"" + value + "\".\n");
+        }
+
         auto IDexists
         {
             [&optionIn](config_ptr option)
@@ -638,7 +655,12 @@ public:
 
     void setOption(AbstractConfigOption& optionIn)
     {
-        options.setOption(optionIn);
+        try {  options.setOption(optionIn); }
+        catch ( std::runtime_error& exception )
+        {
+            std::cerr << exception.what();
+            return;
+        }
         updatePreview();
     }
 
@@ -698,7 +720,7 @@ int main( int argc, char** argv )
             std::cerr << "Ignoring additional arguments.\n";
 
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
-        ConfigOption<bool> updatedOption{"show_frame_info",false};
+        ConfigOption<int> updatedOption{"number_of_frames",0};
         vidprev.setOption(updatedOption);
     }
     catch (std::exception& exception)
