@@ -340,7 +340,9 @@ public:
 
 private:
     string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
-    string localConfigFilePath;
+    string localConfigFilePath; // Not known at compile time; initialised in the constructor
+    string userConfigFilePath{ homeDirectory + "/.config/videopreview" };
+    string globalConfigFilePath{ "/etc/videopreviewconfig" };
     ConfigOptionsVector configOptions;
 
     // Parse each of the configuration files and merge them into a single vector of `config_ptr`s
@@ -349,8 +351,8 @@ private:
     ConfigOptionsVector readAndMergeOptions()
     {
         ConfigOptionsVector optionsLocal  = parseAndValidateFile(localConfigFilePath);
-        ConfigOptionsVector optionsUser   = parseAndValidateFile(homeDirectory + "/.config/videopreview");
-        ConfigOptionsVector optionsGlobal = parseAndValidateFile("/etc/videopreviewconfig");
+        ConfigOptionsVector optionsUser   = parseAndValidateFile(userConfigFilePath);
+        ConfigOptionsVector optionsGlobal = parseAndValidateFile(globalConfigFilePath);
 
         ConfigOptionsVector optionsMerged{ optionsLocal };
 
