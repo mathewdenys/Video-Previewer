@@ -294,6 +294,16 @@ private:
 
 
 
+// Enum class that enumerates the different configuration files
+enum class ConfigFileLocation
+{
+    LOCAL,
+    USER,
+    GLOBAL,
+};
+
+
+
 // Container class for dealing with configuration options. Has three main purposes
 //      1. Reading in options from configuration files
 //          1a. Merging all the cnfiguration files into a single set of options
@@ -325,11 +335,22 @@ public:
         configOptions.setOption(optionIn);
     }
 
-    void saveOption(config_ptr option, const string& filePath)
+    void saveOption(config_ptr option, const ConfigFileLocation& configFileLocation)
     {
         if (!option->validID() || !option->validDataType())
             throw std::runtime_error("Invalid option");
-        writeOptionToFile(option, filePath);
+
+        switch (configFileLocation) {
+        case ConfigFileLocation::GLOBAL:
+            throw std::runtime_error("Cannot write to global configuration file\n");
+            break;
+        case ConfigFileLocation::USER:
+            writeOptionToFile(option, userConfigFilePath);
+            break;
+        case ConfigFileLocation::LOCAL:
+            writeOptionToFile(option, localConfigFilePath);
+            break;
+        }
     }
 
     void print()
@@ -697,11 +718,12 @@ public:
         updatePreview();
     }
 
-    void saveOption(config_ptr option)
+    void saveOption(config_ptr option, const ConfigFileLocation& configFileLocation)
     {
-        // For now options are saved to the local configuration file
-        // TODO: allow for flexibility as to which configuration file it is saved to
-        try { optionsHandler.saveOption(option, configPath); }
+        try
+        {
+            optionsHandler.saveOption(option, configFileLocation);
+        }
         catch (std::runtime_error& exception)
         {
             std::cerr << "Could not save option: " << exception.what();
@@ -832,7 +854,7 @@ int main( int argc, char** argv )
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
         ConfigOption<int> updatedOption{"number_of_frames",5};
         vidprev.setOption(updatedOption);
-        vidprev.saveOption(vidprev.getOption("number_of_frames"));
+        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::GLOBAL);
     }
     catch (std::exception& exception)
     {
