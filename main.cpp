@@ -3,9 +3,8 @@
 #include <sstream>
 #include <memory>
 #include <vector>
-#include <utility>    // for std::pair
 #include <map>
-#include <sys/stat.h> // for mkdir
+#include <utility>    // for std::pair
 #include <cstdlib>    // for std::getenv
 
 #if defined(__has_warning)
@@ -26,22 +25,23 @@
 #endif
 
 
+using std::cout;
 using std::string;
+using std::stringstream;
 using std::array;
 using std::vector;
 using std::pair;
 using cv::Mat;
 
 
-// Base class for storing a configuration value. Can store the value as either a bool, int, or string (and
-// this can be expanded as needed). ConfigValue itself should not be used, but rather its derived classes.
+// Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
 // that the data type is what they were expecting.
 class AbstractConfigValue
 {
 public:
-    // const functions allow `ConfigValue` objects (and derived classes) to be returned by const pointer
+    // const functions allow `AbstractConfigValue` objects to be returned by const pointer
     virtual pair<bool,bool>   getBool()   const = 0;
     virtual pair<bool,int>    getInt()    const = 0;
     virtual pair<bool,string> getString() const = 0;
@@ -102,32 +102,37 @@ private:
 
 
 
-// Abstract base class for storing a single configuration option. One of the the derived `ConfigOptionX`
-// classes is created for each option loaded from the configuration files for a given `VideoPreview` object.
+// Abstract base class for storing a single configuration option. One of its derived classes is created
+// for each option loaded from the configuration files for a given `VideoPreview` object.
 class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
     virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     virtual string getValueAsString() = 0;
-    string  getID()   { return optionID; }
+
+    string  getID()
+    {
+        return optionID;
+    }
+
     string  getName()
     {
         for (auto el : recognisedConfigOptions)
             if (el.getID() == optionID)
                 return el.getDescription();
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
+    }
 
+    // Retrun a string of the form "id = val", for writing the configuration option to a file
+    string configFileString()
+    {
+        return getID() + " = " + getValueAsString();
     }
 
     void print()
     {
-        if ( getValue()->getBool().first )
-            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
-        else if ( getValue()->getInt().first )
-            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
-        else if ( getValue()->getString().first )
-            std::cout << '\t' << getName() << ": " << getValueAsString() << '\n';
+        cout << '\t' << getName() << ": " << getValueAsString() << '\n';
     }
 
     bool validID()
@@ -151,17 +156,10 @@ public:
         return false; // If the ID has been validated, this should never to reached.
     }
 
-    // Retrun a string of the form "id = val", for writing the configuration option to a file
-    string configFileString()
-    {
-        return getID() + " = " + getValueAsString();
-    }
-
     virtual ~AbstractConfigOption() {};
 
 private:
     string optionID;
-
     const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
 
     bool optionValueIsBool()
@@ -201,14 +199,15 @@ public:
         AbstractConfigOption{ nameIn },
         optionValue{ new ConfigValue<T>{ valIn } } {}
 
-    void setValue(const bool valIn)
+    void setValue(const bool valIn) override
     {
         delete optionValue;
         optionValue = new ConfigValue<T>{ valIn };
     }
-    virtual const AbstractConfigValue* getValue() override { return optionValue; }
-    virtual string getValueAsString() override;
-    virtual ~ConfigOption() override { delete optionValue;}
+
+    const AbstractConfigValue* getValue() override { return optionValue; }
+    string getValueAsString() override;
+    ~ConfigOption() override { delete optionValue;}
 
 private:
     ConfigValue<T>* optionValue;
@@ -222,14 +221,14 @@ template<> string ConfigOption<string>::getValueAsString() { return optionValue-
 
 using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
 
-// Container class for a std::vector of config_ptrs, with helper functions
+// Container class for a vector of config_ptrs, with helper functions
 class ConfigOptionsVector
 {
 public:
+    ConfigOptionsVector() {} // Default constructor
     ConfigOptionsVector(vector<config_ptr> optionsIn ) : options{ optionsIn } {}
-    ConfigOptionsVector() {}
 
-    using iterator = vector<config_ptr>::iterator;
+    using iterator       = vector<config_ptr>::iterator;
     using const_iterator = vector<config_ptr>::const_iterator;
 
     // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
@@ -238,7 +237,7 @@ public:
     const_iterator begin() const { return options.begin(); }
     const_iterator end()   const { return options.end();   }
 
-    // The following functions provide a similar public interface as a std::vector (while limiting direct access to `options`)
+    // The following functions provide a similar public interface as a vector (while limiting direct access to `options`)
     void erase(iterator i) { options.erase(i); }
     void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
     void push_back(config_ptr option)  { options.push_back(option); }
@@ -391,7 +390,7 @@ private:
     ConfigOptionsVector parseFile(const string& filePath)
     {
 
-        std::cout << "Parsing \"" << filePath << "\"\n";
+        cout << "Parsing \"" << filePath << "\"\n";
         std::ifstream file{ filePath };
         if (!file)
             throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
@@ -401,7 +400,7 @@ private:
         string line;
         while (std::getline(file, line))
         {
-            std::stringstream ss{ line };
+            stringstream ss{ line };
             ss >> std::ws; // remove leading white space
 
             // Ignore blank lines and comment lines
@@ -418,12 +417,12 @@ private:
         return optionsParsed;
     }
 
-    using id_val_pair = std::pair<string,string>;
+    using id_val_pair = pair<string,string>;
 
     // Parse a single line of the configuration file and return a std::pair containing strings representing the
     // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
     // lines are not handled.
-    id_val_pair parseLine(std::stringstream& ss)
+    id_val_pair parseLine(stringstream& ss)
     {
         string id;
         string val;
@@ -469,7 +468,7 @@ private:
         bool optionReplaced = false;
         while (std::getline(file, line))
         {
-            std::stringstream ss{ line };
+            stringstream ss{ line };
             ss >> std::ws; // Remove leading white space
 
             if ( ss.rdbuf()->in_avail() == 0 ||          // Copy blank lines unchanged to temp file
@@ -554,7 +553,7 @@ private:
     int stringToInt(const string& str)
     {
         int myInt;
-        std::stringstream ss{ str };
+        stringstream ss{ str };
         ss >> myInt;
         return myInt;
     }
@@ -562,8 +561,8 @@ private:
     bool isInt(const string& str)
     {
         int myInt;
-        std::stringstream ss{ str };
-        if(!(ss >> myInt)) // std::stringstream extraction operator performs casts if it can returns false otherwise
+        stringstream ss{ str };
+        if(!(ss >> myInt)) // stringstream extraction operator performs casts if it can returns false otherwise
             return false;
         return true;
     }
@@ -585,7 +584,7 @@ public:
     void exportBitmap(string& exportPath)
     {
         string fileName = exportPath + "frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
-        std::cout << '\t' << fileName << '\n';
+        cout << '\t' << fileName << '\n';
         cv::imwrite(fileName, getData());
     }
 
@@ -619,7 +618,7 @@ public:
         cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getFrameSize());
         setFrameNumber(frameBegin);
 
-        std::cout << '\t' << fileName << '\n';
+        cout << '\t' << fileName << '\n';
 
         int frameNumber = frameBegin;
         while(frameNumber < frameEnd)
@@ -655,8 +654,10 @@ private:
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn)
-        : videoPath{ videoPathIn }, video{ videoPathIn }, optionsHandler{ determineConfigPath() }
+    VideoPreview(const string& videoPathIn) :
+        videoPath{ videoPathIn },
+        video{ videoPathIn },
+        optionsHandler{ determineConfigPath() }
     {
         determineExportPath();
         determineConfigPath();
@@ -664,76 +665,14 @@ public:
     }
 
     // Everything that needs to be run in order to update the actual video preview that the user sees
-    // Needs to be run on start-up, and whenever configuration options are changed
+    // To be run on start-up and whenever configuration options are changed
     void updatePreview()
     {
-        std::cout << "Updating preview\n";
+        cout << "Updating preview\n";
         printConfig();
         makeFrames();
         exportFrames();
         exportPreviewVideos();
-
-    }
-
-    // Reads in appropriate configuration options and writes over the `frames` vector
-    void makeFrames()
-    {
-        int totalFrames = video.numberOfFrames();
-        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().second }; // TODO: proper error checking that this in an integer-type option
-        int frameSampling = totalFrames/NFrames + 1;
-
-        frames.clear();
-        int i  = 0;
-        for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
-        {
-            Mat currentFrameMat;
-            video.setFrameNumber(frameNumber);
-            video.writeCurrentFrame(currentFrameMat);
-            frames.push_back(std::make_unique<Frame>(currentFrameMat, frameNumber));
-            i++;
-        }
-    }
-
-    // Parse `videopath` in order to determine the directory to which temporary files should be stored
-    // Modified from https://stackoverflow.com/a/8520815
-    string& determineExportPath()
-    {
-        string directoryPath;
-        string fileName;
-
-        // Extract the directory path and file name from videoPath
-        // These are separated by the last slash in videoPath
-        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
-        if (std::string::npos != lastSlashIndex)
-        {
-            directoryPath = videoPath.substr(0,lastSlashIndex+1);
-            fileName       = videoPath.substr(lastSlashIndex+1);
-        }
-
-        // Remove extension from fileName
-        const size_t periodIndex = fileName.rfind('.');
-        if (std::string::npos != periodIndex)
-            fileName.erase(periodIndex);
-
-        exportPath = directoryPath + ".videopreview/" + fileName + "/";
-
-        return exportPath;
-    }
-
-    // Parse `videopath` in order to determine the directory to which temporary files should be stored
-    // Returns exportPath, for use in the `optionsHandler` constructor
-    // Modified from https://stackoverflow.com/a/8520815
-    string& determineConfigPath()
-    {
-        // Extract the directory path from videoPath
-        // These are separated by the last slash in videoPath
-        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
-        if (std::string::npos != lastSlashIndex)
-            configPath = videoPath.substr(0,lastSlashIndex+1);
-
-        configPath += ".videopreviewconfig";
-
-        return configPath;
     }
 
     config_ptr getOption(const string& optionID)
@@ -745,7 +684,7 @@ public:
     {
         try
         {
-            std::cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << '\n';
+            cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << '\n';
             optionsHandler.setOption(optionIn);
         }
         catch ( std::runtime_error& exception )
@@ -767,11 +706,90 @@ public:
         }
     }
 
+    void printConfig()
+    {
+        cout << "Current configuration options:\n";
+        optionsHandler.print();
+    }
+
+    //TODO: Make a destructor that clears up the temporary directory
+    //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
+
+private:
+    string videoPath;  // path to the video file
+    string exportPath; // path the the directory for exporting temporary files to
+    string configPath; // path to the local configuration file
+    Video video;
+    ConfigOptionsHandler optionsHandler;
+    vector<std::unique_ptr<Frame> > frames;
+
+    // Parse `videopath` in order to determine the directory to which temporary files should be stored
+    // This is saved to `exportPath`, and also returned from the function
+    // Modified from https://stackoverflow.com/a/8520815
+    string& determineExportPath()
+    {
+        string directoryPath;
+        string fileName;
+
+        // Extract the directory path and file name from videoPath
+        // These are separated by the last slash in videoPath
+        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
+        if (string::npos != lastSlashIndex)
+        {
+            directoryPath = videoPath.substr(0,lastSlashIndex+1);
+            fileName       = videoPath.substr(lastSlashIndex+1);
+        }
+
+        // Remove extension from fileName
+        const size_t periodIndex = fileName.rfind('.');
+        if (string::npos != periodIndex)
+            fileName.erase(periodIndex);
+
+        exportPath = directoryPath + ".videopreview/" + fileName + "/";
+
+        return exportPath;
+    }
+
+    // Parse `videoPath` in order to determine the directory to which temporary files should be stored
+    // This is saved to `configPath`, and also returned from the function (for use in the `optionsHandler` constructor)
+    // Modified from https://stackoverflow.com/a/8520815
+    string& determineConfigPath()
+    {
+        // Extract the directory path from videoPath
+        // These are separated by the last slash in videoPath
+        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
+        if (string::npos != lastSlashIndex)
+            configPath = videoPath.substr(0,lastSlashIndex+1);
+
+        configPath += ".videopreviewconfig";
+
+        return configPath;
+    }
+
+    // Read in appropriate configuration options and write over the `frames` vector
+    void makeFrames()
+    {
+        int totalFrames = video.numberOfFrames();
+        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().second };
+        int frameSampling = totalFrames/NFrames + 1;
+
+        frames.clear();
+        int i  = 0;
+        for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
+        {
+            Mat currentFrameMat;
+            video.setFrameNumber(frameNumber);
+            video.writeCurrentFrame(currentFrameMat);
+            frames.push_back(std::make_unique<Frame>(currentFrameMat, frameNumber));
+            i++;
+        }
+    }
+
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
         system(("mkdir -p " + exportPath).c_str());
-        std::cout << "Exporting frame bitmaps\n";
+        cout << "Exporting frame bitmaps\n";
         for (auto& frame : frames)
             frame->exportBitmap(exportPath);
     }
@@ -787,32 +805,14 @@ public:
             frameNumbers.push_back(frame->getFrameNumber());
         frameNumbers.push_back(video.numberOfFrames());
 
-        std::cout << "Exporting video previews\n";
+        cout << "Exporting video previews\n";
         int index = 0;
         while ( index < frameNumbers.size()-1 )
         {
             video.exportVideo(exportPath, frameNumbers[index], frameNumbers[index+1]);
             ++index;
         }
-
     }
-
-    void printConfig()
-    {
-        std::cout << "Current configuration options:\n";
-        optionsHandler.print();
-    }
-
-    //TODO: Make a destructor that clears up the temporary directory
-    //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
-
-private:
-    string videoPath;  // path to the video file
-    string exportPath; // path the the directory for exporting temporary files to
-    string configPath; // path to the configuration file
-    Video video;
-    ConfigOptionsHandler optionsHandler;
-    vector<std::unique_ptr<Frame> > frames;
 };
 
 
