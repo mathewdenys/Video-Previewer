@@ -349,7 +349,7 @@ private:
     ConfigOptionsVector readAndMergeOptions()
     {
         ConfigOptionsVector optionsLocal  = parseAndValidateFile(localConfigFilePath);
-        ConfigOptionsVector optionsUser   = parseAndValidateFile(homeDirectory + "/.videopreviewconfig");
+        ConfigOptionsVector optionsUser   = parseAndValidateFile(homeDirectory + "/.config/videopreview");
         ConfigOptionsVector optionsGlobal = parseAndValidateFile("/etc/videopreviewconfig");
 
         ConfigOptionsVector optionsMerged{ optionsLocal };
