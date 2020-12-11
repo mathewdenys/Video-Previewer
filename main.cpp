@@ -199,7 +199,7 @@ public:
         AbstractConfigOption{ nameIn },
         optionValue{ new ConfigValue<T>{ valIn } } {}
 
-    void setValue(const bool valIn) override
+    void setValue(const T valIn)
     {
         delete optionValue;
         optionValue = new ConfigValue<T>{ valIn };
