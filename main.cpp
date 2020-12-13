@@ -217,17 +217,17 @@ template<> string ConfigOption<string>::getValueAsString() { return optionValue-
 
 
 
-using config_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_ptr`s to be safely returned by functions
+using config_option_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_option_ptr`s to be safely returned by functions
 
 // Container class for a vector of config_ptrs, with helper functions
 class ConfigOptionsVector
 {
 public:
     ConfigOptionsVector() {} // Default constructor
-    ConfigOptionsVector(vector<config_ptr> optionsIn ) : options{ optionsIn } {}
+    ConfigOptionsVector(vector<config_option_ptr> optionsIn ) : options{ optionsIn } {}
 
-    using iterator       = vector<config_ptr>::iterator;
-    using const_iterator = vector<config_ptr>::const_iterator;
+    using iterator       = vector<config_option_ptr>::iterator;
+    using const_iterator = vector<config_option_ptr>::const_iterator;
 
     // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
     iterator begin(){ return options.begin(); }
@@ -238,13 +238,13 @@ public:
     // The following functions provide a similar public interface as a vector (while limiting direct access to `options`)
     void erase(iterator i) { options.erase(i); }
     void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
-    void push_back(config_ptr option)  { options.push_back(option); }
+    void push_back(config_option_ptr option)  { options.push_back(option); }
     void clear() { options.clear(); }
 
-    // Return a `config_ptr` to the element in `options` corresponding to `optionID`.
+    // Return a `config_option_ptr` to the element in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
     // It is up to the caller to verify if nullptr has been returned.
-    config_ptr getOption(const string optionID) const
+    config_option_ptr getOption(const string optionID) const
     {
         for ( auto& option : options)
             if (option->getID() == optionID)
@@ -267,7 +267,7 @@ public:
 
         auto IDexists
         {
-            [&optionIn](config_ptr option)
+            [&optionIn](config_option_ptr option)
             {
                 return option->getID() == optionIn.getID();
             }
@@ -287,7 +287,7 @@ public:
     }
 
 private:
-    vector<config_ptr> options;
+    vector<config_option_ptr> options;
 };
 
 
@@ -333,7 +333,7 @@ public:
         configOptions.setOption(optionIn);
     }
 
-    void saveOption(config_ptr option, const ConfigFileLocation& configFileLocation)
+    void saveOption(config_option_ptr option, const ConfigFileLocation& configFileLocation)
     {
         if (!option->validID() || !option->validDataType())
             throw std::runtime_error("Invalid option");
@@ -364,7 +364,7 @@ private:
     string globalConfigFilePath{ "/etc/videopreviewconfig" };
     ConfigOptionsVector configOptions;
 
-    // Parse each of the configuration files and merge them into a single vector of `config_ptr`s
+    // Parse each of the configuration files and merge them into a single vector of `config_option_ptr`s
     // For now I naively prioritise the local configuration file, then user options, then global options
     // TODO: use more "complicated" inheritance priorities for the configuration options
     ConfigOptionsVector readAndMergeOptions()
@@ -407,7 +407,7 @@ private:
         return optionsParsed;
     }
 
-    // Parse a single configuration file and return a vector of `config_ptr`s
+    // Parse a single configuration file and return a vector of `config_option_ptr`s
     ConfigOptionsVector parseFile(const string& filePath)
     {
 
@@ -428,7 +428,7 @@ private:
             if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
                 continue;
 
-            config_ptr newOption = makeOptionFromStrings(parseLine(ss));
+            config_option_ptr newOption = makeOptionFromStrings(parseLine(ss));
 
             // Ignore lines with duplicate options
             if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
@@ -466,11 +466,11 @@ private:
         return id_val_pair{ id, val };
     }
 
-    // Write the configuration option stored in the `config_ptr` `option` to the file `filePath`, which is can be
+    // Write the configuration option stored in the `config_option_ptr` `option` to the file `filePath`, which is can be
     // a new file, but is intended to be a preexisting configuration file. If the file already specifies a value
     // for the option in question it will be overwritten. If it includes more than one specification of the option,
     // the first will be overwritten and additonal ones will be removed.
-    void writeOptionToFile(config_ptr option, const string& filePath)
+    void writeOptionToFile(config_option_ptr option, const string& filePath)
     {
         // Open the file for reading any preexisting content
         std::ifstream file{ filePath };
@@ -515,8 +515,8 @@ private:
         system( ("mv " + tempFilePath + ' ' + filePath).c_str() );
     }
 
-    // Return a `config_ptr` from an `id_val_pair`
-    config_ptr makeOptionFromStrings(id_val_pair inputPair)
+    // Return a `config_option_ptr` from an `id_val_pair`
+    config_option_ptr makeOptionFromStrings(id_val_pair inputPair)
     {
         string id  = inputPair.first;
         string val = inputPair.second;
@@ -530,7 +530,7 @@ private:
         return std::make_shared< ConfigOption<string> > (id, val);
     }
 
-    // Remove invalid options from a given vector of `config_ptr`s
+    // Remove invalid options from a given vector of `config_option_ptr`s
     // An invalid option is one which either
     //      a) has an unrecognised `optionID`, or
     //      b) has a `value` with an invalid value of of invalid data type for the given `optionID`
@@ -538,7 +538,7 @@ private:
     {
         auto isValidID
         {
-            [this](config_ptr option) // capture `this` for getFilePath()
+            [this](config_option_ptr option) // capture `this` for getFilePath()
             {
                 if (!option->validID())
                 {
@@ -551,7 +551,7 @@ private:
 
         auto isValidDataType
         {
-            [this](config_ptr option) // capture `this` for getFilePath()
+            [this](config_option_ptr option) // capture `this` for getFilePath()
             {
                 if (!option->validDataType())
                 {
@@ -696,7 +696,7 @@ public:
         exportPreviewVideos();
     }
 
-    config_ptr getOption(const string& optionID)
+    config_option_ptr getOption(const string& optionID)
     {
         return optionsHandler.getOptions().getOption(optionID);
     }
@@ -716,7 +716,7 @@ public:
         updatePreview();
     }
 
-    void saveOption(config_ptr option, const ConfigFileLocation& configFileLocation)
+    void saveOption(config_option_ptr option, const ConfigFileLocation& configFileLocation)
     {
         try
         {
