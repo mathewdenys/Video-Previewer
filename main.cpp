@@ -766,11 +766,6 @@ private:
             fileName       = videoPath.substr(lastSlashIndex+1);
         }
 
-        // Remove extension from fileName
-        const size_t periodIndex = fileName.rfind('.');
-        if (string::npos != periodIndex)
-            fileName.erase(periodIndex);
-
         exportPath = directoryPath + ".videopreview/" + fileName + "/";
 
         return exportPath;
