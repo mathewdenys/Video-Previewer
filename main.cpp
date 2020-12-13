@@ -100,6 +100,8 @@ private:
     DataType dataType;
 };
 
+using config_value_ptr = std::shared_ptr<AbstractConfigValue>; // Using `shared_ptr` allows `config_value_ptr`s to be safely returned by functions
+
 
 
 // Abstract base class for storing a single configuration option. One of its derived classes is created
@@ -108,7 +110,8 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
-    virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
+    //virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
+    virtual const config_value_ptr getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
     virtual string getValueAsString() = 0;
 
     string  getID()
@@ -197,20 +200,15 @@ class ConfigOption : public AbstractConfigOption
 public:
     ConfigOption(const string& nameIn, const T valIn) :
         AbstractConfigOption{ nameIn },
-        optionValue{ new ConfigValue<T>{ valIn } } {}
+        optionValue{ std::make_shared< ConfigValue<T> >(valIn) }
+    {}
 
-    void setValue(const T valIn)
-    {
-        delete optionValue;
-        optionValue = new ConfigValue<T>{ valIn };
-    }
-
-    const AbstractConfigValue* getValue() override { return optionValue; }
+    void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
+    const config_value_ptr getValue() override { return optionValue; }
     string getValueAsString() override;
-    ~ConfigOption() override { delete optionValue;}
 
 private:
-    ConfigValue<T>* optionValue;
+    config_value_ptr optionValue;
 };
 
 template<> string ConfigOption<bool>::getValueAsString()   { return (optionValue->getBool().second ? "true" : "false"); }
