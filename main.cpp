@@ -734,8 +734,12 @@ public:
         optionsHandler.print();
     }
 
-    //TODO: Make a destructor that clears up the temporary directory
-    //TODO: OR is it actually desired to leave the files there, for faster preview in the future (maybe make this an option)?
+    ~VideoPreview()
+    {
+        string exportDirectory = exportPath.erase(exportPath.length()); // Remove trailing "/" from exportPath
+        system(("rm -r " + exportDirectory).c_str());                   // Delete the temporary directory assigned to this file
+        //TODO: clean up the .videopreview directory if it is empty
+    }
 
 private:
     string videoPath;  // path to the video file
