@@ -6,6 +6,7 @@
 #include <map>
 #include <utility>    // for std::pair
 #include <cstdlib>    // for std::getenv
+#include <filesystem> // for std::filesystem::create_directories, remove, rename, is_empty, etc. [requires C++17]
 
 #if defined(__has_warning)
 #if __has_warning("-Wreserved-id-macro")
@@ -32,6 +33,8 @@ using std::array;
 using std::vector;
 using std::pair;
 using cv::Mat;
+
+namespace fs = std::filesystem;
 
 
 // Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
@@ -511,8 +514,8 @@ private:
         }
 
         // Move contents of tempFilePath to filePath and delete tempFilePath
-        system( ("rm " + filePath).c_str() );
-        system( ("mv " + tempFilePath + ' ' + filePath).c_str() );
+        fs::remove(filePath);
+        fs::rename(tempFilePath, filePath);
     }
 
     // Return a `config_option_ptr` from an `id_val_pair`
@@ -743,8 +746,7 @@ public:
 
     ~VideoPreview()
     {
-        string exportDirectory = exportPath.erase(exportPath.length()); // Remove trailing "/" from exportPath
-        system(("rm -r " + exportDirectory).c_str());                   // Delete the temporary directory assigned to this file
+        fs::remove_all(exportPath.erase(exportPath.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportPath)
         //TODO: clean up the .videopreview directory if it is empty
     }
 
@@ -817,7 +819,7 @@ private:
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
-        system(("mkdir -p " + exportPath).c_str());
+        fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
         cout << "Exporting frame bitmaps\n";
         for (auto& frame : frames)
             frame->exportBitmap(exportPath);
@@ -826,7 +828,7 @@ private:
     // Exports a "preview video" for each frame in the `frames` vector
     void exportPreviewVideos()
     {
-        system(("mkdir -p " + exportPath).c_str());
+        fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
         vector<int> frameNumbers;
         frameNumbers.reserve(frames.size()+1);
 
@@ -868,9 +870,9 @@ int main( int argc, char** argv )
             std::cerr << "Ignoring additional arguments.\n";
 
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
-        ConfigOption<int> updatedOption{"number_of_frames",5};
+        ConfigOption<int> updatedOption{"number_of_frames",2};
         vidprev.setOption(updatedOption);
-        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::GLOBAL);
+        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::LOCAL);
     }
     catch (std::exception& exception)
     {
