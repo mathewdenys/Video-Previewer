@@ -87,7 +87,7 @@ enum class DataType
 class RecognisedConfigOption
 {
 public:
-    RecognisedConfigOption(string idIn, string descriptionIn, DataType dataTypeIn) :
+    RecognisedConfigOption(const string& idIn, const string& descriptionIn, DataType dataTypeIn) :
         id          { idIn },
         description { descriptionIn },
         dataType    { dataTypeIn }
@@ -98,8 +98,8 @@ public:
     DataType& getDataType()    { return dataType; }
 
 private:
-    string id;
-    string description;   // Human-readable description
+    string id {};
+    string description {};   // Human-readable description
     DataType dataType;
 };
 
@@ -124,9 +124,9 @@ public:
 
     string  getName()
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
-                return el.getDescription();
+        for (auto option : recognisedConfigOptions)
+            if (option.getID() == optionID)
+                return option.getDescription();
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
@@ -143,20 +143,20 @@ public:
 
     bool validID()
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
+        for (auto option : recognisedConfigOptions)
+            if (option.getID() == optionID)
                 return true;
         return false;
     }
 
     bool validDataType()
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
+        for (auto option : recognisedConfigOptions)
+            if (option.getID() == optionID)
             {
-                if (el.getDataType() == DataType::BOOLEAN)
+                if (option.getDataType() == DataType::BOOLEAN)
                     return optionValueIsBool();
-                if (el.getDataType() == DataType::POSITIVE_INTEGER)
+                if (option.getDataType() == DataType::POSITIVE_INTEGER)
                     return optionValueIsPositiveInteger();
             }
         return false; // If the ID has been validated, this should never to reached.
