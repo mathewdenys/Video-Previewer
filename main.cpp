@@ -37,7 +37,7 @@ using cv::Mat;
 namespace fs = std::filesystem;
 
 
-// Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
+// ConfigValue store the value as either a bool, int, or string
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
 // that the data type is what they were expecting.
@@ -51,6 +51,14 @@ public:
     virtual pair<bool,bool>   getBool()   const;
     virtual pair<bool,int>    getInt()    const;
     virtual pair<bool,string> getString() const;
+
+	/*
+	template <class V> get<V>() const { // if V is same class as T, return value, else return default construction of V{} }
+	
+	using getBool = get<bool>;
+	using getInt = get<int>;
+	using getString = get<string>;
+	*/
 
 private:
     T value;
