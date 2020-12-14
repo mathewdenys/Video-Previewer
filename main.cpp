@@ -278,6 +278,8 @@ public:
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
 
+		// Fin out about copy constructos and make all of the following code a single line...
+
         if (optionIn.getValue()->getBool().first )
             options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().second));
 
