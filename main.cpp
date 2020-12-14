@@ -48,6 +48,7 @@ public:
     virtual pair<bool,bool>   getBool()   const = 0;
     virtual pair<bool,int>    getInt()    const = 0;
     virtual pair<bool,string> getString() const = 0;
+    virtual ~AbstractConfigValue() = default;
 };
 
 
