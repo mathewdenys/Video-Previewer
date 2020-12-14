@@ -41,25 +41,16 @@ namespace fs = std::filesystem;
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
 // that the data type is what they were expecting.
-class AbstractConfigValue
-{
-public:
-    // const functions allow `AbstractConfigValue` objects to be returned by const pointer
-    virtual pair<bool,bool>   getBool()   const = 0;
-    virtual pair<bool,int>    getInt()    const = 0;
-    virtual pair<bool,string> getString() const = 0;
-    virtual ~AbstractConfigValue() = default;
-};
 
 
 template <class T>
-class ConfigValue : public AbstractConfigValue
+class ConfigValue
 {
 public:
     ConfigValue(T valIn) : value{ valIn } {}
-    pair<bool,bool>   getBool()   const;
-    pair<bool,int>    getInt()    const;
-    pair<bool,string> getString() const;
+    virtual pair<bool,bool>   getBool()   const;
+    virtual pair<bool,int>    getInt()    const;
+    virtual pair<bool,string> getString() const;
 
 private:
     T value;
