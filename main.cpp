@@ -401,8 +401,16 @@ private:
         {
             std::stringstream ss{ line };
             ss >> std::ws; // remove leading white space
-            if (ss.rdbuf()->in_avail() !=0 && ss.peek() != '#') // Ignore blank lines and comment lines
-                optionsParsed.push_back( makeOptionFromStrings(parseLine(ss)) );
+
+            // Ignore blank lines and comment lines
+            if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
+                continue;
+
+            config_ptr newOption = makeOptionFromStrings(parseLine(ss));
+
+            // Ignore lines with duplicate options
+            if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
+                optionsParsed.push_back( newOption );
         }
 
         return optionsParsed;
