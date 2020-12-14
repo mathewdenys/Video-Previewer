@@ -747,7 +747,8 @@ public:
     ~VideoPreview()
     {
         fs::remove_all(exportPath.erase(exportPath.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportPath)
-        //TODO: clean up the .videopreview directory if it is empty
+        if (fs::is_empty("media/.videopreview"))               // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
+            fs::remove("media/.videopreview");
     }
 
 private:
