@@ -42,6 +42,42 @@ namespace fs = std::filesystem;
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
 // that the data type is what they were expecting.
 
+class ConfigValue
+{
+  public:
+    virtual bool   isBool()    const { return false; }
+    virtual bool   isInt()     const { return false; }
+    virtual bool   isString()  const { return false; }
+    virtual bool   getBool()   const { return false; }
+    virtual int    getInt()    const { return 0; }
+    virtual string getString() const { return string(); }
+};
+
+class BoolConfigValue : public ConfigValue
+{
+	BoolConfigValue(bool B) : b(B) { };
+    virtual bool   getBool()   const { return b; }
+private:
+	bool b {};
+};
+
+class IntConfigValue : public ConfigValue
+{
+	IntConfigValue(int I) : i(I) { };
+    virtual bool   getInt()   const { return i; }
+private:
+	int i {};
+};
+
+class DoubleConfigValue : public ConfigValue
+{
+	DoubleConfigValue(int I) : i(I) { };
+    virtual bool   getInt()   const { return i; }
+private:
+	int i {};
+};
+
+
 
 template <class T>
 class ConfigValue
@@ -278,16 +314,18 @@ public:
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
 
-		// Fin out about copy constructos and make all of the following code a single line...
+		// Find out about copy constructos and make all of the following code a single line...
 
-        if (optionIn.getValue()->getBool().first )
-            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().second));
+		options.push_back( std::make_shared<ConfigValue>(option) );
 
-        if (optionIn.getValue()->getInt().first )
-            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().second));
-
-        if (optionIn.getValue()->getString().first )
-            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().second));
+//        if (optionIn.getValue()->getBool().first )
+//            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().second));
+//
+//        if (optionIn.getValue()->getInt().first )
+//            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().second));
+//
+//        if (optionIn.getValue()->getString().first )
+//            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().second));
 
     }
 
