@@ -62,7 +62,7 @@ template <class T>
 class ConfigValue : public AbstractConfigValue
 {
 public:
-    ConfigValue(T valIn) : value{ valIn } {}
+    ConfigValue(const T& valIn) : value{ valIn } {}
 
     OptionalBool   getBool()   const override { return get<bool>(); }
     OptionalInt    getInt()    const override { return get<int>(); }
@@ -94,7 +94,7 @@ enum class DataType
 class RecognisedConfigOption
 {
 public:
-    RecognisedConfigOption(string idIn, string descriptionIn, DataType dataTypeIn) :
+    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const DataType& dataTypeIn) :
         id          { idIn },
         description { descriptionIn },
         dataType    { dataTypeIn }
@@ -207,7 +207,7 @@ template<class T>
 class ConfigOption : public AbstractConfigOption
 {
 public:
-    ConfigOption(const string& nameIn, const T valIn) :
+    ConfigOption(const string& nameIn, const T& valIn) :
         AbstractConfigOption{ nameIn },
         optionValue{ std::make_shared< ConfigValue<T> >(valIn) }
     {}
@@ -253,7 +253,7 @@ public:
     // Return a `config_option_ptr` to the element in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
     // It is up to the caller to verify if nullptr has been returned.
-    config_option_ptr getOption(const string optionID) const
+    config_option_ptr getOption(const string& optionID) const
     {
         for ( auto& option : options)
             if (option->getID() == optionID)
@@ -263,7 +263,7 @@ public:
 
     // Add a new configuration option to the `options` vector.
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
-    void setOption(AbstractConfigOption& optionIn)
+    void setOption(const AbstractConfigOption& optionIn)
     {
         if (!optionIn.validID())
             throw std::runtime_error("Could not set option due to invalid ID \"" + optionIn.getID() + "\".\n");
@@ -321,7 +321,7 @@ enum class ConfigFileLocation
 class ConfigOptionsHandler
 {
 public:
-    ConfigOptionsHandler(string configFilePathIn) :
+    ConfigOptionsHandler(const string& configFilePathIn) :
         localConfigFilePath{ configFilePathIn }
     {
         configOptions = readAndMergeOptions();
@@ -337,7 +337,7 @@ public:
         return configOptions;
     }
 
-    void setOption(AbstractConfigOption& optionIn)
+    void setOption(const AbstractConfigOption& optionIn)
     {
         configOptions.setOption(optionIn);
     }
@@ -525,7 +525,7 @@ private:
     }
 
     // Return a `config_option_ptr` from an `id_val_pair`
-    config_option_ptr makeOptionFromStrings(id_val_pair inputPair)
+    config_option_ptr makeOptionFromStrings(const id_val_pair& inputPair)
     {
         string id  = inputPair.first;
         string val = inputPair.second;
@@ -604,7 +604,7 @@ private:
 class Frame
 {
 public:
-    Frame(Mat& dataIn, int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
+    Frame(const Mat& dataIn, const int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
     int getFrameNumber() const { return frameNumber; }
     Mat getData()        const { return data; }
 
@@ -636,13 +636,13 @@ public:
         if (!vc.isOpened())
             throw std::invalid_argument("File " + path + " either could not be opened or is not a valid video file. Aborting.\n");
     }
-    void setFrameNumber(int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    void setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     int  getFrameNumber() const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
     int  numberOfFrames() const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
     void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
-    void exportVideo(string exportPath, int frameBegin, int frameEnd)
+    void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
     {
         string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
         cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getFrameSize());
@@ -717,7 +717,7 @@ public:
         return optionsHandler.getOptions().getOption(optionID);
     }
 
-    void setOption(AbstractConfigOption& optionIn)
+    void setOption(const AbstractConfigOption& optionIn)
     {
         try
         {
@@ -854,7 +854,7 @@ private:
 
     // Determine if a given configuration option has been changed since the last time the preview was updated
     // Achieved by comparing the relevalnt `config_option_ptr`s in `currentPreviewConfigOptions` and `optionsHandler`
-    bool hasConfigOptionBeenChanged(string optionID)
+    bool hasConfigOptionBeenChanged(const string& optionID)
     {
         // If the `config_option_ptr` in `currentPreviewConfigOptions` is the same as the one stored internally in optionsHandler, then
         // the option cannot have been changed. However, if they are not the same then we can assume that the option has been
