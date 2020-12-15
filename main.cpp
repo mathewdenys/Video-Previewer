@@ -85,8 +85,8 @@ private:
 // Enum class that enumerates the valid data types that a RecognisedConfigOption may have
 enum class DataType
 {
-    BOOLEAN,
-    POSITIVE_INTEGER,
+    eBoolean,
+    ePositiveInteger,
 };
 
 
@@ -161,9 +161,9 @@ public:
         for (auto el : recognisedConfigOptions)
             if (el.getID() == optionID)
             {
-                if (el.getDataType() == DataType::BOOLEAN)
+                if (el.getDataType() == DataType::eBoolean)
                     return optionValueIsBool();
-                if (el.getDataType() == DataType::POSITIVE_INTEGER)
+                if (el.getDataType() == DataType::ePositiveInteger)
                     return optionValueIsPositiveInteger();
             }
         return false; // If the ID has been validated, this should never to reached.
@@ -196,8 +196,8 @@ private:
 //      be added to AbstrictConfigOption() to validate this data type (like optionValueIsBool()), and a
 //      corresponding if statement to validDataType()
 const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
-    RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::POSITIVE_INTEGER),
-    RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::BOOLEAN),
+    RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::ePositiveInteger),
+    RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::eBoolean),
 };
 
 
@@ -305,9 +305,9 @@ private:
 // Enum class that enumerates the different configuration files
 enum class ConfigFileLocation
 {
-    LOCAL,
-    USER,
-    GLOBAL,
+    eLocal,
+    eUser,
+    eGlobal,
 };
 
 
@@ -349,13 +349,13 @@ public:
             throw std::runtime_error("Invalid option");
 
         switch (configFileLocation) {
-        case ConfigFileLocation::GLOBAL:
+        case ConfigFileLocation::eGlobal:
             throw std::runtime_error("Cannot write to global configuration file\n");
             break;
-        case ConfigFileLocation::USER:
+        case ConfigFileLocation::eUser:
             writeOptionToFile(option, userConfigFilePath);
             break;
-        case ConfigFileLocation::LOCAL:
+        case ConfigFileLocation::eLocal:
             writeOptionToFile(option, localConfigFilePath);
             break;
         }
@@ -880,7 +880,7 @@ int main( int argc, char** argv )
         VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
         ConfigOption<int> updatedOption{"number_of_frames",2};
         vidprev.setOption(updatedOption);
-        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::LOCAL);
+        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::eLocal);
     }
     catch (std::exception& exception)
     {
