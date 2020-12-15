@@ -132,7 +132,7 @@ public:
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
-    // Retrun a string of the form "id = val", for writing the configuration option to a file
+    // Return a string of the form "id = val", for writing the configuration option to a file
     string configFileString() { return getID() + " = " + getValueAsString(); }
 
     void print() const { cout << '\t' << getName() << ": " << getValueAsString() << '\n'; }
@@ -689,7 +689,7 @@ public:
     {
         try
         {
-            cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << '\n';
+            cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << "\"\n";
             optionsHandler.setOption(optionIn);
         }
         catch ( std::runtime_error& exception )
