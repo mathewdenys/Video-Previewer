@@ -39,6 +39,11 @@ namespace fs = std::filesystem;
 
 
 
+using OptionalBool   = std::optional<bool>;
+using OptionalInt    = std::optional<int>;
+using OptionalString = std::optional<string>;
+
+
 // Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
@@ -46,9 +51,9 @@ namespace fs = std::filesystem;
 class AbstractConfigValue
 {
 public:
-    virtual std::optional<bool>   getBool()   const = 0;
-    virtual std::optional<int>    getInt()    const = 0;
-    virtual std::optional<string> getString() const = 0;
+    virtual OptionalBool   getBool()   const = 0;
+    virtual OptionalInt    getInt()    const = 0;
+    virtual OptionalString getString() const = 0;
     virtual ~AbstractConfigValue() = default;
 };
 
@@ -59,29 +64,21 @@ class ConfigValue : public AbstractConfigValue
 public:
     ConfigValue(T valIn) : value{ valIn } {}
 
-    std::optional<bool> getBool() const
-    {
-        if constexpr(std::is_same<T,bool>::value)
-            return {value};
-        return {};
-    }
-
-    std::optional<int> getInt() const
-    {
-        if constexpr(std::is_same<T,int>::value)
-            return {value};
-        return {};
-    }
-
-    std::optional<string> getString() const
-    {
-        if constexpr(std::is_same<T,string>::value)
-            return {value};
-        return {};
-    }
+    OptionalBool   getBool()   const override { return get<bool>(); }
+    OptionalInt    getInt()    const override { return get<int>(); }
+    OptionalString getString() const override { return get<string>(); }
 
 private:
     T value;
+
+    template <class U>
+    std::optional<U> get() const
+    {
+        if constexpr(std::is_same_v<T,U>)
+            return {value};
+        return {};
+    }
+
 };
 
 
@@ -185,7 +182,7 @@ private:
 
     bool optionValueIsPositiveInteger()
     {
-        std::optional<int> ovalue = getValue()->getInt();
+        OptionalInt ovalue = getValue()->getInt();
         if ( ovalue.has_value() && ovalue.value() > 0 )
             return true;
         return false;
