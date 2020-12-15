@@ -7,6 +7,7 @@
 #include <utility>    // for std::pair
 #include <cstdlib>    // for std::getenv
 #include <filesystem> // for std::filesystem::create_directories, remove, rename, is_empty, etc. [requires C++17]
+#include <optional>   // for std::optional
 
 #if defined(__has_warning)
 #if __has_warning("-Wreserved-id-macro")
@@ -37,9 +38,6 @@ using cv::Mat;
 namespace fs = std::filesystem;
 
 
-using OptionalBool   = pair<bool,bool>;
-using OptionalInt    = pair<bool,int>;
-using OptionalString = pair<bool,string>;
 
 // Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
@@ -48,10 +46,9 @@ using OptionalString = pair<bool,string>;
 class AbstractConfigValue
 {
 public:
-    // const functions allow `AbstractConfigValue` objects to be returned by const pointer
-    virtual OptionalBool   getBool()   const = 0;
-    virtual OptionalInt    getInt()    const = 0;
-    virtual OptionalString getString() const = 0;
+    virtual std::optional<bool>   getBool()   const = 0;
+    virtual std::optional<int>    getInt()    const = 0;
+    virtual std::optional<string> getString() const = 0;
     virtual ~AbstractConfigValue() = default;
 };
 
@@ -61,27 +58,26 @@ class ConfigValue : public AbstractConfigValue
 {
 public:
     ConfigValue(T valIn) : value{ valIn } {}
-    
-    OptionalBool getBool() const
+
+    std::optional<bool> getBool() const
     {
         if constexpr(std::is_same<T,bool>::value)
-            return {true, value};
-        return {false, false};
-        
+            return {value};
+        return {};
     }
-    
-    OptionalInt getInt() const
+
+    std::optional<int> getInt() const
     {
         if constexpr(std::is_same<T,int>::value)
-            return {true, value};
-        return {false, 0};
+            return {value};
+        return {};
     }
-    
-    OptionalString getString() const
+
+    std::optional<string> getString() const
     {
         if constexpr(std::is_same<T,string>::value)
-            return {true, value};
-        return {false, ""};
+            return {value};
+        return {};
     }
 
 private:
@@ -184,13 +180,13 @@ private:
 
     bool optionValueIsBool()
     {
-        return getValue()->getBool().first;
+        return getValue()->getBool().has_value();
     }
 
     bool optionValueIsPositiveInteger()
     {
-        OptionalInt ovalue = getValue()->getInt();
-        if ( ovalue.first && ovalue.second > 0 )
+        std::optional<int> ovalue = getValue()->getInt();
+        if ( ovalue.has_value() && ovalue.value() > 0 )
             return true;
         return false;
     }
@@ -228,9 +224,9 @@ private:
     config_value_ptr optionValue;
 };
 
-template<> string ConfigOption<bool>::getValueAsString()   { return (optionValue->getBool().second ? "true" : "false"); }
-template<> string ConfigOption<int>::getValueAsString()    { return std::to_string(optionValue->getInt().second); }
-template<> string ConfigOption<string>::getValueAsString() { return optionValue->getString().second; }
+template<> string ConfigOption<bool>::getValueAsString()   { return (optionValue->getBool().value() ? "true" : "false"); }
+template<> string ConfigOption<int>::getValueAsString()    { return std::to_string(optionValue->getInt().value()); }
+template<> string ConfigOption<string>::getValueAsString() { return optionValue->getString().value(); }
 
 
 
@@ -292,14 +288,14 @@ public:
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
 
-        if (optionIn.getValue()->getBool().first )
-            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().second));
+        if (optionIn.getValue()->getBool() )
+            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().value()));
 
-        if (optionIn.getValue()->getInt().first )
-            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().second));
+        if (optionIn.getValue()->getInt() )
+            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().value()));
 
-        if (optionIn.getValue()->getString().first )
-            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().second));
+        if (optionIn.getValue()->getString() )
+            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().value()));
 
     }
 
@@ -816,7 +812,7 @@ private:
     void makeFrames()
     {
         int totalFrames = video.numberOfFrames();
-        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().second };
+        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value() };
         int frameSampling = totalFrames/NFrames + 1;
 
         frames.clear();
