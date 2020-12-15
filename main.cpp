@@ -130,9 +130,9 @@ public:
 
     string  getName() const
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
-                return el.getDescription();
+        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
+            if (recognisedOption.getID() == optionID)
+                return recognisedOption.getDescription();
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
@@ -149,20 +149,20 @@ public:
 
     bool validID() const
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
+        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
+            if (recognisedOption.getID() == optionID)
                 return true;
         return false;
     }
 
     bool validDataType() const
     {
-        for (auto el : recognisedConfigOptions)
-            if (el.getID() == optionID)
+        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
+            if (recognisedOption.getID() == optionID)
             {
-                if (el.getDataType() == DataType::eBoolean)
+                if (recognisedOption.getDataType() == DataType::eBoolean)
                     return optionValueIsBool();
-                if (el.getDataType() == DataType::ePositiveInteger)
+                if (recognisedOption.getDataType() == DataType::ePositiveInteger)
                     return optionValueIsPositiveInteger();
             }
         return false; // If the ID has been validated, this should never to reached.
@@ -255,7 +255,7 @@ public:
     // It is up to the caller to verify if nullptr has been returned.
     config_option_ptr getOption(const string& optionID) const
     {
-        for ( auto& option : options)
+        for (config_option_ptr option : options)
             if (option->getID() == optionID)
                 return option;
         return nullptr;
@@ -362,7 +362,7 @@ public:
 
     void print() const
     {
-        for ( auto& option : configOptions )
+        for (config_option_ptr option : configOptions)
             option->print();
     }
 
@@ -384,14 +384,14 @@ private:
 
         ConfigOptionsVector optionsMerged{ optionsLocal };
 
-        for (auto userOption : optionsUser) // Add any "user" options that aren't specified in the "local" options
+        for (config_option_ptr userOption : optionsUser) // Add any "user" options that aren't specified in the "local" options
         {
             string id{ userOption->getID() };
             if (optionsLocal.getOption(id) == nullptr)
                 optionsMerged.push_back(optionsUser.getOption(id));
         }
 
-        for (auto globalOption : optionsGlobal) // Add any "global" options that aren't specified in either the "local" or "user" options
+        for (config_option_ptr globalOption : optionsGlobal) // Add any "global" options that aren't specified in either the "local" or "user" options
         {
             string id{ globalOption->getID() };
             if (optionsLocal.getOption(id) == nullptr && optionsUser.getOption(id) == nullptr)
@@ -830,7 +830,7 @@ private:
     {
         fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
         cout << "Exporting frame bitmaps\n";
-        for (auto& frame : frames)
+        for (frame_ptr& frame : frames)
             frame->exportBitmap(exportPath);
     }
 
@@ -841,7 +841,7 @@ private:
         vector<int> frameNumbers;
         frameNumbers.reserve(frames.size()+1);
 
-        for (auto& frame : frames)
+        for (frame_ptr& frame : frames)
             frameNumbers.push_back(frame->getFrameNumber());
         frameNumbers.push_back(video.numberOfFrames());
 
