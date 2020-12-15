@@ -120,16 +120,15 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
-    //virtual const AbstractConfigValue* getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
-    virtual const config_value_ptr getValue() = 0; // const so that the returned pointer cannot be changed -> encapsulation
-    virtual string getValueAsString() = 0;
+    virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
+    virtual string getValueAsString() const = 0;
 
-    string  getID()
+    string  getID() const
     {
         return optionID;
     }
 
-    string  getName()
+    string  getName() const
     {
         for (auto el : recognisedConfigOptions)
             if (el.getID() == optionID)
@@ -143,12 +142,12 @@ public:
         return getID() + " = " + getValueAsString();
     }
 
-    void print()
+    void print() const
     {
         cout << '\t' << getName() << ": " << getValueAsString() << '\n';
     }
 
-    bool validID()
+    bool validID() const
     {
         for (auto el : recognisedConfigOptions)
             if (el.getID() == optionID)
@@ -156,7 +155,7 @@ public:
         return false;
     }
 
-    bool validDataType()
+    bool validDataType() const
     {
         for (auto el : recognisedConfigOptions)
             if (el.getID() == optionID)
@@ -175,12 +174,12 @@ private:
     string optionID;
     const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
 
-    bool optionValueIsBool()
+    bool optionValueIsBool() const
     {
         return getValue()->getBool().has_value();
     }
 
-    bool optionValueIsPositiveInteger()
+    bool optionValueIsPositiveInteger() const
     {
         OptionalInt ovalue = getValue()->getInt();
         if ( ovalue.has_value() && ovalue.value() > 0 )
@@ -214,16 +213,16 @@ public:
     {}
 
     void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
-    const config_value_ptr getValue() override { return optionValue; }
-    string getValueAsString() override;
+    const config_value_ptr getValue() const override { return optionValue; }
+    string getValueAsString() const override;
 
 private:
     config_value_ptr optionValue;
 };
 
-template<> string ConfigOption<bool>::getValueAsString()   { return (optionValue->getBool().value() ? "true" : "false"); }
-template<> string ConfigOption<int>::getValueAsString()    { return std::to_string(optionValue->getInt().value()); }
-template<> string ConfigOption<string>::getValueAsString() { return optionValue->getString().value(); }
+template<> string ConfigOption<bool>::getValueAsString()   const { return (optionValue->getBool().value() ? "true" : "false"); }
+template<> string ConfigOption<int>::getValueAsString()    const { return std::to_string(optionValue->getInt().value()); }
+template<> string ConfigOption<string>::getValueAsString() const { return optionValue->getString().value(); }
 
 
 
@@ -328,7 +327,7 @@ public:
         configOptions = readAndMergeOptions();
     }
 
-    string getFilePath()
+    string getFilePath() const
     {
         return localConfigFilePath;
     }
@@ -361,7 +360,7 @@ public:
         }
     }
 
-    void print()
+    void print() const
     {
         for ( auto& option : configOptions )
             option->print();
@@ -576,12 +575,12 @@ private:
         options.erase( std::remove_if(options.begin(), options.end(), isValidDataType), options.end() );
     }
 
-    bool stringToBool(const string& str)
+    bool stringToBool(const string& str) const
     {
         return (str == "true"); // assumes the only inputs are "true" or "false"
     }
 
-    int stringToInt(const string& str)
+    int stringToInt(const string& str) const
     {
         int myInt;
         stringstream ss{ str };
@@ -589,7 +588,7 @@ private:
         return myInt;
     }
 
-    bool isInt(const string& str)
+    bool isInt(const string& str) const
     {
         int myInt;
         stringstream ss{ str };
@@ -606,8 +605,8 @@ class Frame
 {
 public:
     Frame(Mat& dataIn, int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
-    int getFrameNumber() { return frameNumber; }
-    Mat getData()        { return data; }
+    int getFrameNumber() const { return frameNumber; }
+    Mat getData()        const { return data; }
 
     // Export a bitmap (.bmp) of the frame.
     // The file will be saved in the directeory determined by `exportPath`.
@@ -637,9 +636,9 @@ public:
         if (!vc.isOpened())
             throw std::invalid_argument("File " + path + " either could not be opened or is not a valid video file. Aborting.\n");
     }
-    void setFrameNumber(int num) { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    int  getFrameNumber()        { return vc.get(cv::CAP_PROP_POS_FRAMES); }
-    int  numberOfFrames()        { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    void setFrameNumber(int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    int  getFrameNumber() const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
+    int  numberOfFrames() const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
     void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
@@ -666,9 +665,9 @@ public:
 private:
     cv::VideoCapture vc;
 
-    double getFPS() { return vc.get(cv::CAP_PROP_FPS); }
+    double getFPS() const { return vc.get(cv::CAP_PROP_FPS); }
 
-    cv::Size getFrameSize()
+    cv::Size getFrameSize() const
     {
         int width  = vc.get(cv::CAP_PROP_FRAME_WIDTH);
         int height = vc.get(cv::CAP_PROP_FRAME_HEIGHT);
@@ -745,7 +744,7 @@ public:
         }
     }
 
-    void printConfig()
+    void printConfig() const
     {
         cout << "Current configuration options:\n";
         optionsHandler.print();
