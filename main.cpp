@@ -758,13 +758,15 @@ public:
     }
 
 private:
+    using frame_ptr = std::unique_ptr<Frame>;
+
     string videoPath;  // path to the video file
     string exportPath; // path the the directory for exporting temporary files to
     string configPath; // path to the local configuration file
     Video video;
     ConfigOptionsHandler optionsHandler;
     ConfigOptionsVector currentPreviewConfigOptions;
-    vector<std::unique_ptr<Frame> > frames;
+    vector<frame_ptr> frames;
 
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // This is saved to `exportPath`, and also returned from the function
