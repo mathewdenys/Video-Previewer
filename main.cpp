@@ -37,6 +37,10 @@ using cv::Mat;
 namespace fs = std::filesystem;
 
 
+using OptionalBool   = pair<bool,bool>;
+using OptionalInt    = pair<bool,int>;
+using OptionalString = pair<bool,string>;
+
 // Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
 // The "get" functions return a pair in which the first element holds a boolean which indicates if that given
 // data type is being used, and the second element holds the value itself. It is up to the caller to verify
@@ -45,9 +49,9 @@ class AbstractConfigValue
 {
 public:
     // const functions allow `AbstractConfigValue` objects to be returned by const pointer
-    virtual pair<bool,bool>   getBool()   const = 0;
-    virtual pair<bool,int>    getInt()    const = 0;
-    virtual pair<bool,string> getString() const = 0;
+    virtual OptionalBool   getBool()   const = 0;
+    virtual OptionalInt    getInt()    const = 0;
+    virtual OptionalString getString() const = 0;
     virtual ~AbstractConfigValue() = default;
 };
 
@@ -57,23 +61,32 @@ class ConfigValue : public AbstractConfigValue
 {
 public:
     ConfigValue(T valIn) : value{ valIn } {}
-    pair<bool,bool>   getBool()   const;
-    pair<bool,int>    getInt()    const;
-    pair<bool,string> getString() const;
+    
+    OptionalBool getBool() const
+    {
+        if constexpr(std::is_same<T,bool>::value)
+            return {true, value};
+        return {false, false};
+        
+    }
+    
+    OptionalInt getInt() const
+    {
+        if constexpr(std::is_same<T,int>::value)
+            return {true, value};
+        return {false, 0};
+    }
+    
+    OptionalString getString() const
+    {
+        if constexpr(std::is_same<T,string>::value)
+            return {true, value};
+        return {false, ""};
+    }
 
 private:
     T value;
 };
-
-// Partial template specialization
-template<class T> pair<bool,bool> ConfigValue<T>::getBool()    const { return {false, false}; }
-template<>        pair<bool,bool> ConfigValue<bool>::getBool() const { return {true,  value}; }
-
-template<class T> pair<bool,int> ConfigValue<T>::getInt()   const { return {false, 0}; }
-template<>        pair<bool,int> ConfigValue<int>::getInt() const { return {true,  value}; }
-
-template<class T> pair<bool,string> ConfigValue<T>::getString()      const { return {false, ""}; }
-template<>        pair<bool,string> ConfigValue<string>::getString() const { return {true,  value}; }
 
 
 // Enum class that enumerates the valid data types that a RecognisedConfigOption may have
@@ -176,7 +189,7 @@ private:
 
     bool optionValueIsPositiveInteger()
     {
-        pair<bool,int> ovalue = getValue()->getInt();
+        OptionalInt ovalue = getValue()->getInt();
         if ( ovalue.first && ovalue.second > 0 )
             return true;
         return false;
