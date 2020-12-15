@@ -123,8 +123,8 @@ public:
     virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
     virtual string getValueAsString() const = 0;
 
-    string  getID()   const { return optionID; }
-    string  getName() const
+    string  getID() const { return optionID; }
+    string  getDescription() const
     {
         for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
             if (recognisedOption.getID() == optionID)
@@ -135,7 +135,7 @@ public:
     // Return a string of the form "id = val", for writing the configuration option to a file
     string configFileString() { return getID() + " = " + getValueAsString(); }
 
-    void print() const { cout << '\t' << getName() << ": " << getValueAsString() << '\n'; }
+    void print() const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
 
     bool validID() const
     {
