@@ -123,11 +123,7 @@ public:
     virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
     virtual string getValueAsString() const = 0;
 
-    string  getID() const
-    {
-        return optionID;
-    }
-
+    string  getID()   const { return optionID; }
     string  getName() const
     {
         for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
@@ -137,15 +133,9 @@ public:
     }
 
     // Retrun a string of the form "id = val", for writing the configuration option to a file
-    string configFileString()
-    {
-        return getID() + " = " + getValueAsString();
-    }
+    string configFileString() { return getID() + " = " + getValueAsString(); }
 
-    void print() const
-    {
-        cout << '\t' << getName() << ": " << getValueAsString() << '\n';
-    }
+    void print() const { cout << '\t' << getName() << ": " << getValueAsString() << '\n'; }
 
     bool validID() const
     {
@@ -174,10 +164,7 @@ private:
     string optionID;
     const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
 
-    bool optionValueIsBool() const
-    {
-        return getValue()->getBool().has_value();
-    }
+    bool optionValueIsBool() const { return getValue()->getBool().has_value(); }
 
     bool optionValueIsPositiveInteger() const
     {
@@ -321,26 +308,10 @@ enum class ConfigFileLocation
 class ConfigOptionsHandler
 {
 public:
-    ConfigOptionsHandler(const string& configFilePathIn) :
-        localConfigFilePath{ configFilePathIn }
-    {
-        configOptions = readAndMergeOptions();
-    }
-
-    string getFilePath() const
-    {
-        return localConfigFilePath;
-    }
-
-    const ConfigOptionsVector&  getOptions()
-    {
-        return configOptions;
-    }
-
-    void setOption(const AbstractConfigOption& optionIn)
-    {
-        configOptions.setOption(optionIn);
-    }
+    ConfigOptionsHandler(const string& configFilePathIn) : localConfigFilePath{ configFilePathIn } { configOptions = readAndMergeOptions(); }
+    string getFilePath() const { return localConfigFilePath; }
+    const ConfigOptionsVector&  getOptions() { return configOptions; }
+    void setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     void saveOption(config_option_ptr option, const ConfigFileLocation& configFileLocation)
     {
@@ -575,10 +546,7 @@ private:
         options.erase( std::remove_if(options.begin(), options.end(), isValidDataType), options.end() );
     }
 
-    bool stringToBool(const string& str) const
-    {
-        return (str == "true"); // assumes the only inputs are "true" or "false"
-    }
+    bool stringToBool(const string& str) const { return (str == "true"); } // assumes the only inputs are "true" or "false"
 
     int stringToInt(const string& str) const
     {
