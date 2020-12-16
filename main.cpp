@@ -138,14 +138,20 @@ using config_value_ptr = std::shared_ptr<AbstractConfigValue>; // Using `shared_
 class AbstractConfigOption
 {
 public:
-    AbstractConfigOption(const string& id) : optionID{ id } { if (!hasValidID()) throw std::invalid_argument{"Invalid option ID \"" + id + "\"\n"}; }
+    AbstractConfigOption(const string& id) : optionID{ id }
+    {
+        if (!hasValidID())
+            throw std::invalid_argument{"Invalid option ID \"" + id + "\"\n"};
+    }
 
     virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
 
-    virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
-    virtual string getValueAsString() const = 0;
+    virtual config_value_ptr getValue()            const = 0;
+    virtual string           getValueAsString()    const = 0;
+    string                   getID()               const { return optionID; }
+    string                   getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
+    void                     print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
 
-    string  getID() const { return optionID; }
     string  getDescription() const
     {
         for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
@@ -154,24 +160,25 @@ public:
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
-    string configFileString() { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
-    void print() const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
-
     virtual ~AbstractConfigOption() {};
 
 protected:
-    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
+    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class below
     string optionID;
 
 private:
-
-
     bool hasValidID() const
     {
-        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
-            if (recognisedOption.getID() == optionID)
-                return true;
-        return false;
+        auto IDmatches
+        {
+            [this](RecognisedConfigOption recognisedOption)
+            {
+                return recognisedOption.getID() == optionID;
+            }
+        };
+
+        // Return true if the optionID matches one of the options stored in the recognisedConfigOptions vector
+        return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches) != recognisedConfigOptions.end();
     }
 };
 
@@ -180,7 +187,7 @@ private:
 //      The size argument in the declariation of recognisedConfigOptions will need to be updated
 //      Additional entries may need to be added to the DataType enum class. In this case a function should
 //      be added to AbstractConfigOption to validate this data type (like optionValueIsBool()), and a
-//      corresponding if statement to validDataType()
+//      corresponding if statement to ConfigOption<T>::hasValidDataType()
 const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
     RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::ePositiveInteger),
     RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::eBoolean),
@@ -188,25 +195,25 @@ const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOpti
 
 
 
-// Specific derived classes of AbstractConfigOption. Each class corresponds to a separate data type to which the
-// configuration option is stored as.
+// Templated derived classes of AbstractConfigOption
+// T corresponds to the data type of the configuration options
 template<class T>
 class ConfigOption : public AbstractConfigOption
 {
 public:
     ConfigOption(const string& idIn, const T& valIn) :
         AbstractConfigOption{ idIn },
-        optionValue{ std::make_shared< ConfigValue<T> >(valIn) }
+        optionValue         { std::make_shared< ConfigValue<T> >(valIn) }
     {
         if (!hasValidDataType())
             throw std::invalid_argument("Invalid value: \"" + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
     }
 
-    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor
+    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
 
-    void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
-    const config_value_ptr getValue() const override { return optionValue; }
-    string getValueAsString() const override { return optionValue->getAsString(); }
+    config_value_ptr getValue()               const override { return optionValue; }
+    string           getValueAsString()       const override { return optionValue->getAsString(); }
+    void             setValue(const T& valIn)                { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 
 private:
     config_value_ptr optionValue;
@@ -234,8 +241,6 @@ private:
         return false;
     }
 };
-
-
 
 
 
@@ -494,7 +499,7 @@ private:
             // If the same option is specified again later in the file it is ignored
             if (!optionReplaced)
             {
-                tempFile << option->configFileString() << std::endl;
+                tempFile << option->getConfigFileString() << std::endl;
                 optionReplaced = true;
             }
         }
