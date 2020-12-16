@@ -67,6 +67,12 @@ private:
 
 /*----------------------------------------------------------------------------------------------------
     MARK: AbstractConfigValue & derived classes
+
+        When adding support for a new option data type, update
+            - The set of "using OptionalX" statements
+            - The set of virtual getX() statements in AbstractConfigOption and ConfigOption<T>
+            - The set of template specialised ConfigValue::getAsString() functions
+            - ConfigOptionsHandler::makeOptionFromStrings()
    ----------------------------------------------------------------------------------------------------*/
 
 using OptionalBool   = std::optional<bool>;
@@ -127,6 +133,13 @@ template<> string ConfigValue<string>::getAsString() const { return getString().
 
 /*----------------------------------------------------------------------------------------------------
     MARK: RecognisedConfigOption + AbstractConfigOption & derived classes
+
+        When adding support for a new option, update
+            - AbstractConfigOption::recognisedConfigOptions (declaration and definition)
+
+        When adding support for an option with a new set of "valid option values", update
+            - DataType
+            - ConfigOption<T>::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid data types and values that a RecognisedConfigOption may have
@@ -147,9 +160,9 @@ public:
         dataType    { dataTypeIn }
     {}
 
-    string&   getID()          { return id; }
-    string&   getDescription() { return description; }
-    DataType& getDataType()    { return dataType; }
+    const string&   getID()          const { return id; }
+    const string&   getDescription() const { return description; }
+    const DataType& getDataType()    const { return dataType; }
 
 private:
     string id;          // Option-specific identifier
@@ -194,8 +207,9 @@ protected:
     const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class below
     string optionID;
 
-private:
-    bool hasValidID() const
+    // Returns an iterator to the element of recognisedConfigOptions with the same ID
+    // If no such element exists, returns an iterator to recognisedConfigOptions.end()
+    auto findRecognisedOptionWithSameID() const
     {
         auto IDmatches
         {
@@ -205,17 +219,14 @@ private:
             }
         };
 
-        // Return true if the optionID matches one of the options stored in the recognisedConfigOptions vector
-        return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches) != recognisedConfigOptions.end();
+        return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
+
+private:
+    bool hasValidID() const { return findRecognisedOptionWithSameID() != recognisedConfigOptions.end(); }
 };
 
 // An array that contains every RecognisedConfigOption that the program "understands"
-//      Add further entries here as new configuration options are introduced
-//      The size argument in the declariation of recognisedConfigOptions will need to be updated
-//      Additional entries may need to be added to the DataType enum class. In this case a function should
-//      be added to AbstractConfigOption to validate this data type (like optionValueIsBool()), and a
-//      corresponding if statement to ConfigOption<T>::hasValidDataType()
 const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
     RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::ePositiveInteger),
     RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::eBoolean),
@@ -233,7 +244,7 @@ public:
         AbstractConfigOption{ idIn },
         optionValue         { std::make_shared< ConfigValue<T> >(valIn) }
     {
-        if (!hasValidDataType())
+        if (!hasValidValue())
             throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
     }
 
@@ -246,17 +257,20 @@ public:
 private:
     config_value_ptr optionValue;
 
-    bool hasValidDataType() const
+    bool hasValidValue() const
     {
-        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
-            if (recognisedOption.getID() == optionID)
-            {
-                if (recognisedOption.getDataType() == DataType::eBoolean)
-                    return optionValueIsBool();
-                if (recognisedOption.getDataType() == DataType::ePositiveInteger)
-                    return optionValueIsPositiveInteger();
-            }
-        return false; // If the ID has been validated, this should never to reached.
+        auto templateOption = findRecognisedOptionWithSameID();
+
+        if (templateOption == recognisedConfigOptions.end()) // Invalid ID
+            throw InvalidOptionException{"unrecognised ID \"" + getID() + "\"\n"};
+
+        if (templateOption->getDataType() == DataType::eBoolean)
+            return optionValueIsBool();
+
+        if (templateOption->getDataType() == DataType::ePositiveInteger)
+            return optionValueIsPositiveInteger();
+
+        return false; // This should never be reached
     }
 
     bool optionValueIsBool() const { return getValue()->getBool().has_value(); }
