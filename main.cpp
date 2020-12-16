@@ -297,7 +297,6 @@ public:
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
         options.push_back( std::shared_ptr<AbstractConfigOption>(optionIn.clone()));
-
     }
 
 private:
@@ -330,13 +329,16 @@ class ConfigOptionsHandler
 {
 public:
     ConfigOptionsHandler(const string& configFilePathIn) : localConfigFilePath{ configFilePathIn } { configOptions = readAndMergeOptions(); }
-    string getFilePath() const { return localConfigFilePath; }
-    const ConfigOptionsVector&  getOptions() { return configOptions; }
-    void setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
+
+    string                      getFilePath() const { return localConfigFilePath; }
+    const ConfigOptionsVector&  getOptions()        { return configOptions; }
+
+    void                        setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     void saveOption(config_option_ptr option, const ConfigFileLocation& configFileLocation)
     {
-        switch (configFileLocation) {
+        switch (configFileLocation)
+        {
         case ConfigFileLocation::eGlobal:
             throw std::runtime_error("Cannot write to global configuration file\n");
             break;
@@ -356,15 +358,14 @@ public:
     }
 
 private:
-    string homeDirectory{ std::getenv("HOME") }; // $HOME environment variable, for accessing config file in the users home directory
-    string localConfigFilePath; // Not known at compile time; initialised in the constructor
-    string userConfigFilePath{ homeDirectory + "/.config/videopreview" };
+    string localConfigFilePath;                                                          // Not known at compile time; initialised in the constructor
+    string homeDirectory       { std::getenv("HOME") };                                  // $HOME environment variable, for accessing config file in the users home directory
+    string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
     string globalConfigFilePath{ "/etc/videopreviewconfig" };
     ConfigOptionsVector configOptions;
 
     // Parse each of the configuration files and merge them into a single vector of `config_option_ptr`s
     // For now I naively prioritise the local configuration file, then user options, then global options
-    // TODO: use more "complicated" inheritance priorities for the configuration options
     ConfigOptionsVector readAndMergeOptions()
     {
         ConfigOptionsVector optionsLocal  = parseFile(localConfigFilePath);
@@ -393,7 +394,7 @@ private:
     // Parse a single configuration file and return a vector of `config_option_ptr`s
     ConfigOptionsVector parseFile(const string& filePath)
     {
-        ConfigOptionsVector optionsParsed;
+        ConfigOptionsVector optionsParsed {};
 
         try
         {
@@ -524,7 +525,10 @@ private:
         return std::make_shared< ConfigOption<string> > (id, val);
     }
 
-    bool stringToBool(const string& str) const { return (str == "true"); } // assumes the only inputs are "true" or "false"
+    bool stringToBool(const string& str) const
+    {
+        return (str == "true");
+    }
 
     int stringToInt(const string& str) const
     {
