@@ -147,6 +147,7 @@ enum class DataType
 {
     eBoolean,           // A boolean
     ePositiveInteger,   // A positive integer
+    eString,            // A set of predefined strings
 };
 
 
@@ -160,14 +161,23 @@ public:
         dataType    { dataTypeIn }
     {}
 
-    const string&   getID()          const { return id; }
-    const string&   getDescription() const { return description; }
-    const DataType& getDataType()    const { return dataType; }
+    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const DataType& dataTypeIn, const vector<string>& validValuesIn) :
+        RecognisedConfigOption ( idIn, descriptionIn, dataTypeIn )
+    {
+        if (dataType == DataType::eString)
+            validValues = validValuesIn;
+    }
+
+    const string&        getID()          const { return id; }
+    const string&        getDescription() const { return description; }
+    const DataType&      getDataType()    const { return dataType; }
+    const vector<string> getValidValues() const { return validValues; }
 
 private:
-    string id;          // Option-specific identifier
-    string description; // Human-readable description
-    DataType dataType;  // The valid data types and values that can correspond to this option
+    string id;                     // Option-specific identifier
+    string description;            // Human-readable description
+    DataType dataType;             // The valid data types and values that can correspond to this option
+    vector<string> validValues {}; // List of allowed values (only used when dataType = DataType::eString)
 };
 
 
@@ -204,7 +214,7 @@ public:
     virtual ~AbstractConfigOption() {};
 
 protected:
-    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class below
+    const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
     string optionID;
 
     // Returns an iterator to the element of recognisedConfigOptions with the same ID
@@ -227,9 +237,10 @@ private:
 };
 
 // An array that contains every RecognisedConfigOption that the program "understands"
-const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
-    RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::ePositiveInteger),
-    RecognisedConfigOption("show_frame_info",  "Show individual frame information", DataType::eBoolean),
+const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOptions {
+    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 DataType::ePositiveInteger        ),
+    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        DataType::eBoolean                ),
+    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", DataType::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validValues when I support them
 };
 
 
@@ -270,6 +281,9 @@ private:
         if (templateOption->getDataType() == DataType::ePositiveInteger)
             return optionValueIsPositiveInteger();
 
+        if (templateOption->getDataType() == DataType::eString)
+            return optionValueIsValidString(templateOption->getValidValues());
+
         return false; // This should never be reached
     }
 
@@ -281,6 +295,19 @@ private:
         if ( ovalue.has_value() && ovalue.value() > 0 )
             return true;
         return false;
+    }
+
+    bool optionValueIsValidString(vector<string> validValues) const // Assumes the ID has already been validated
+    {
+        auto valueExists
+        {
+            [this](string validValue)
+            {
+                return validValue == optionValue->getString();
+            }
+        };
+
+        return std::find_if(validValues.begin(), validValues.end(), valueExists) != validValues.end();
     }
 };
 
@@ -708,7 +735,11 @@ public:
         {
             makeFrames();
             exportFrames();
-            exportPreviewVideos();
+
+            // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
+            // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos
+            if ( getOption("action_on_hover") != nullptr && getOption("action_on_hover")->getValue()->getString() != "none" )
+                exportPreviewVideos();
         }
 
         currentPreviewConfigOptions = optionsHandler.getOptions();

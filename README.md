@@ -38,5 +38,5 @@ Currently the supported options that can be set in configuration files are
 | ---------------- | --------------- |
 | number_of_frames | Any integer >0  |
 | show_frame_info  | true, false     |
-|                  |                 |
+| action_on_hover  | "none", "play"  |
 
