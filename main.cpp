@@ -659,7 +659,7 @@ public:
         printConfig();
 
         // Update the preview
-        if (hasConfigOptionBeenChanged("number_of_frames"))
+        if (configOptionHasBeenChanged("number_of_frames"))
         {
             makeFrames();
             exportFrames();
@@ -717,13 +717,13 @@ public:
 private:
     using frame_ptr = std::unique_ptr<Frame>;
 
-    string videoPath;  // path to the video file
-    string exportPath; // path the the directory for exporting temporary files to
-    string configPath; // path to the local configuration file
+    string videoPath;                // path to the video file
+    string exportPath;               // path the the directory for exporting temporary files to
+    string configPath;               // path to the local configuration file
     Video video;
     ConfigOptionsHandler optionsHandler;
     ConfigOptionsVector currentPreviewConfigOptions;
-    vector<frame_ptr> frames;
+    vector<frame_ptr>    frames;
 
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // This is saved to `exportPath`, and also returned from the function
@@ -813,7 +813,7 @@ private:
 
     // Determine if a given configuration option has been changed since the last time the preview was updated
     // Achieved by comparing the relevalnt `config_option_ptr`s in `currentPreviewConfigOptions` and `optionsHandler`
-    bool hasConfigOptionBeenChanged(const string& optionID)
+    bool configOptionHasBeenChanged(const string& optionID)
     {
         // If the `config_option_ptr` in `currentPreviewConfigOptions` is the same as the one stored internally in optionsHandler, then
         // the option cannot have been changed. However, if they are not the same then we can assume that the option has been
