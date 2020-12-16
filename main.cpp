@@ -138,7 +138,8 @@ using config_value_ptr = std::shared_ptr<AbstractConfigValue>; // Using `shared_
 class AbstractConfigOption
 {
 public:
-    AbstractConfigOption(const string& id) : optionID{ id } {}
+    AbstractConfigOption(const string& id) : optionID{ id } { if (!hasValidID()) throw std::invalid_argument{"Invalid option ID \"" + id + "\"\n"}; }
+
     virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
 
     virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
@@ -156,40 +157,20 @@ public:
     string configFileString() { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
     void print() const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
 
-    bool validID() const
+    virtual ~AbstractConfigOption() {};
+
+protected:
+    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
+    string optionID;
+
+private:
+
+
+    bool hasValidID() const
     {
         for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
             if (recognisedOption.getID() == optionID)
                 return true;
-        return false;
-    }
-
-    bool validDataType() const
-    {
-        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
-            if (recognisedOption.getID() == optionID)
-            {
-                if (recognisedOption.getDataType() == DataType::eBoolean)
-                    return optionValueIsBool();
-                if (recognisedOption.getDataType() == DataType::ePositiveInteger)
-                    return optionValueIsPositiveInteger();
-            }
-        return false; // If the ID has been validated, this should never to reached.
-    }
-
-    virtual ~AbstractConfigOption() {};
-
-private:
-    string optionID;
-    const static array<RecognisedConfigOption,2> recognisedConfigOptions; // Initialised out of class
-
-    bool optionValueIsBool() const { return getValue()->getBool().has_value(); }
-
-    bool optionValueIsPositiveInteger() const
-    {
-        OptionalInt ovalue = getValue()->getInt();
-        if ( ovalue.has_value() && ovalue.value() > 0 )
-            return true;
         return false;
     }
 };
@@ -216,7 +197,11 @@ public:
     ConfigOption(const string& idIn, const T& valIn) :
         AbstractConfigOption{ idIn },
         optionValue{ std::make_shared< ConfigValue<T> >(valIn) }
-    {}
+    {
+        if (!hasValidDataType())
+            throw std::invalid_argument("Invalid value: \"" + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
+    }
+
     std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor
 
     void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
@@ -225,6 +210,29 @@ public:
 
 private:
     config_value_ptr optionValue;
+
+    bool hasValidDataType() const
+    {
+        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
+            if (recognisedOption.getID() == optionID)
+            {
+                if (recognisedOption.getDataType() == DataType::eBoolean)
+                    return optionValueIsBool();
+                if (recognisedOption.getDataType() == DataType::ePositiveInteger)
+                    return optionValueIsPositiveInteger();
+            }
+        return false; // If the ID has been validated, this should never to reached.
+    }
+
+    bool optionValueIsBool() const { return getValue()->getBool().has_value(); }
+
+    bool optionValueIsPositiveInteger() const
+    {
+        OptionalInt ovalue = getValue()->getInt();
+        if ( ovalue.has_value() && ovalue.value() > 0 )
+            return true;
+        return false;
+    }
 };
 
 
@@ -274,15 +282,6 @@ public:
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
     void setOption(const AbstractConfigOption& optionIn)
     {
-        if (!optionIn.validID())
-            throw std::runtime_error("Could not set option due to invalid ID \"" + optionIn.getID() + "\".\n");
-
-        if (!optionIn.validDataType())
-        {
-            string value = optionIn.getValueAsString();
-            throw std::runtime_error("Could not set option due to invalid value: \"" + optionIn.getID() + "\" cannot have the value \"" + value + "\".\n");
-        }
-
         auto IDexists
         {
             [&optionIn](config_option_ptr option)
@@ -332,9 +331,6 @@ public:
 
     void saveOption(config_option_ptr option, const ConfigFileLocation& configFileLocation)
     {
-        if (!option->validID() || !option->validDataType())
-            throw std::runtime_error("Invalid option");
-
         switch (configFileLocation) {
         case ConfigFileLocation::eGlobal:
             throw std::runtime_error("Cannot write to global configuration file\n");
@@ -366,9 +362,9 @@ private:
     // TODO: use more "complicated" inheritance priorities for the configuration options
     ConfigOptionsVector readAndMergeOptions()
     {
-        ConfigOptionsVector optionsLocal  = parseAndValidateFile(localConfigFilePath);
-        ConfigOptionsVector optionsUser   = parseAndValidateFile(userConfigFilePath);
-        ConfigOptionsVector optionsGlobal = parseAndValidateFile(globalConfigFilePath);
+        ConfigOptionsVector optionsLocal  = parseFile(localConfigFilePath);
+        ConfigOptionsVector optionsUser   = parseFile(userConfigFilePath);
+        ConfigOptionsVector optionsGlobal = parseFile(globalConfigFilePath);
 
         ConfigOptionsVector optionsMerged{ optionsLocal };
 
@@ -389,47 +385,43 @@ private:
         return optionsMerged;
     }
 
-    ConfigOptionsVector parseAndValidateFile(const string& filePath)
+    // Parse a single configuration file and return a vector of `config_option_ptr`s
+    ConfigOptionsVector parseFile(const string& filePath)
     {
         ConfigOptionsVector optionsParsed;
+
         try
         {
-            optionsParsed = parseFile(filePath);
+            cout << "Parsing \"" << filePath << "\"\n";
+            std::ifstream file{ filePath };
+            if (!file)
+                throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
+
+
+            string line;
+            while (std::getline(file, line))
+            {
+                stringstream ss{ line };
+                ss >> std::ws; // remove leading white space
+
+                // Ignore blank lines and comment lines
+                if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
+                    continue;
+
+                config_option_ptr newOption = makeOptionFromStrings(parseLine(ss));
+
+                // Ignore lines with duplicate options
+                if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
+                    optionsParsed.push_back( newOption );
+            }
         }
         catch (std::runtime_error& exception)
         {
             std::cerr << "Could not parse file \"" + filePath + "\" : " << exception.what();
         }
-        removeInvalidOptions(optionsParsed);
-        return optionsParsed;
-    }
-
-    // Parse a single configuration file and return a vector of `config_option_ptr`s
-    ConfigOptionsVector parseFile(const string& filePath)
-    {
-
-        cout << "Parsing \"" << filePath << "\"\n";
-        std::ifstream file{ filePath };
-        if (!file)
-            throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
-
-        ConfigOptionsVector optionsParsed;
-
-        string line;
-        while (std::getline(file, line))
+        catch (std::invalid_argument& exception)
         {
-            stringstream ss{ line };
-            ss >> std::ws; // remove leading white space
-
-            // Ignore blank lines and comment lines
-            if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
-                continue;
-
-            config_option_ptr newOption = makeOptionFromStrings(parseLine(ss));
-
-            // Ignore lines with duplicate options
-            if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
-                optionsParsed.push_back( newOption );
+            std::cout << exception.what();
         }
 
         return optionsParsed;
@@ -525,42 +517,6 @@ private:
             return std::make_shared< ConfigOption<int> >    (id, stringToInt(val));
 
         return std::make_shared< ConfigOption<string> > (id, val);
-    }
-
-    // Remove invalid options from a given vector of `config_option_ptr`s
-    // An invalid option is one which either
-    //      a) has an unrecognised `optionID`, or
-    //      b) has a `value` with an invalid value of of invalid data type for the given `optionID`
-    void removeInvalidOptions(ConfigOptionsVector& options)
-    {
-        auto isValidID
-        {
-            [this](config_option_ptr option) // capture `this` for getFilePath()
-            {
-                if (!option->validID())
-                {
-                    std::cerr << "Ignoring unrecognized option \"" << option->getID() << "\"\n";
-                    return true;
-                }
-                return false;
-            }
-        };
-
-        auto isValidDataType
-        {
-            [this](config_option_ptr option) // capture `this` for getFilePath()
-            {
-                if (!option->validDataType())
-                {
-                    std::cerr << "Ignoring option with invalid value \"" << option->getID() << "\"\n";
-                    return true;
-                }
-                return false;
-            }
-        };
-
-        options.erase( std::remove_if(options.begin(), options.end(), isValidID),       options.end() );
-        options.erase( std::remove_if(options.begin(), options.end(), isValidDataType), options.end() );
     }
 
     bool stringToBool(const string& str) const { return (str == "true"); } // assumes the only inputs are "true" or "false"
