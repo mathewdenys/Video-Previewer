@@ -254,23 +254,23 @@ using config_option_ptr = std::shared_ptr<AbstractConfigOption>; // Using `share
 class ConfigOptionsVector
 {
 public:
-    ConfigOptionsVector() {} // Default constructor
-    ConfigOptionsVector(vector<config_option_ptr> optionsIn ) : options{ optionsIn } {}
+    ConfigOptionsVector() {}                                                           // Default constructor
+    ConfigOptionsVector(vector<config_option_ptr> optionsIn) : options{ optionsIn } {}
 
     using iterator       = vector<config_option_ptr>::iterator;
     using const_iterator = vector<config_option_ptr>::const_iterator;
 
     // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
-    iterator begin(){ return options.begin(); }
-    iterator end()  { return options.end();   }
+    iterator       begin()       { return options.begin(); }
+    iterator       end()         { return options.end();   }
     const_iterator begin() const { return options.begin(); }
     const_iterator end()   const { return options.end();   }
 
     // The following functions provide a similar public interface as a vector (while limiting direct access to `options`)
-    void erase(iterator i) { options.erase(i); }
-    void erase(iterator i1, iterator i2) { options.erase(i1, i2); }
-    void push_back(config_option_ptr option)  { options.push_back(option); }
-    void clear() { options.clear(); }
+    void           erase(iterator i)                   { options.erase(i); }
+    void           erase(iterator i1, iterator i2)     { options.erase(i1, i2); }
+    void           push_back(config_option_ptr option) { options.push_back(option); }
+    void           clear()                             { options.clear(); }
 
     // Return a `config_option_ptr` to the element in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
