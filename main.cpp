@@ -120,6 +120,8 @@ class AbstractConfigOption
 {
 public:
     AbstractConfigOption(const string& id) : optionID{ id } {}
+    virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
+
     virtual const config_value_ptr getValue() const = 0; // const return value so that the returned pointer cannot be changed -> encapsulation
     virtual string getValueAsString() const = 0;
 
@@ -194,10 +196,11 @@ template<class T>
 class ConfigOption : public AbstractConfigOption
 {
 public:
-    ConfigOption(const string& nameIn, const T& valIn) :
-        AbstractConfigOption{ nameIn },
+    ConfigOption(const string& idIn, const T& valIn) :
+        AbstractConfigOption{ idIn },
         optionValue{ std::make_shared< ConfigValue<T> >(valIn) }
     {}
+    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor
 
     void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
     const config_value_ptr getValue() const override { return optionValue; }
@@ -270,15 +273,7 @@ public:
         };
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-
-        if (optionIn.getValue()->getBool() )
-            options.push_back( std::make_shared< ConfigOption<bool> >(optionIn.getID(), optionIn.getValue()->getBool().value()));
-
-        if (optionIn.getValue()->getInt() )
-            options.push_back( std::make_shared< ConfigOption<int> >(optionIn.getID(), optionIn.getValue()->getInt().value()));
-
-        if (optionIn.getValue()->getString() )
-            options.push_back( std::make_shared< ConfigOption<string> >(optionIn.getID(), optionIn.getValue()->getString().value()));
+        options.push_back( std::shared_ptr<AbstractConfigOption>(optionIn.clone()));
 
     }
 
