@@ -53,9 +53,11 @@ using OptionalString = std::optional<string>;
 class AbstractConfigValue
 {
 public:
-    virtual OptionalBool   getBool()   const = 0;
-    virtual OptionalInt    getInt()    const = 0;
-    virtual OptionalString getString() const = 0;
+    virtual OptionalBool   getBool()     const = 0;
+    virtual OptionalInt    getInt()      const = 0;
+    virtual OptionalString getString()   const = 0;
+    virtual string         getAsString() const = 0;
+
     virtual ~AbstractConfigValue() = default;
 };
 
@@ -68,9 +70,10 @@ public:
     ConfigValue(const T& valIn) : value{ valIn } {}
 
     // These "get" functions must be explicitly defined because virtual functions can't be templated
-    OptionalBool   getBool()   const override { return get<bool>(); }
-    OptionalInt    getInt()    const override { return get<int>(); }
-    OptionalString getString() const override { return get<string>(); }
+    OptionalBool   getBool()     const override { return get<bool>(); }
+    OptionalInt    getInt()      const override { return get<int>(); }
+    OptionalString getString()   const override { return get<string>(); }
+    string         getAsString() const override;
 
 private:
     T value;
@@ -86,6 +89,11 @@ private:
     }
 
 };
+
+// Template specialisation of getAsString() functions
+template<> string ConfigValue<bool>  ::getAsString() const { return (getBool().value() ? "true" : "false"); }
+template<> string ConfigValue<int>   ::getAsString() const { return std::to_string(getInt().value()); }
+template<> string ConfigValue<string>::getAsString() const { return getString().value(); }
 
 
 
@@ -213,15 +221,13 @@ public:
 
     void setValue(const T valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
     const config_value_ptr getValue() const override { return optionValue; }
-    string getValueAsString() const override;
+    string getValueAsString() const override { return optionValue->getAsString(); }
 
 private:
     config_value_ptr optionValue;
 };
 
-template<> string ConfigOption<bool>::getValueAsString()   const { return (optionValue->getBool().value() ? "true" : "false"); }
-template<> string ConfigOption<int>::getValueAsString()    const { return std::to_string(optionValue->getInt().value()); }
-template<> string ConfigOption<string>::getValueAsString() const { return optionValue->getString().value(); }
+
 
 
 
