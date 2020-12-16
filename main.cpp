@@ -38,6 +38,34 @@ using cv::Mat;
 namespace fs = std::filesystem;
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: Exception Classes
+   ----------------------------------------------------------------------------------------------------*/
+
+class FileException : public std::exception
+{
+public:
+    FileException(string errorDescription, string fileIn) : file{ fileIn }, message{ "Error when accessing \"" + fileIn + "\": " + errorDescription } {};
+    const char* what() const noexcept override { return message.c_str(); }
+
+protected:
+    string message;
+    string file;
+};
+
+
+class InvalidOptionException : public std::exception
+{
+public:
+    InvalidOptionException(string errorDescription) : message{ "Invalid option: " + errorDescription } {};
+    const char* what() const noexcept override { return message.c_str(); }
+
+private:
+    string message;
+};
+
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: AbstractConfigValue & derived classes
    ----------------------------------------------------------------------------------------------------*/
 
@@ -141,7 +169,7 @@ public:
     AbstractConfigOption(const string& id) : optionID{ id }
     {
         if (!hasValidID())
-            throw std::invalid_argument{"Invalid option ID \"" + id + "\"\n"};
+            throw InvalidOptionException{"unrecognised ID \"" + id + "\"\n"};
     }
 
     virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
@@ -206,7 +234,7 @@ public:
         optionValue         { std::make_shared< ConfigValue<T> >(valIn) }
     {
         if (!hasValidDataType())
-            throw std::invalid_argument("Invalid value: \"" + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
+            throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
     }
 
     std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
@@ -340,7 +368,7 @@ public:
         switch (configFileLocation)
         {
         case ConfigFileLocation::eGlobal:
-            throw std::runtime_error("Cannot write to global configuration file\n");
+            throw FileException("cannot write to global configuration file\n", globalConfigFilePath);
             break;
         case ConfigFileLocation::eUser:
             writeOptionToFile(option, userConfigFilePath);
@@ -401,7 +429,7 @@ private:
             cout << "Parsing \"" << filePath << "\"\n";
             std::ifstream file{ filePath };
             if (!file)
-                throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
+                throw FileException("could not open file for parsing\n", filePath);
 
 
             string line;
@@ -421,11 +449,11 @@ private:
                     optionsParsed.push_back( newOption );
             }
         }
-        catch (std::runtime_error& exception)
+        catch (FileException& exception)
         {
-            std::cerr << "Could not parse file \"" + filePath + "\" : " << exception.what();
+            std::cerr << exception.what();
         }
-        catch (std::invalid_argument& exception)
+        catch (InvalidOptionException& exception)
         {
             std::cout << exception.what();
         }
@@ -470,13 +498,13 @@ private:
         // Open the file for reading any preexisting content
         std::ifstream file{ filePath };
         if (!file)
-            throw std::runtime_error("File \"" + filePath + "\" could not be opened.\n");
+            throw FileException("could not open file\n", filePath);
 
         // Open a temporary file for writing to
         string tempFilePath{ filePath + "temp" };
         std::ofstream tempFile{ tempFilePath };
         if (!tempFile)
-            throw std::runtime_error("Temporary file \"" + filePath + "\" could not be opened.\n");
+            throw FileException("could not open temporary file\n", filePath);
 
         // Copy content from the preexisting file to the temporary file
         // If the preexisting file already specifies the given option, it is replaced
@@ -592,7 +620,7 @@ public:
     Video(const string& path) : vc{ path }
     {
         if (!vc.isOpened())
-            throw std::invalid_argument("File " + path + " either could not be opened or is not a valid video file. Aborting.\n");
+            throw FileException("file either could not be opened or is not an accepted format\n", path);
     }
 
     int  getFrameNumber()                 const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
@@ -681,7 +709,7 @@ public:
             cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << "\"\n";
             optionsHandler.setOption(optionIn);
         }
-        catch ( std::runtime_error& exception )
+        catch (FileException& exception)
         {
             std::cerr << exception.what();
             return;
@@ -695,7 +723,7 @@ public:
         {
             optionsHandler.saveOption(option, configFileLocation);
         }
-        catch (std::runtime_error& exception)
+        catch (FileException& exception)
         {
             std::cerr << "Could not save option: " << exception.what();
         }
@@ -835,7 +863,7 @@ int main( int argc, char** argv )
     try
     {
         if (argc < 2)
-            throw std::invalid_argument("Not enough arguments: expected a file path. Aborting.\n");
+            throw std::invalid_argument("Not enough arguments: expected a file path\n");
 
         if (argc > 2)
             std::cerr << "Ignoring additional arguments.\n";
