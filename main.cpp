@@ -442,20 +442,23 @@ private:
                 if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
                     continue;
 
-                config_option_ptr newOption = makeOptionFromStrings(parseLine(ss));
+                try
+                {
+                    config_option_ptr newOption = makeOptionFromStrings(parseLine(ss));
 
-                // Ignore lines with duplicate options
-                if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
-                    optionsParsed.push_back( newOption );
+                    // Ignore lines with duplicate options
+                    if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
+                        optionsParsed.push_back( newOption );
+                }
+                catch (InvalidOptionException& exception)
+                {
+                    std::cout << exception.what();
+                }
             }
         }
         catch (FileException& exception)
         {
             std::cerr << exception.what();
-        }
-        catch (InvalidOptionException& exception)
-        {
-            std::cout << exception.what();
         }
 
         return optionsParsed;
