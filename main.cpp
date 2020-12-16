@@ -37,17 +37,19 @@ using cv::Mat;
 
 namespace fs = std::filesystem;
 
-
+/*----------------------------------------------------------------------------------------------------
+    MARK: AbstractConfigValue & derived classes
+   ----------------------------------------------------------------------------------------------------*/
 
 using OptionalBool   = std::optional<bool>;
 using OptionalInt    = std::optional<int>;
 using OptionalString = std::optional<string>;
 
 
-// Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string
-// The "get" functions return a pair in which the first element holds a boolean which indicates if that given
-// data type is being used, and the second element holds the value itself. It is up to the caller to verify
-// that the data type is what they were expecting.
+// Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string.
+// The "get" functions return a std::optional of that type. It is up to the caller to verify that this contains
+// a value. This base class is defined such that derived ConfigValue<T> objects can be stored in shared_ptrs and
+// passed around without knowing at complie time what data type is stored in each object.
 class AbstractConfigValue
 {
 public:
@@ -58,12 +60,14 @@ public:
 };
 
 
+// Templated derived classes of AbstractConfigValue
 template <class T>
 class ConfigValue : public AbstractConfigValue
 {
 public:
     ConfigValue(const T& valIn) : value{ valIn } {}
 
+    // These "get" functions must be explicitly defined because virtual functions can't be templated
     OptionalBool   getBool()   const override { return get<bool>(); }
     OptionalInt    getInt()    const override { return get<int>(); }
     OptionalString getString() const override { return get<string>(); }
@@ -71,6 +75,8 @@ public:
 private:
     T value;
 
+    // Templated functions, get<U>(), return a std::optional of type U
+    // If T = U, the std::optional contains `value`; otherwise it is empty
     template <class U>
     std::optional<U> get() const
     {
@@ -82,11 +88,16 @@ private:
 };
 
 
-// Enum class that enumerates the valid data types that a RecognisedConfigOption may have
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: RecognisedConfigOption + AbstractConfigOption & derived classes
+   ----------------------------------------------------------------------------------------------------*/
+
+// Enumerates the valid data types and values that a RecognisedConfigOption may have
 enum class DataType
 {
-    eBoolean,
-    ePositiveInteger,
+    eBoolean,           // A boolean
+    ePositiveInteger,   // A positive integer
 };
 
 
@@ -105,13 +116,13 @@ public:
     DataType& getDataType()    { return dataType; }
 
 private:
-    string id;
-    string description;   // Human-readable description
-    DataType dataType;
+    string id;          // Option-specific identifier
+    string description; // Human-readable description
+    DataType dataType;  // The valid data types and values that can correspond to this option
 };
 
-using config_value_ptr = std::shared_ptr<AbstractConfigValue>; // Using `shared_ptr` allows `config_value_ptr`s to be safely returned by functions
 
+using config_value_ptr = std::shared_ptr<AbstractConfigValue>; // Using `shared_ptr` allows `config_value_ptr`s to be safely returned by functions
 
 
 // Abstract base class for storing a single configuration option. One of its derived classes is created
@@ -134,9 +145,7 @@ public:
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
-    // Return a string of the form "id = val", for writing the configuration option to a file
-    string configFileString() { return getID() + " = " + getValueAsString(); }
-
+    string configFileString() { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
     void print() const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
 
     bool validID() const
@@ -181,7 +190,7 @@ private:
 //      Add further entries here as new configuration options are introduced
 //      The size argument in the declariation of recognisedConfigOptions will need to be updated
 //      Additional entries may need to be added to the DataType enum class. In this case a function should
-//      be added to AbstrictConfigOption() to validate this data type (like optionValueIsBool()), and a
+//      be added to AbstractConfigOption to validate this data type (like optionValueIsBool()), and a
 //      corresponding if statement to validDataType()
 const array<RecognisedConfigOption,2> AbstractConfigOption::recognisedConfigOptions {
     RecognisedConfigOption("number_of_frames", "Number of frames to show",          DataType::ePositiveInteger),
@@ -215,6 +224,10 @@ template<> string ConfigOption<int>::getValueAsString()    const { return std::t
 template<> string ConfigOption<string>::getValueAsString() const { return optionValue->getString().value(); }
 
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: ConfigOptionsVector
+   ----------------------------------------------------------------------------------------------------*/
 
 using config_option_ptr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `config_option_ptr`s to be safely returned by functions
 
@@ -283,6 +296,10 @@ private:
 
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: ConfigOptionsHandler
+   ----------------------------------------------------------------------------------------------------*/
+
 // Enum class that enumerates the different configuration files
 enum class ConfigFileLocation
 {
@@ -290,7 +307,6 @@ enum class ConfigFileLocation
     eUser,
     eGlobal,
 };
-
 
 
 // Container class for dealing with configuration options. Has three main purposes
@@ -563,6 +579,10 @@ private:
 
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: Frame
+   ----------------------------------------------------------------------------------------------------*/
+
 // Data and functions relavant to a single frame of a video
 class Frame
 {
@@ -588,6 +608,10 @@ private:
 };
 
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: Video
+   ----------------------------------------------------------------------------------------------------*/
 
 // Data and functions relevant to a single video file.
 // Essentially a wrapper class for a cv::VideoCapture object
@@ -639,6 +663,10 @@ private:
 };
 
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: VideoPreview
+   ----------------------------------------------------------------------------------------------------*/
 
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
 //      1. `video`:          a `Video` object.            Deals with the core video file which is being previewed
@@ -829,6 +857,11 @@ private:
     }
 };
 
+
+
+/*----------------------------------------------------------------------------------------------------
+    main()
+   ----------------------------------------------------------------------------------------------------*/
 
 // Accepts one input argument: the name of the input video file
 int main( int argc, char** argv )
