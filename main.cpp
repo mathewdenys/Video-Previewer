@@ -559,6 +559,7 @@ class Frame
 {
 public:
     Frame(const Mat& dataIn, const int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
+
     int getFrameNumber() const { return frameNumber; }
     Mat getData()        const { return data; }
 
@@ -575,7 +576,6 @@ public:
 private:
     Mat data;
     int frameNumber;
-
 };
 
 
@@ -594,10 +594,11 @@ public:
         if (!vc.isOpened())
             throw std::invalid_argument("File " + path + " either could not be opened or is not a valid video file. Aborting.\n");
     }
-    void setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    int  getFrameNumber() const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
-    int  numberOfFrames() const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
+
+    int  getFrameNumber()                 const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
+    int  numberOfFrames()                 const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    void setFrameNumber(const int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
     void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
@@ -623,14 +624,8 @@ public:
 private:
     cv::VideoCapture vc;
 
-    double getFPS() const { return vc.get(cv::CAP_PROP_FPS); }
-
-    cv::Size getFrameSize() const
-    {
-        int width  = vc.get(cv::CAP_PROP_FRAME_WIDTH);
-        int height = vc.get(cv::CAP_PROP_FRAME_HEIGHT);
-        return cv::Size(width,height);
-    }
+    double   getFPS()       const { return vc.get(cv::CAP_PROP_FPS); }
+    cv::Size getFrameSize() const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
 };
 
 
