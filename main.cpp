@@ -38,7 +38,7 @@ using cv::Mat;
 namespace fs = std::filesystem;
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: Exception Classes
+    MARK: - Exception Classes
    ----------------------------------------------------------------------------------------------------*/
 
 class FileException : public std::exception
@@ -66,7 +66,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: AbstractConfigValue & derived classes
+    MARK: - AbstractConfigValue & derived classes
 
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements
@@ -132,7 +132,7 @@ template<> string ConfigValue<string>::getAsString() const { return getString().
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: RecognisedConfigOption + AbstractConfigOption & derived classes
+    MARK: - RecognisedConfigOption + AbstractConfigOption & derived classes
 
         When adding support for a new option, update
             - AbstractConfigOption::recognisedConfigOptions (declaration and definition)
@@ -314,7 +314,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: ConfigOptionsVector
+    MARK: - ConfigOptionsVector
    ----------------------------------------------------------------------------------------------------*/
 
 using ConfigOptionPtr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
@@ -375,7 +375,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: ConfigOptionsHandler
+    MARK: - ConfigOptionsHandler
    ----------------------------------------------------------------------------------------------------*/
 
 // Enum class that enumerates the different configuration files
@@ -623,7 +623,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: Frame
+    MARK: - Frame
    ----------------------------------------------------------------------------------------------------*/
 
 // Data and functions relavant to a single frame of a video
@@ -653,7 +653,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: Video
+    MARK: - Video
    ----------------------------------------------------------------------------------------------------*/
 
 // Data and functions relevant to a single video file.
@@ -703,7 +703,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: VideoPreview
+    MARK: - VideoPreview
    ----------------------------------------------------------------------------------------------------*/
 
 // The main class associated with previewing a single video. `VideoPreview` has three core components:
@@ -902,7 +902,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    main()
+    MARK: - main()
    ----------------------------------------------------------------------------------------------------*/
 
 // Accepts one input argument: the name of the input video file
