@@ -189,19 +189,22 @@ using ConfigValuePtr = std::shared_ptr<AbstractConfigValue>; // Using `shared_pt
 class AbstractConfigOption
 {
 public:
-    AbstractConfigOption(const string& id) : optionID{ id }
+    AbstractConfigOption(const string& id, const ConfigValuePtr value) : optionID{ id }, optionValue{ value }
     {
         if (!hasValidID())
             throw InvalidOptionException{"unrecognised ID \"" + id + "\"\n"};
+
+        if (!hasValidValue())
+            throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + value->getAsString() + "\"\n");
     }
 
     virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
 
-    virtual ConfigValuePtr   getValue()            const = 0;
-    virtual string           getValueAsString()    const = 0;
-    string                   getID()               const { return optionID; }
-    string                   getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
-    void                     print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
+    ConfigValuePtr getValue()            const { return optionValue; }
+    string         getValueAsString()    const { return optionValue->getAsString(); }
+    string         getID()               const { return optionID; }
+    string         getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
+    void           print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
 
     string  getDescription() const
     {
@@ -232,41 +235,6 @@ protected:
 private:
     bool hasValidID() const { return findRecognisedOptionWithSameID() != recognisedConfigOptions.end(); }
 
-protected:
-    const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
-    string optionID;
-};
-
-// An array that contains every RecognisedConfigOption that the program "understands"
-const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOptions {
-    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
-    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
-    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
-};
-
-
-
-// Templated derived classes of AbstractConfigOption
-// T corresponds to the data type of the configuration options
-template<class T>
-class ConfigOption : public AbstractConfigOption
-{
-public:
-    ConfigOption(const string& idIn, const T& valIn) :
-        AbstractConfigOption{ idIn },
-        optionValue         { std::make_shared< ConfigValue<T> >(valIn) }
-    {
-        if (!hasValidValue())
-            throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + getValueAsString() + "\"\n");
-    }
-
-    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
-
-    ConfigValuePtr getValue()               const override { return optionValue; }
-    string         getValueAsString()       const override { return optionValue->getAsString(); }
-    void           setValue(const T& valIn)                { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
-
-private:
     bool hasValidValue() const
     {
         auto templateOption = findRecognisedOptionWithSameID();
@@ -309,8 +277,34 @@ private:
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
 
-private:
+protected:
+    string optionID;
     ConfigValuePtr optionValue;
+    const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
+};
+
+// An array that contains every RecognisedConfigOption that the program "understands"
+const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOptions {
+    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
+    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
+    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
+};
+
+
+
+// Templated derived classes of AbstractConfigOption
+// T corresponds to the data type of the configuration options
+template<class T>
+class ConfigOption : public AbstractConfigOption
+{
+public:
+    ConfigOption(const string& idIn, const T& valIn) :
+        AbstractConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
+    {}
+
+    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
+
+    void setValue(const T& valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 };
 
 
@@ -616,8 +610,8 @@ private:
     }
 
 private:
-    string localConfigFilePath;                                              // Not known at compile time; initialised in the constructor
-    string homeDirectory       { std::getenv("HOME") };                      // $HOME environment variable, for accessing config file in the users home directory
+    string localConfigFilePath;                                                          // Not known at compile time; initialised in the constructor
+    string homeDirectory       { std::getenv("HOME") };                                  // $HOME environment variable, for accessing config file in the users home directory
     string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
     string globalConfigFilePath{ "/etc/videopreviewconfig" };
     ConfigOptionVector configOptions;
