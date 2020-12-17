@@ -763,6 +763,8 @@ public:
         updatePreview();
     }
 
+    // Save a single current configuration option to a configuration file associated with this video
+    // Keeps the formatting of the current config file, but overwirtes the option if it has been changed
     void saveOption(ConfigOptionPtr option, const ConfigFileLocation& configFileLocation)
     {
         try
@@ -772,6 +774,38 @@ public:
         catch (const FileException& exception)
         {
             std::cerr << "Could not save option: " << exception.what();
+        }
+    }
+
+    // Save all the current configuration options to a configuration file associated with this video
+    // Keeps the formatting of the current config file, but overwirtes any options that have been changed
+    void saveOptions(const ConfigFileLocation& configFileLocation)
+    {
+        for (ConfigOptionPtr opt : optionsHandler.getOptions())
+            saveOption(opt, configFileLocation);
+    }
+    
+    // Export the current configuration options to an arbitrary file
+    // The file cannot exist already
+    void exportOptions(const string& configFileLocation)
+    {
+        std::cout << "Exporting configuration options to \"" << configFileLocation << "\"\n";
+        try
+        {
+            if (fs::exists(configFileLocation))
+                throw FileException("cannot export to a file that already exists\n", configFileLocation);
+            
+            std::ofstream outf{ configFileLocation };
+            
+            if (!outf)
+                throw FileException("cannot open file for exporting\n", configFileLocation);
+            
+            for ( ConfigOptionPtr opt : optionsHandler.getOptions())
+                outf << opt->getConfigFileString() << std::endl;
+        }
+        catch (const FileException& exception)
+        {
+            std::cerr << exception.what();
         }
     }
 
