@@ -795,16 +795,6 @@ public:
     }
 
 private:
-    using frame_ptr = std::unique_ptr<Frame>;
-
-    string videoPath;                // path to the video file
-    string exportPath;               // path the the directory for exporting temporary files to
-    string configPath;               // path to the local configuration file
-    Video video;
-    ConfigOptionsHandler optionsHandler;
-    ConfigOptionsVector currentPreviewConfigOptions;
-    vector<frame_ptr>    frames;
-
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // This is saved to `exportPath`, and also returned from the function
     // Modified from https://stackoverflow.com/a/8520815
@@ -901,6 +891,17 @@ private:
         // will return nullptr, and this comparison still works
         return !( optionsHandler.getOptions().getOption(optionID) == currentPreviewConfigOptions.getOption(optionID) );
     }
+
+private:
+    using frame_ptr = std::unique_ptr<Frame>;
+
+    string videoPath;                   // path to the video file
+    string exportPath;                  // path the the directory for exporting temporary files to
+    string configPath;                  // path to the local configuration file
+    Video video;
+    ConfigOptionsHandler optionsHandler;
+    ConfigOptionsVector currentPreviewConfigOptions;  // The configuration options corresponding to the current preview (even if internal options have been changed)
+    vector<frame_ptr>    frames;
 };
 
 
