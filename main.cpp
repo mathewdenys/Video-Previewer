@@ -429,12 +429,6 @@ public:
     }
 
 private:
-    string localConfigFilePath;                                                          // Not known at compile time; initialised in the constructor
-    string homeDirectory       { std::getenv("HOME") };                                  // $HOME environment variable, for accessing config file in the users home directory
-    string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
-    string globalConfigFilePath{ "/etc/videopreviewconfig" };
-    ConfigOptionsVector configOptions;
-
     // Parse each of the configuration files and merge them into a single vector of `ConfigOptionPtr`s
     // For now I naively prioritise the local configuration file, then user options, then global options
     ConfigOptionsVector readAndMergeOptions()
@@ -620,6 +614,13 @@ private:
             return false;
         return true;
     }
+
+private:
+    string localConfigFilePath;                                              // Not known at compile time; initialised in the constructor
+    string homeDirectory       { std::getenv("HOME") };                      // $HOME environment variable, for accessing config file in the users home directory
+    string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
+    string globalConfigFilePath{ "/etc/videopreviewconfig" };
+    ConfigOptionsVector configOptions;
 };
 
 
