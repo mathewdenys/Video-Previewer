@@ -70,7 +70,7 @@ private:
 
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements
-            - The set of virtual getX() statements in AbstractConfigOption and ConfigOption<T>
+            - The set of virtual getX() statements in BaseConfigOption and ConfigOption<T>
             - The set of template specialised ConfigValue::getAsString() functions
             - ConfigOptionsHandler::makeOptionFromStrings()
    ----------------------------------------------------------------------------------------------------*/
@@ -132,14 +132,14 @@ template<> string ConfigValue<string>::getAsString() const { return getString().
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - RecognisedConfigOption + AbstractConfigOption & derived classes
+    MARK: - RecognisedConfigOption + BaseConfigOption & derived classes
 
         When adding support for a new option, update
-            - AbstractConfigOption::recognisedConfigOptions (declaration and definition)
+            - BaseConfigOption::recognisedConfigOptions (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
             - ValidOptionValues
-            - ConfigOption<T>::hasValidValue()
+            - BaseConfigOption::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a RecognisedConfigOption may have
@@ -184,12 +184,12 @@ private:
 using ConfigValuePtr = std::shared_ptr<AbstractConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
 
 
-// Abstract base class for storing a single configuration option. One of its derived classes is created
+// Base class for storing a single configuration option. One of its derived classes is created
 // for each option loaded from the configuration files for a given `VideoPreview` object.
-class AbstractConfigOption
+class BaseConfigOption
 {
 public:
-    AbstractConfigOption(const string& id, const ConfigValuePtr value) : optionID{ id }, optionValue{ value }
+    BaseConfigOption(const string& id, const ConfigValuePtr value) : optionID{ id }, optionValue{ value }
     {
         if (!hasValidID())
             throw InvalidOptionException{"unrecognised ID \"" + id + "\"\n"};
@@ -198,7 +198,7 @@ public:
             throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + value->getAsString() + "\"\n");
     }
 
-    virtual std::unique_ptr<AbstractConfigOption> clone() const = 0; // "virtual copy constructor"
+    virtual std::unique_ptr<BaseConfigOption> clone() const = 0; // "virtual copy constructor"
 
     ConfigValuePtr getValue()            const { return optionValue; }
     string         getValueAsString()    const { return optionValue->getAsString(); }
@@ -214,7 +214,7 @@ public:
         return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
     }
 
-    virtual ~AbstractConfigOption() {};
+    virtual ~BaseConfigOption() {};
 
 protected:
     // Returns an iterator to the element of recognisedConfigOptions with the same ID
@@ -284,7 +284,7 @@ protected:
 };
 
 // An array that contains every RecognisedConfigOption that the program "understands"
-const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOptions {
+const array<RecognisedConfigOption,3> BaseConfigOption::recognisedConfigOptions {
     RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
     RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
     RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
@@ -292,17 +292,17 @@ const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOpti
 
 
 
-// Templated derived classes of AbstractConfigOption
+// Templated derived classes of BaseConfigOption
 // T corresponds to the data type of the configuration options
 template<class T>
-class ConfigOption : public AbstractConfigOption
+class ConfigOption : public BaseConfigOption
 {
 public:
     ConfigOption(const string& idIn, const T& valIn) :
-        AbstractConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
+        BaseConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
     {}
 
-    std::unique_ptr<AbstractConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
+    std::unique_ptr<BaseConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
 
     void setValue(const T& valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 };
@@ -313,7 +313,7 @@ public:
     MARK: - ConfigOptionVector
    ----------------------------------------------------------------------------------------------------*/
 
-using ConfigOptionPtr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
+using ConfigOptionPtr = std::shared_ptr<BaseConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 // Container class for a vector of config_ptrs, with helper functions
 class ConfigOptionVector
@@ -350,7 +350,7 @@ public:
 
     // Add a new configuration option to the `options` vector.
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
-    void setOption(const AbstractConfigOption& optionIn)
+    void setOption(const BaseConfigOption& optionIn)
     {
         auto IDexists
         {
@@ -361,7 +361,7 @@ public:
         };
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-        options.push_back( std::shared_ptr<AbstractConfigOption>(optionIn.clone()));
+        options.push_back( std::shared_ptr<BaseConfigOption>(optionIn.clone()));
     }
 
 private:
@@ -398,7 +398,7 @@ public:
     string                     getFilePath() const { return localConfigFilePath; }
     const ConfigOptionVector&  getOptions()        { return configOptions; }
 
-    void                       setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
+    void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     void saveOption(ConfigOptionPtr option, const ConfigFileLocation& configFileLocation)
     {
@@ -748,7 +748,7 @@ public:
         return optionsHandler.getOptions().getOption(optionID);
     }
 
-    void setOption(const AbstractConfigOption& optionIn)
+    void setOption(const BaseConfigOption& optionIn)
     {
         try
         {
