@@ -214,9 +214,6 @@ public:
     virtual ~AbstractConfigOption() {};
 
 protected:
-    const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
-    string optionID;
-
     // Returns an iterator to the element of recognisedConfigOptions with the same ID
     // If no such element exists, returns an iterator to recognisedConfigOptions.end()
     auto findRecognisedOptionWithSameID() const
@@ -234,6 +231,10 @@ protected:
 
 private:
     bool hasValidID() const { return findRecognisedOptionWithSameID() != recognisedConfigOptions.end(); }
+
+protected:
+    const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
+    string optionID;
 };
 
 // An array that contains every RecognisedConfigOption that the program "understands"
