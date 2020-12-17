@@ -736,7 +736,7 @@ public:
 
             // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
             // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos
-            if ( getOption("action_on_hover") != nullptr && getOption("action_on_hover")->getValue()->getString() != "none" )
+            if ( ConfigOptionPtr actionOnHover = getOption("action_on_hover") ; actionOnHover && actionOnHover->getValue()->getString() != "none" )
                 exportPreviewVideos();
         }
 
