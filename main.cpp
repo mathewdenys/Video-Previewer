@@ -491,13 +491,13 @@ private:
                     if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
                         optionsParsed.push_back( newOption );
                 }
-                catch (InvalidOptionException& exception)
+                catch (const InvalidOptionException& exception)
                 {
                     std::cerr << exception.what();
                 }
             }
         }
-        catch (FileException& exception)
+        catch (const FileException& exception)
         {
             std::cerr << exception.what();
         }
@@ -757,7 +757,7 @@ public:
             cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << "\"\n";
             optionsHandler.setOption(optionIn);
         }
-        catch (FileException& exception)
+        catch (const FileException& exception)
         {
             std::cerr << exception.what();
             return;
@@ -771,7 +771,7 @@ public:
         {
             optionsHandler.saveOption(option, configFileLocation);
         }
-        catch (FileException& exception)
+        catch (const FileException& exception)
         {
             std::cerr << "Could not save option: " << exception.what();
         }
@@ -921,7 +921,7 @@ int main( int argc, char** argv )
         vidprev.setOption(updatedOption);
         vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::eLocal);
     }
-    catch (std::exception& exception)
+    catch (const std::exception& exception)
     {
         std::cerr << exception.what();
         return 1;
