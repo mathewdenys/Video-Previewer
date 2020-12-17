@@ -493,7 +493,7 @@ private:
                 }
                 catch (InvalidOptionException& exception)
                 {
-                    std::cout << exception.what();
+                    std::cerr << exception.what();
                 }
             }
         }
