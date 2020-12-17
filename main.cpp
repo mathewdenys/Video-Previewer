@@ -198,7 +198,7 @@ public:
             throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + value->getAsString() + "\"\n");
     }
 
-    virtual std::unique_ptr<BaseConfigOption> clone() const = 0; // "virtual copy constructor"
+    virtual std::shared_ptr<BaseConfigOption> clone() const = 0; // "virtual copy constructor"
 
     ConfigValuePtr getValue()            const { return optionValue; }
     string         getValueAsString()    const { return optionValue->getAsString(); }
@@ -302,7 +302,7 @@ public:
         BaseConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
     {}
 
-    std::unique_ptr<BaseConfigOption> clone() const override { return std::make_unique<ConfigOption<T> >(*this); } // "virtual copy constructor"
+    std::shared_ptr<BaseConfigOption> clone() const override { return std::make_shared<ConfigOption<T> >(*this); } // "virtual copy constructor"
 
     void setValue(const T& valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 };
@@ -361,7 +361,7 @@ public:
         };
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-        options.push_back( std::shared_ptr<BaseConfigOption>(optionIn.clone()));
+        options.push_back( optionIn.clone() );
     }
 
 private:
@@ -736,7 +736,7 @@ public:
 
             // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
             // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos
-            if ( ConfigOptionPtr actionOnHover = getOption("action_on_hover") ; actionOnHover && actionOnHover->getValue()->getString() != "none" )
+            if ( ConfigOptionPtr actionOnHover = getOption("action_on_hover"); actionOnHover && actionOnHover->getValue()->getString() != "none" )
                 exportPreviewVideos();
         }
 
