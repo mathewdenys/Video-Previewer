@@ -841,7 +841,7 @@ private:
             Mat currentFrameMat;
             video.setFrameNumber(frameNumber);
             video.writeCurrentFrame(currentFrameMat);
-            frames.push_back(std::make_unique<Frame>(currentFrameMat, frameNumber));
+            frames.emplace_back(currentFrameMat, frameNumber);
             i++;
         }
     }
@@ -851,8 +851,8 @@ private:
     {
         fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
         cout << "Exporting frame bitmaps\n";
-        for (frame_ptr& frame : frames)
-            frame->exportBitmap(exportPath);
+        for (Frame& frame : frames)
+            frame.exportBitmap(exportPath);
     }
 
     // Exports a "preview video" for each frame in the `frames` vector
@@ -862,8 +862,8 @@ private:
         vector<int> frameNumbers;
         frameNumbers.reserve(frames.size()+1);
 
-        for (frame_ptr& frame : frames)
-            frameNumbers.push_back(frame->getFrameNumber());
+        for (Frame& frame : frames)
+            frameNumbers.push_back(frame.getFrameNumber());
         frameNumbers.push_back(video.numberOfFrames());
 
         cout << "Exporting video previews\n";
@@ -887,15 +887,13 @@ private:
     }
 
 private:
-    using frame_ptr = std::unique_ptr<Frame>;
-
-    string videoPath;                   // path to the video file
-    string exportPath;                  // path the the directory for exporting temporary files to
-    string configPath;                  // path to the local configuration file
+    string videoPath;                               // path to the video file
+    string exportPath;                              // path the the directory for exporting temporary files to
+    string configPath;                              // path to the local configuration file
     Video video;
     ConfigOptionsHandler optionsHandler;
-    ConfigOptionVector currentPreviewConfigOptions;  // The configuration options corresponding to the current preview (even if internal options have been changed)
-    vector<frame_ptr>    frames;
+    ConfigOptionVector currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
+    vector<Frame>        frames;                    // Vector of each Frame in the preview
 };
 
 
