@@ -267,8 +267,6 @@ public:
     void           setValue(const T& valIn)                { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 
 private:
-    ConfigValuePtr optionValue;
-
     bool hasValidValue() const
     {
         auto templateOption = findRecognisedOptionWithSameID();
@@ -310,6 +308,9 @@ private:
 
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
+
+private:
+    ConfigValuePtr optionValue;
 };
 
 
