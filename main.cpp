@@ -697,10 +697,11 @@ public:
     }
 
 private:
-    cv::VideoCapture vc;
-
     double   getFPS()       const { return vc.get(cv::CAP_PROP_FPS); }
     cv::Size getFrameSize() const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
+
+private:
+    cv::VideoCapture vc;
 };
 
 
