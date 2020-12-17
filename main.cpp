@@ -316,22 +316,22 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionsVector
+    MARK: - ConfigOptionVector
    ----------------------------------------------------------------------------------------------------*/
 
 using ConfigOptionPtr = std::shared_ptr<AbstractConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 // Container class for a vector of config_ptrs, with helper functions
-class ConfigOptionsVector
+class ConfigOptionVector
 {
 public:
-    ConfigOptionsVector() {}                                                           // Default constructor
-    ConfigOptionsVector(vector<ConfigOptionPtr> optionsIn) : options{ optionsIn } {}
+    ConfigOptionVector() {}                                                           // Default constructor
+    ConfigOptionVector(vector<ConfigOptionPtr> optionsIn) : options{ optionsIn } {}
 
     using iterator       = vector<ConfigOptionPtr>::iterator;
     using const_iterator = vector<ConfigOptionPtr>::const_iterator;
 
-    // The following funcions allow ConfigOptionsVector to act appropriately in range-based iterators
+    // The following funcions allow ConfigOptionVector to act appropriately in range-based iterators
     iterator       begin()       { return options.begin(); }
     iterator       end()         { return options.end();   }
     const_iterator begin() const { return options.begin(); }
@@ -401,10 +401,10 @@ class ConfigOptionsHandler
 public:
     ConfigOptionsHandler(const string& configFilePathIn) : localConfigFilePath{ configFilePathIn } { configOptions = readAndMergeOptions(); }
 
-    string                      getFilePath() const { return localConfigFilePath; }
-    const ConfigOptionsVector&  getOptions()        { return configOptions; }
+    string                     getFilePath() const { return localConfigFilePath; }
+    const ConfigOptionVector&  getOptions()        { return configOptions; }
 
-    void                        setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
+    void                       setOption(const AbstractConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     void saveOption(ConfigOptionPtr option, const ConfigFileLocation& configFileLocation)
     {
@@ -431,13 +431,13 @@ public:
 private:
     // Parse each of the configuration files and merge them into a single vector of `ConfigOptionPtr`s
     // For now I naively prioritise the local configuration file, then user options, then global options
-    ConfigOptionsVector readAndMergeOptions()
+    ConfigOptionVector readAndMergeOptions()
     {
-        ConfigOptionsVector optionsLocal  = parseFile(localConfigFilePath);
-        ConfigOptionsVector optionsUser   = parseFile(userConfigFilePath);
-        ConfigOptionsVector optionsGlobal = parseFile(globalConfigFilePath);
+        ConfigOptionVector optionsLocal  = parseFile(localConfigFilePath);
+        ConfigOptionVector optionsUser   = parseFile(userConfigFilePath);
+        ConfigOptionVector optionsGlobal = parseFile(globalConfigFilePath);
 
-        ConfigOptionsVector optionsMerged{ optionsLocal };
+        ConfigOptionVector optionsMerged{ optionsLocal };
 
         for (ConfigOptionPtr userOption : optionsUser) // Add any "user" options that aren't specified in the "local" options
         {
@@ -457,9 +457,9 @@ private:
     }
 
     // Parse a single configuration file and return a vector of `ConfigOptionPtr`s
-    ConfigOptionsVector parseFile(const string& filePath)
+    ConfigOptionVector parseFile(const string& filePath)
     {
-        ConfigOptionsVector optionsParsed {};
+        ConfigOptionVector optionsParsed {};
 
         try
         {
@@ -620,7 +620,7 @@ private:
     string homeDirectory       { std::getenv("HOME") };                      // $HOME environment variable, for accessing config file in the users home directory
     string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
     string globalConfigFilePath{ "/etc/videopreviewconfig" };
-    ConfigOptionsVector configOptions;
+    ConfigOptionVector configOptions;
 };
 
 
@@ -900,7 +900,7 @@ private:
     string configPath;                  // path to the local configuration file
     Video video;
     ConfigOptionsHandler optionsHandler;
-    ConfigOptionsVector currentPreviewConfigOptions;  // The configuration options corresponding to the current preview (even if internal options have been changed)
+    ConfigOptionVector currentPreviewConfigOptions;  // The configuration options corresponding to the current preview (even if internal options have been changed)
     vector<frame_ptr>    frames;
 };
 
