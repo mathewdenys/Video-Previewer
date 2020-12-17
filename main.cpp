@@ -109,19 +109,19 @@ public:
     OptionalString getString()   const override { return get<string>(); }
     string         getAsString() const override;
 
-private:
-    T value;
-
+protected:
     // Templated functions, get<U>(), return a std::optional of type U
-    // If T = U, the std::optional contains `value`; otherwise it is empty
+    // If T = U, the std::optional contains `value`; otherwise it is "empty" (default constructor)
     template <class U>
     std::optional<U> get() const
     {
         if constexpr(std::is_same_v<T,U>)
             return {value};
-        return {};
+        return std::optional<U>{};
     }
 
+private:
+    T value;
 };
 
 // Template specialisation of getAsString() functions
