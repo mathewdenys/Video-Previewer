@@ -138,12 +138,12 @@ template<> string ConfigValue<string>::getAsString() const { return getString().
             - AbstractConfigOption::recognisedConfigOptions (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
-            - DataType
+            - ValidOptionValues
             - ConfigOption<T>::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
-// Enumerates the valid data types and values that a RecognisedConfigOption may have
-enum class DataType
+// Enumerates the valid values a RecognisedConfigOption may have
+enum class ValidOptionValues
 {
     eBoolean,           // A boolean
     ePositiveInteger,   // A positive integer
@@ -155,29 +155,29 @@ enum class DataType
 class RecognisedConfigOption
 {
 public:
-    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const DataType& dataTypeIn) :
+    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn) :
         id          { idIn },
         description { descriptionIn },
-        dataType    { dataTypeIn }
+        validValues { validValuesIn }
     {}
 
-    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const DataType& dataTypeIn, const vector<string>& validValuesIn) :
-        RecognisedConfigOption ( idIn, descriptionIn, dataTypeIn )
+    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+        RecognisedConfigOption ( idIn, descriptionIn, validValuesIn )
     {
-        if (dataType == DataType::eString)
-            validValues = validValuesIn;
+        if (validValues == ValidOptionValues::eString)
+            validStrings = validStringsIn;
     }
 
-    const string&        getID()          const { return id; }
-    const string&        getDescription() const { return description; }
-    const DataType&      getDataType()    const { return dataType; }
-    const vector<string> getValidValues() const { return validValues; }
+    const string&            getID()           const { return id; }
+    const string&            getDescription()  const { return description; }
+    const ValidOptionValues& getValidValues()  const { return validValues; }
+    const vector<string>     getValidStrings() const { return validStrings; }
 
 private:
-    string id;                     // Option-specific identifier
-    string description;            // Human-readable description
-    DataType dataType;             // The valid data types and values that can correspond to this option
-    vector<string> validValues {}; // List of allowed values (only used when dataType = DataType::eString)
+    string id;                         // Option-specific identifier
+    string description;                // Human-readable description
+    ValidOptionValues validValues;     // The valid values this option may have
+    vector<string>    validStrings {}; // List of allowed values when validValues = ValidOptionValues::eString
 };
 
 
@@ -238,9 +238,9 @@ private:
 
 // An array that contains every RecognisedConfigOption that the program "understands"
 const array<RecognisedConfigOption,3> AbstractConfigOption::recognisedConfigOptions {
-    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 DataType::ePositiveInteger        ),
-    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        DataType::eBoolean                ),
-    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", DataType::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validValues when I support them
+    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
+    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
+    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -275,14 +275,14 @@ private:
         if (templateOption == recognisedConfigOptions.end()) // Invalid ID
             throw InvalidOptionException{"unrecognised ID \"" + getID() + "\"\n"};
 
-        if (templateOption->getDataType() == DataType::eBoolean)
+        if (templateOption->getValidValues() == ValidOptionValues::eBoolean)
             return optionValueIsBool();
 
-        if (templateOption->getDataType() == DataType::ePositiveInteger)
+        if (templateOption->getValidValues() == ValidOptionValues::ePositiveInteger)
             return optionValueIsPositiveInteger();
 
-        if (templateOption->getDataType() == DataType::eString)
-            return optionValueIsValidString(templateOption->getValidValues());
+        if (templateOption->getValidValues() == ValidOptionValues::eString)
+            return optionValueIsValidString(templateOption->getValidStrings());
 
         return false; // This should never be reached
     }
@@ -297,7 +297,7 @@ private:
         return false;
     }
 
-    bool optionValueIsValidString(vector<string> validValues) const // Assumes the ID has already been validated
+    bool optionValueIsValidString(vector<string> validStrings) const // Assumes the ID has already been validated
     {
         auto valueExists
         {
@@ -307,7 +307,7 @@ private:
             }
         };
 
-        return std::find_if(validValues.begin(), validValues.end(), valueExists) != validValues.end();
+        return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
 };
 
