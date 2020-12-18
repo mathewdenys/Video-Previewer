@@ -473,12 +473,12 @@ protected:
         }
     }
 
-    using id_val_pair = pair<string,string>;
+    using idValPair = pair<string,string>;
 
     // Parse a single line of the configuration file and return a std::pair containing strings representing the
     // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
     // lines are not handled.
-    id_val_pair parseLine(stringstream& ss)
+    idValPair parseLine(stringstream& ss)
     {
         string id;
         string val;
@@ -498,11 +498,11 @@ protected:
             ss >> std::ws;     // always remove any following white space
         }
 
-        return id_val_pair{ id, val };
+        return idValPair{ id, val };
     }
 
-    // Return a `ConfigOptionPtr` from an `id_val_pair`
-    ConfigOptionPtr makeOptionFromStrings(const id_val_pair& inputPair)
+    // Return a `ConfigOptionPtr` from an `idValPair`
+    ConfigOptionPtr makeOptionFromStrings(const idValPair& inputPair)
     {
         string id  = inputPair.first;
         string val = inputPair.second;
