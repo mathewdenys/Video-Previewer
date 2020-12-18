@@ -932,14 +932,17 @@ private:
     }
 
     // Determine if a given configuration option has been changed since the last time the preview was updated
-    // Achieved by comparing the relevalnt `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
+    // Achieved by comparing the relevant `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
     bool configOptionHasBeenChanged(const string& optionID)
     {
-        // If the `ConfigOptionPtr` in `currentPreviewConfigOptions` is the same as the one stored internally in optionsHandler, then
-        // the option cannot have been changed. However, if they are not the same then we can assume that the option has been
-        // changed since the last time the preview was updated. Even if the optionID does not exist in either case, getOption()
-        // will return nullptr, and this comparison still works
-        return !( optionsHandler.getOptions().getOption(optionID) == currentPreviewConfigOptions.getOption(optionID) );
+        // If the option isn't defined in one of the vectors, it can only be unchanged if they are both equal to each other (i.e. nullptr)
+        ConfigOptionPtr optionInternal{ optionsHandler.getOptions().getOption(optionID) };
+        ConfigOptionPtr optionPreview { currentPreviewConfigOptions.getOption(optionID) };
+        if (!optionInternal || !optionPreview)
+            return optionInternal != optionPreview;
+
+        // Knowing that neither option is a nullptr, we can safely compare the actual values stored in each option
+        return !( optionInternal->getValueAsString() == optionPreview->getValueAsString() );
     }
 
 private:
