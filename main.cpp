@@ -371,163 +371,23 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionsHandler
+    MARK: - ConfigFile + derived classes
    ----------------------------------------------------------------------------------------------------*/
 
-// Enum class that enumerates the different configuration files
-enum class ConfigFileLocation
-{
-    eLocal,
-    eUser,
-    eGlobal,
-};
-
-
-// Container class for dealing with configuration options. Has three main purposes
-//      1. Reading in options from configuration files
-//          1a. Merging all the cnfiguration files into a single set of options
-//          1b. Validating the format of the configuration options for use elsewhere
-//      2. Storing the current state of the configuration options
-//          2a. Providing a public interface for changing configuration options
-//      3. Writing options to configuration files
-class ConfigOptionsHandler
+// Base class corresponding to a single configuration file. Has two main purposes
+//      1. Parsing the file into a ConfigOptionVector
+//      2. Writing configuration options into the corresponding file
+class ConfigFile
 {
 public:
-    ConfigOptionsHandler(const string& configFilePathIn) : localConfigFilePath{ configFilePathIn } { configOptions = readAndMergeOptions(); }
+    ConfigFile(const string& filePathIn) : filePath{ filePathIn }{ parseFile(); }
 
-    string                     getFilePath() const { return localConfigFilePath; }
-    const ConfigOptionVector&  getOptions()        { return configOptions; }
+    string&             getFilePath() { return filePath; }
+    ConfigOptionVector& getOptions()  { return options; }
 
-    void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
-
-    void saveOption(ConfigOptionPtr option, const ConfigFileLocation& configFileLocation)
-    {
-        switch (configFileLocation)
-        {
-        case ConfigFileLocation::eGlobal:
-            throw FileException("cannot write to global configuration file\n", globalConfigFilePath);
-            break;
-        case ConfigFileLocation::eUser:
-            writeOptionToFile(option, userConfigFilePath);
-            break;
-        case ConfigFileLocation::eLocal:
-            writeOptionToFile(option, localConfigFilePath);
-            break;
-        }
-    }
-
-    void print() const
-    {
-        for (ConfigOptionPtr option : configOptions)
-            option->print();
-    }
-
-private:
-    // Parse each of the configuration files and merge them into a single vector of `ConfigOptionPtr`s
-    // For now I naively prioritise the local configuration file, then user options, then global options
-    ConfigOptionVector readAndMergeOptions()
-    {
-        ConfigOptionVector optionsLocal  = parseFile(localConfigFilePath);
-        ConfigOptionVector optionsUser   = parseFile(userConfigFilePath);
-        ConfigOptionVector optionsGlobal = parseFile(globalConfigFilePath);
-
-        ConfigOptionVector optionsMerged{ optionsLocal };
-
-        for (ConfigOptionPtr userOption : optionsUser) // Add any "user" options that aren't specified in the "local" options
-        {
-            string id{ userOption->getID() };
-            if (optionsLocal.getOption(id) == nullptr)
-                optionsMerged.push_back(optionsUser.getOption(id));
-        }
-
-        for (ConfigOptionPtr globalOption : optionsGlobal) // Add any "global" options that aren't specified in either the "local" or "user" options
-        {
-            string id{ globalOption->getID() };
-            if (optionsLocal.getOption(id) == nullptr && optionsUser.getOption(id) == nullptr)
-                optionsMerged.push_back(optionsGlobal.getOption(id));
-        }
-
-        return optionsMerged;
-    }
-
-    // Parse a single configuration file and return a vector of `ConfigOptionPtr`s
-    ConfigOptionVector parseFile(const string& filePath)
-    {
-        ConfigOptionVector optionsParsed {};
-
-        try
-        {
-            cout << "Parsing \"" << filePath << "\"\n";
-            std::ifstream file{ filePath };
-            if (!file)
-                throw FileException("could not open file for parsing\n", filePath);
-
-
-            string line;
-            while (std::getline(file, line))
-            {
-                stringstream ss{ line };
-                ss >> std::ws; // remove leading white space
-
-                // Ignore blank lines and comment lines
-                if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
-                    continue;
-
-                try
-                {
-                    ConfigOptionPtr newOption = makeOptionFromStrings(parseLine(ss));
-
-                    // Ignore lines with duplicate options
-                    if (optionsParsed.getOption(newOption->getID()) == nullptr) // nullptr is returned by getID() if that optionID doesn't exist in optionsParsed
-                        optionsParsed.push_back( newOption );
-                }
-                catch (const InvalidOptionException& exception)
-                {
-                    std::cerr << exception.what();
-                }
-            }
-        }
-        catch (const FileException& exception)
-        {
-            std::cerr << exception.what();
-        }
-
-        return optionsParsed;
-    }
-
-    using id_val_pair = pair<string,string>;
-
-    // Parse a single line of the configuration file and return a std::pair containing strings representing the
-    // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
-    // lines are not handled.
-    id_val_pair parseLine(stringstream& ss)
-    {
-        string id;
-        string val;
-
-        char c;
-        bool reachedEqualsSign = false;
-        while (ss.get(c))
-        {
-            if (c == '#') // ignore comments
-                break;
-            if (c == '=') // switch from writing to `id` to `val` when of RHS of equals sign
-                reachedEqualsSign = true;
-            else if (!reachedEqualsSign)
-                id.push_back(c);
-            else
-                val.push_back(c);
-            ss >> std::ws; // always remove any following white space
-        }
-
-        return id_val_pair{ id, val };
-    }
-
-    // Write the configuration option stored in the `ConfigOptionPtr` `option` to the file `filePath`, which is can be
-    // a new file, but is intended to be a preexisting configuration file. If the file already specifies a value
-    // for the option in question it will be overwritten. If it includes more than one specification of the option,
-    // the first will be overwritten and additonal ones will be removed.
-    void writeOptionToFile(ConfigOptionPtr option, const string& filePath)
+    // Write an option to the file `filePath`, which is a preexisting configuration file
+    // If the file already specifies the option [more than once], its value will be overwritten [and additional ones removed]
+    void writeOptionToFile(ConfigOptionPtr option)
     {
         // Open the file for reading any preexisting content
         std::ifstream file{ filePath };
@@ -547,11 +407,10 @@ private:
         while (std::getline(file, line))
         {
             stringstream ss{ line };
-            ss >> std::ws; // Remove leading white space
-
-            if ( ss.rdbuf()->in_avail() == 0 ||          // Copy blank lines unchanged to temp file
-                 ss.peek() == '#' ||                     // Copy comment lines unchanged to temp file
-                 parseLine(ss).first != option->getID()  // Copy "other" configuration options unchanged to temp file
+            ss >> std::ws;     // Remove leading white space
+            if ( ss.rdbuf()->in_avail() == 0 ||     // Copy blank lines unchanged to temp file
+                 ss.peek() == '#' ||                 // Copy comment lines unchanged to temp file
+                 parseLine(ss).first != option->getID()                 // Copy "other" configuration options unchanged to temp file
                  )
             {
                 tempFile << line << std::endl;
@@ -572,6 +431,76 @@ private:
         fs::rename(tempFilePath, filePath);
     }
 
+protected:
+    // Parse the file `filePath` and write the parsed options to the `options` vector
+    void parseFile()
+    {
+        try
+        {
+            cout << "Parsing \"" << filePath << "\"\n";
+            std::ifstream file{ filePath };
+            if (!file)
+                throw FileException("could not open file for parsing\n", filePath);
+
+
+            string line;
+            while (std::getline(file, line))
+            {
+                stringstream ss{ line };
+                ss >> std::ws;     // remove leading white space
+
+                // Ignore blank lines and comment lines
+                if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
+                    continue;
+
+                try
+                {
+                    ConfigOptionPtr newOption = makeOptionFromStrings(parseLine(ss));
+
+                    // Ignore lines with duplicate options
+                    if ( !options.getOption(newOption->getID()) )         // nullptr is returned by getID() if that optionID doesn't exist in options
+                        options.push_back( newOption );
+                }
+                catch (const InvalidOptionException& exception)
+                {
+                    std::cerr << exception.what();
+                }
+            }
+        }
+        catch (const FileException& exception)
+        {
+            std::cerr << exception.what();
+        }
+    }
+
+    using id_val_pair = pair<string,string>;
+
+    // Parse a single line of the configuration file and return a std::pair containing strings representing the
+    // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
+    // lines are not handled.
+    id_val_pair parseLine(stringstream& ss)
+    {
+        string id;
+        string val;
+
+        char c;
+        bool reachedEqualsSign = false;
+        while (ss.get(c))
+        {
+            if (c == '#')     // ignore comments
+                break;
+            if (c == '=')     // switch from writing to `id` to `val` when of RHS of equals sign
+                reachedEqualsSign = true;
+            else if (!reachedEqualsSign)
+                id.push_back(c);
+            else
+                val.push_back(c);
+            ss >> std::ws;     // always remove any following white space
+        }
+
+        return id_val_pair{ id, val };
+    }
+
     // Return a `ConfigOptionPtr` from an `id_val_pair`
     ConfigOptionPtr makeOptionFromStrings(const id_val_pair& inputPair)
     {
@@ -579,12 +508,12 @@ private:
         string val = inputPair.second;
 
         if (val == "true" || val == "false")
-            return std::make_shared< ConfigOption<bool> >   (id, stringToBool(val));
+            return std::make_shared< ConfigOption<bool> >(id, stringToBool(val));
 
         if (isInt(val))
-            return std::make_shared< ConfigOption<int> >    (id, stringToInt(val));
+            return std::make_shared< ConfigOption<int> >(id, stringToInt(val));
 
-        return std::make_shared< ConfigOption<string> > (id, val);
+        return std::make_shared< ConfigOption<string> >(id, val);
     }
 
     bool stringToBool(const string& str) const
@@ -604,16 +533,107 @@ private:
     {
         int myInt;
         stringstream ss{ str };
-        if(!(ss >> myInt)) // stringstream extraction operator performs casts if it can returns false otherwise
+        if(!(ss >> myInt))     // stringstream extraction operator performs casts if it can returns false otherwise
             return false;
         return true;
     }
 
+protected:
+    string filePath;
+    ConfigOptionVector options;
+};
+
+
+
+class GlobalConfigFile : public ConfigFile
+{
+public:
+    GlobalConfigFile() : ConfigFile("/etc/videopreviewconfig") {}
+};
+
+
+class UserConfigFile : public ConfigFile
+{
+public:
+    UserConfigFile() : ConfigFile( string(std::getenv("HOME")) + "/.config/videopreview" ) {}
+};
+
+
+class LocalConfigFile : public ConfigFile
+{
+public:
+    LocalConfigFile(const string& filePathIn) : ConfigFile(filePathIn) {}
+};
+
+
+using ConfigFilePtr = std::shared_ptr<ConfigFile>;
+
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigOptionsHandler
+   ----------------------------------------------------------------------------------------------------*/
+
+// Container class for dealing with configuration options. Has three main purposes
+//      1. Merging all the cnfiguration files into a single set of options
+//      2. Storing the current state of the configuration options
+//          2a. Providing a public interface for changing configuration options
+//      3. Writing options to configuration files
+class ConfigOptionsHandler
+{
+public:
+    ConfigOptionsHandler(const string& configFilePathIn)
+    {
+        configFiles.push_back( std::make_shared<LocalConfigFile>(configFilePathIn) );
+        // TODO: load other local configuration files
+        configFiles.push_back( std::make_shared<UserConfigFile>() );
+        configFiles.push_back( std::make_shared<GlobalConfigFile>() );
+
+        mergeOptions();
+    }
+
+    const ConfigOptionVector&  getOptions()                                { return configOptions; }
+    void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
+
+    void saveOption(ConfigOptionPtr option, const string& filePath)
+    {
+        // If filePath corresponds to any of the files in configFiles, use the corresponding ConfigFile's writeOptionToFile() member function
+        for (ConfigFilePtr file : configFiles)
+            if (file->getFilePath() == filePath)
+            {
+                file->writeOptionToFile(option);
+                return;
+            }
+
+        std::cerr << "Could not save option to configuration file \"" << filePath << "\" as it is not a recognised configuration file\n";
+    }
+
+    void print() const
+    {
+        for (ConfigOptionPtr option : configOptions)
+            option->print();
+    }
+
 private:
-    string localConfigFilePath;                                                          // Not known at compile time; initialised in the constructor
-    string homeDirectory       { std::getenv("HOME") };                                  // $HOME environment variable, for accessing config file in the users home directory
-    string userConfigFilePath  { homeDirectory + "/.config/videopreview" };
-    string globalConfigFilePath{ "/etc/videopreviewconfig" };
+    // Merge the ConfigOptionVectors stored in each ConfigFilePtr in the configFiles vector into a single ConfigOptionVector
+    // The resulting ConfigOptionsVector is written to `configOptions`
+    void mergeOptions()
+    {
+        configOptions.clear();
+
+        // The configFiles vector is ordered from highest priority to lowest priority, so we scan through it in order.
+        // For each file we add any configuration options that haven't been imported yet. Any others can be ignored because
+        // the value that has already been imported is from a higher priority configuration file
+        for ( ConfigFilePtr& file : configFiles)
+        {
+            for ( ConfigOptionPtr& opt : file->getOptions() )
+                if ( string id{ opt->getID() }; !configOptions.getOption(id) )
+                    configOptions.push_back(opt);
+        }
+    }
+
+private:
+    vector<ConfigFilePtr> configFiles;
     ConfigOptionVector configOptions;
 };
 
@@ -667,7 +687,7 @@ public:
     int  getFrameNumber()                 const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
     int  numberOfFrames()                 const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
     void setFrameNumber(const int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); } // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
+    void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); }// Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
     void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
@@ -741,6 +761,7 @@ public:
         }
 
         currentPreviewConfigOptions = optionsHandler.getOptions();
+
     }
 
     ConfigOptionPtr getOption(const string& optionID)
@@ -765,11 +786,12 @@ public:
 
     // Save a single current configuration option to a configuration file associated with this video
     // Keeps the formatting of the current config file, but overwirtes the option if it has been changed
-    void saveOption(ConfigOptionPtr option, const ConfigFileLocation& configFileLocation)
+    void saveOption(ConfigOptionPtr option, const string& filePath)
     {
+        std::cout << "Writing configuration option \"" << option->getID() << "\" to file \"" << filePath << "\"\n";
         try
         {
-            optionsHandler.saveOption(option, configFileLocation);
+            optionsHandler.saveOption(option, filePath);
         }
         catch (const FileException& exception)
         {
@@ -779,12 +801,12 @@ public:
 
     // Save all the current configuration options to a configuration file associated with this video
     // Keeps the formatting of the current config file, but overwirtes any options that have been changed
-    void saveOptions(const ConfigFileLocation& configFileLocation)
+    void saveOptions(const string& filePath)
     {
         for (ConfigOptionPtr opt : optionsHandler.getOptions())
-            saveOption(opt, configFileLocation);
+            saveOption(opt, filePath);
     }
-    
+
     // Export the current configuration options to an arbitrary file
     // The file cannot exist already
     void exportOptions(const string& configFileLocation)
@@ -794,12 +816,12 @@ public:
         {
             if (fs::exists(configFileLocation))
                 throw FileException("cannot export to a file that already exists\n", configFileLocation);
-            
+
             std::ofstream outf{ configFileLocation };
-            
+
             if (!outf)
                 throw FileException("cannot open file for exporting\n", configFileLocation);
-            
+
             for ( ConfigOptionPtr opt : optionsHandler.getOptions())
                 outf << opt->getConfigFileString() << std::endl;
         }
@@ -818,7 +840,7 @@ public:
     ~VideoPreview()
     {
         fs::remove_all(exportPath.erase(exportPath.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportPath)
-        if (fs::is_empty("media/.videopreview"))               // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
+        if (fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
             fs::remove("media/.videopreview");
     }
 
@@ -921,13 +943,13 @@ private:
     }
 
 private:
-    string videoPath;                               // path to the video file
-    string exportPath;                              // path the the directory for exporting temporary files to
-    string configPath;                              // path to the local configuration file
+    string videoPath;           // path to the video file
+    string exportPath;          // path the the directory for exporting temporary files to
+    string configPath;          // path to the local configuration file
     Video video;
     ConfigOptionsHandler optionsHandler;
     ConfigOptionVector currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
-    vector<Frame>        frames;                    // Vector of each Frame in the preview
+    vector<Frame>        frames;// Vector of each Frame in the preview
 };
 
 
@@ -947,10 +969,10 @@ int main( int argc, char** argv )
         if (argc > 2)
             std::cerr << "Ignoring additional arguments.\n";
 
-        VideoPreview vidprev(argv[1]); // argv[1] is the input video file path
+        VideoPreview vidprev(argv[1]);                     // argv[1] is the input video file path
         ConfigOption<int> updatedOption{"number_of_frames",2};
         vidprev.setOption(updatedOption);
-        vidprev.saveOption(vidprev.getOption("number_of_frames"), ConfigFileLocation::eLocal);
+        vidprev.saveOption(vidprev.getOption("number_of_frames"), "media/.videopreviewconfig");
     }
     catch (const std::exception& exception)
     {
