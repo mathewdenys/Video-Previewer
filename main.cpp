@@ -575,19 +575,31 @@ using ConfigFilePtr = std::shared_ptr<ConfigFile>;
    ----------------------------------------------------------------------------------------------------*/
 
 // Container class for dealing with configuration options. Has three main purposes
-//      1. Merging all the cnfiguration files into a single set of options
+//      1. Merging all the configuration files into a single set of options
 //      2. Storing the current state of the configuration options
 //          2a. Providing a public interface for changing configuration options
 //      3. Writing options to configuration files
 class ConfigOptionsHandler
 {
 public:
-    ConfigOptionsHandler(const string& configFilePathIn)
+    ConfigOptionsHandler(const string& videoPath)
     {
-        configFiles.push_back( std::make_shared<LocalConfigFile>(configFilePathIn) );
-        // TODO: load other local configuration files
-        configFiles.push_back( std::make_shared<UserConfigFile>() );
-        configFiles.push_back( std::make_shared<GlobalConfigFile>() );
+        // Remove the name of the video file from videoPath, to isolate the directory it is in
+        string localDir = videoPath.substr(0,videoPath.find_last_of("\\/"));
+        string localConfigFilePath;
+
+        // Scan through all directories between that containing the video and the user home
+        //  directory (or the root directory if the user home directory isn't in the hierarchy)
+        while ( localDir.length() > 0 && localDir != std::getenv("HOME") )
+        {
+            localConfigFilePath = localDir + "/.videopreviewconfig";
+            if (fs::exists(localConfigFilePath))
+                configFiles.push_back( std::make_shared<LocalConfigFile>(localConfigFilePath) );         // Load local config files
+            localDir = localDir.substr(0,localDir.find_last_of("\\/"));
+        }
+
+        configFiles.push_back( std::make_shared<UserConfigFile>() );                                     // Load user config file
+        configFiles.push_back( std::make_shared<GlobalConfigFile>() );                                   // Load global config file
 
         mergeOptions();
     }
@@ -653,7 +665,7 @@ public:
     Mat getData()        const { return data; }
 
     // Export a bitmap (.bmp) of the frame.
-    // The file will be saved in the directeory determined by `exportPath`.
+    // The file will be saved in the directeory determined by `exportDir`.
     // Naming of the individual images is taken care of internally.
     void exportBitmap(string& exportPath)
     {
@@ -689,7 +701,7 @@ public:
     void setFrameNumber(const int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
     void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); }// Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
-    // Exports an MJPG to exportPath consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
+    // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
     void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
     {
         string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
@@ -734,10 +746,9 @@ public:
     VideoPreview(const string& videoPathIn) :
         videoPath{ videoPathIn },
         video{ videoPathIn },
-        optionsHandler{ determineConfigPath() }
+        optionsHandler{ videoPathIn }
     {
         determineExportPath();
-        determineConfigPath();
         updatePreview();
     }
 
@@ -839,14 +850,14 @@ public:
 
     ~VideoPreview()
     {
-        fs::remove_all(exportPath.erase(exportPath.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportPath)
+        fs::remove_all(exportDir.erase(exportDir.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportDir)
         if (fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
             fs::remove("media/.videopreview");
     }
 
 private:
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
-    // This is saved to `exportPath`, and also returned from the function
+    // This is saved to `exportDir`, and also returned from the function
     // Modified from https://stackoverflow.com/a/8520815
     string& determineExportPath()
     {
@@ -862,25 +873,9 @@ private:
             fileName       = videoPath.substr(lastSlashIndex+1);
         }
 
-        exportPath = directoryPath + ".videopreview/" + fileName + "/";
+        exportDir = directoryPath + ".videopreview/" + fileName + "/";
 
-        return exportPath;
-    }
-
-    // Parse `videoPath` in order to determine the directory to which temporary files should be stored
-    // This is saved to `configPath`, and also returned from the function (for use in the `optionsHandler` constructor)
-    // Modified from https://stackoverflow.com/a/8520815
-    string& determineConfigPath()
-    {
-        // Extract the directory path from videoPath
-        // These are separated by the last slash in videoPath
-        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
-        if (string::npos != lastSlashIndex)
-            configPath = videoPath.substr(0,lastSlashIndex+1);
-
-        configPath += ".videopreviewconfig";
-
-        return configPath;
+        return exportDir;
     }
 
     // Read in appropriate configuration options and write over the `frames` vector
@@ -905,16 +900,16 @@ private:
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
     {
-        fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
+        fs::create_directories(exportDir); // Make the export directory (and intermediate direcories) if it doesn't exist
         cout << "Exporting frame bitmaps\n";
         for (Frame& frame : frames)
-            frame.exportBitmap(exportPath);
+            frame.exportBitmap(exportDir);
     }
 
     // Exports a "preview video" for each frame in the `frames` vector
     void exportPreviewVideos()
     {
-        fs::create_directories(exportPath); // Make the export directory (and intermediate direcories) if it doesn't exist
+        fs::create_directories(exportDir); // Make the export directory (and intermediate direcories) if it doesn't exist
         vector<int> frameNumbers;
         frameNumbers.reserve(frames.size()+1);
 
@@ -926,7 +921,7 @@ private:
         int index = 0;
         while ( index < frameNumbers.size()-1 )
         {
-            video.exportVideo(exportPath, frameNumbers[index], frameNumbers[index+1]);
+            video.exportVideo(exportDir, frameNumbers[index], frameNumbers[index+1]);
             ++index;
         }
     }
@@ -946,9 +941,9 @@ private:
     }
 
 private:
-    string videoPath;           // path to the video file
-    string exportPath;          // path the the directory for exporting temporary files to
-    string configPath;          // path to the local configuration file
+    string videoPath; // Path to the video file
+    string videoDir;  // Path to the directory containing the video file
+    string exportDir; // Path to the directory for exporting temporary files to
     Video video;
     ConfigOptionsHandler optionsHandler;
     ConfigOptionVector currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
@@ -975,7 +970,7 @@ int main( int argc, char** argv )
         VideoPreview vidprev(argv[1]);                     // argv[1] is the input video file path
         ConfigOption<int> updatedOption{"number_of_frames",2};
         vidprev.setOption(updatedOption);
-        vidprev.saveOption(vidprev.getOption("number_of_frames"), "media/.videopreviewconfig");
+        vidprev.saveOption(vidprev.getOption("number_of_frames"), "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
     }
     catch (const std::exception& exception)
     {
