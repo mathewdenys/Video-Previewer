@@ -191,11 +191,7 @@ class BaseConfigOption
 public:
     BaseConfigOption(const string& id, const ConfigValuePtr value) : optionID{ id }, optionValue{ value }
     {
-        if (!hasValidID())
-            throw InvalidOptionException{"unrecognised ID \"" + id + "\"\n"};
-
-        if (!hasValidValue())
-            throw InvalidOptionException('\"' + getID() + "\" cannot have the value \"" + value->getAsString() + "\"\n");
+        determineValidity();
     }
 
     virtual std::shared_ptr<BaseConfigOption> clone() const = 0; // "virtual copy constructor"
@@ -205,6 +201,8 @@ public:
     string         getID()               const { return optionID; }
     string         getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
     void           print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
+
+    bool           isValid()             const { return (hasValidID && hasValidValue); }
 
     string  getDescription() const
     {
@@ -232,26 +230,33 @@ protected:
         return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
 
-private:
-    bool hasValidID() const { return findRecognisedOptionWithSameID() != recognisedConfigOptions.end(); }
-
-    bool hasValidValue() const
+    void determineValidity()
     {
         auto templateOption = findRecognisedOptionWithSameID();
 
-        if (templateOption == recognisedConfigOptions.end()) // Invalid ID
-            throw InvalidOptionException{"unrecognised ID \"" + getID() + "\"\n"};
+        // Invalid ID
+        if ( templateOption == recognisedConfigOptions.end() )
+        {
+            hasValidID = false;
+            std::cerr << "\tInvalid option \"" << optionID << "\"\n";
+            return;
+        }
 
+        hasValidID = true;
+
+        // Invalid Value
         if (templateOption->getValidValues() == ValidOptionValues::eBoolean)
-            return optionValueIsBool();
+            hasValidValue = optionValueIsBool();
 
         if (templateOption->getValidValues() == ValidOptionValues::ePositiveInteger)
-            return optionValueIsPositiveInteger();
+            hasValidValue = optionValueIsPositiveInteger();
 
         if (templateOption->getValidValues() == ValidOptionValues::eString)
-            return optionValueIsValidString(templateOption->getValidStrings());
+            hasValidValue = optionValueIsValidString(templateOption->getValidStrings());
 
-        return false; // This should never be reached
+        if (!hasValidValue)
+            std::cerr << "\tOption with invalid value: \"" << getID() << "\" cannot have the value \"" << optionValue->getAsString() << "\"\n";
+
     }
 
     bool optionValueIsBool() const { return getValue()->getBool().has_value(); }
@@ -280,6 +285,8 @@ private:
 protected:
     string optionID;
     ConfigValuePtr optionValue;
+    bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
+    bool hasValidValue = false; // default to having an invalid value. Is changed inthe contructor if needed
     const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
 };
 
@@ -382,8 +389,9 @@ class ConfigFile
 public:
     ConfigFile(const string& filePathIn) : filePath{ filePathIn }{ parseFile(); }
 
-    string&             getFilePath() { return filePath; }
-    ConfigOptionVector& getOptions()  { return options; }
+    string&             getFilePath()       { return filePath; }
+    ConfigOptionVector& getOptions()        { return options; }
+    ConfigOptionVector& getInvalidOptions() { return invalidOptions; }
 
     // Write an option to the file `filePath`, which is a preexisting configuration file
     // If the file already specifies the option [more than once], its value will be overwritten [and additional ones removed]
@@ -442,7 +450,6 @@ protected:
             if (!file)
                 throw FileException("could not open file for parsing\n", filePath);
 
-
             string line;
             while (std::getline(file, line))
             {
@@ -453,24 +460,29 @@ protected:
                 if (ss.rdbuf()->in_avail() == 0 || ss.peek() == '#')
                     continue;
 
-                try
-                {
-                    ConfigOptionPtr newOption = makeOptionFromStrings(parseLine(ss));
+                // Parse the current line into a ConfigOption
+                ConfigOptionPtr newOption = makeOptionFromStrings(parseLine(ss));
 
-                    // Ignore lines with duplicate options
-                    if ( !options.getOption(newOption->getID()) )         // nullptr is returned by getID() if that optionID doesn't exist in options
-                        options.push_back( newOption );
-                }
-                catch (const InvalidOptionException& exception)
+                // Ignore lines with duplicate options (prioritise options defined higher in the configuration file)
+                if ( options.getOption(newOption->getID()) ) // nullptr is returned by getID() if that optionID doesn't exist in options
+                    return;
+
+                // If the option is invalid (unrecognised ID or invalid value), add to the `invalidOptions` vector
+                if ( !newOption->isValid() )
                 {
-                    std::cerr << exception.what();
+                    invalidOptions.push_back( newOption );
+                    continue;
                 }
+
+                // Add the valid option to the `options` vector
+                options.push_back( newOption );
             }
         }
         catch (const FileException& exception)
         {
             std::cerr << exception.what();
         }
+
     }
 
     using idValPair = pair<string,string>;
@@ -541,6 +553,7 @@ protected:
 protected:
     string filePath;
     ConfigOptionVector options;
+    ConfigOptionVector invalidOptions {}; // Stores unrecognised config options and those with invlaid values
 };
 
 
@@ -605,6 +618,7 @@ public:
     }
 
     const ConfigOptionVector&  getOptions()                                { return configOptions; }
+    const ConfigOptionVector&  getInvalidOptions()                         { return invalidConfigOptions; }
     void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     void saveOption(ConfigOptionPtr option, const string& filePath)
@@ -627,8 +641,8 @@ public:
     }
 
 private:
-    // Merge the ConfigOptionVectors stored in each ConfigFilePtr in the configFiles vector into a single ConfigOptionVector
-    // The resulting ConfigOptionsVector is written to `configOptions`
+    // Merge the valid [invalid] ConfigOptionVectors stored in each ConfigFilePtr in the configFiles vector into
+    // a single ConfigOptionVector, which overwrites configOptions [invalidConfigOptions]
     void mergeOptions()
     {
         configOptions.clear();
@@ -638,15 +652,22 @@ private:
         // the value that has already been imported is from a higher priority configuration file
         for ( ConfigFilePtr& file : configFiles)
         {
+            // Merge valid options
             for ( ConfigOptionPtr& opt : file->getOptions() )
                 if ( string id{ opt->getID() }; !configOptions.getOption(id) )
                     configOptions.push_back(opt);
+
+            // Merge invalid options
+            for ( ConfigOptionPtr& opt : file->getInvalidOptions() )
+                if ( string id{ opt->getID() }; !invalidConfigOptions.getOption(id) )
+                    invalidConfigOptions.push_back(opt);
         }
     }
 
 private:
     vector<ConfigFilePtr> configFiles;
     ConfigOptionVector configOptions;
+    ConfigOptionVector invalidConfigOptions {}; // Stores unrecognised config options and those with invlaid values
 };
 
 
@@ -833,6 +854,12 @@ public:
             if (!outf)
                 throw FileException("cannot open file for exporting\n", configFileLocation);
 
+            // Invalid options are export first, under the assumption that if they are recognised by a more recent version of
+            // the program, they should be prioritised (and the parser prioritises options closer to the top of config files)
+            for ( ConfigOptionPtr opt : optionsHandler.getInvalidOptions())
+                outf << opt->getConfigFileString() << std::endl;
+
+            // Export valid options
             for ( ConfigOptionPtr opt : optionsHandler.getOptions())
                 outf << opt->getConfigFileString() << std::endl;
         }

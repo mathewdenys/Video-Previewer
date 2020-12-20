@@ -40,3 +40,16 @@ Currently the supported options that can be set in configuration files are
 | show_frame_info  | true, false     |
 | action_on_hover  | "none", "play"  |
 
+#### Unrecognised options
+
+For compatibility with future versions, any option parsed from a configuration file with an unrecognised ID (i.e. not one of those listed above) will be stored internally, allowing it to be exported via VideoPreview::exportOptions().
+
+#### Invalid values
+
+Similarly, any *recognised* option with an invalid value (i.e. one not listed under *Possible values* above) will be saved internally, but ignored by the program. If the same option is also parsed from a different configuration file with a valid value, that value will be 
+
+
+
+
+
+Prioritise options higher in the configuration file. Dupilcates below will be ignored
