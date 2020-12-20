@@ -25,12 +25,14 @@ Eventually, this program will provide a GUI for previewing a video. The intended
   opti on_ id= o p t i o n _ v a l u e
   ```
 
-- Comments are marked by a hash, `#`
+  - Corollary: the last possibility in particular is recommended against
+
+- Comments are indicated by a hash, `#`
 
   - Any line beginning with hash will be ignored
   - Any text after a hash on a given line will be ignored
 
-### Options & Values
+### Recognised Options & Values
 
 Currently the supported options that can be set in configuration files are
 
@@ -48,8 +50,17 @@ For compatibility with future versions, any option parsed from a configuration f
 
 Similarly, any *recognised* option with an invalid value (i.e. one not listed under *Possible values* above) will be saved internally, but ignored by the program. If the same option is also parsed from a different configuration file with a valid value, that value will be 
 
+### Files
 
+- Local configuration files, named `.videopreviewconfig`, can be placed in any directory
+  - Any configuration file between the working directory and the user home (or root, if the working directory is not a child of the home directory) will be searched for configuration files
+- User options are set in `$HOME/.config/videopreview`
+- System wide / global options are set in `/etc/videopreviewconfig`
 
+### Priority
 
-
-Prioritise options higher in the configuration file. Dupilcates below will be ignored
+- Options defined in local config files take precedent over user options, which take precedent over global options
+  - Local files: those lower in the directory hieracy are prioritised
+    - e.g. `$HOME/project/videos/.videopreviewconfig` is prioritised over `$HOME/project/.videopreviewconfig`
+  - Lower priority files are still parsed. Any options that aren't defined in higher priority files are implemented
+- Within a given configuration file, options closer the top are prioritised (i.e if there is a duplicate option, the second version will be ignored)
