@@ -168,14 +168,7 @@ protected:
     // If no such element exists, returns an iterator to recognisedConfigOptions.end()
     auto findRecognisedOptionWithSameID() const
     {
-        auto IDmatches
-        {
-            [this](RecognisedConfigOption recognisedOption)
-            {
-                return recognisedOption.getID() == optionID;
-            }
-        };
-
+        auto IDmatches =  [&](RecognisedConfigOption recognisedOption) { return recognisedOption.getID() == optionID; };
         return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
 
@@ -218,14 +211,7 @@ protected:
 
     bool optionValueIsValidString(vector<string> validStrings) const // Assumes the ID has already been validated
     {
-        auto valueExists
-        {
-            [this](string validValue)
-            {
-                return validValue == optionValue->getString();
-            }
-        };
-
+        auto valueExists = [&](const string& s) { return s == optionValue->getString(); };
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
 
@@ -299,13 +285,7 @@ public:
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
     void setOption(const BaseConfigOption& optionIn)
     {
-        auto IDexists
-        {
-            [&optionIn](ConfigOptionPtr option)
-            {
-                return option->getID() == optionIn.getID();
-            }
-        };
+        auto IDexists = [&](ConfigOptionPtr option) { return option->getID() == optionIn.getID(); };
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
         options.push_back( optionIn.clone() );
