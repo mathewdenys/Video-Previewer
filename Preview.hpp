@@ -73,25 +73,7 @@ public:
     void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); }// Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
-    void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
-    {
-        string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
-        cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getFrameSize());
-        setFrameNumber(frameBegin);
-
-        cout << '\t' << fileName << '\n';
-
-        int frameNumber = frameBegin;
-        while(frameNumber < frameEnd)
-        {
-            Mat frame;
-            vc >> frame;
-            if (frame.empty())
-                break;
-            vw.write(frame);
-            ++frameNumber;
-        }
-    }
+    void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
 
 private:
     double   getFPS()       const { return vc.get(cv::CAP_PROP_FPS); }
@@ -125,46 +107,10 @@ public:
 
     // Everything that needs to be run in order to update the actual video preview that the user sees
     // To be run on start-up and whenever configuration options are changed
-    void updatePreview()
-    {
-        cout << "Updating preview\n";
-        printConfig();
+    void updatePreview();
 
-        // Update the preview
-        if (configOptionHasBeenChanged("number_of_frames"))
-        {
-            makeFrames();
-            exportFrames();
-
-            // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
-            // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos
-            if ( ConfigOptionPtr actionOnHover = getOption("action_on_hover"); actionOnHover && actionOnHover->getValue()->getString() != "none" )
-                exportPreviewVideos();
-        }
-
-        currentPreviewConfigOptions = optionsHandler.getOptions();
-
-    }
-
-    ConfigOptionPtr getOption(const string& optionID)
-    {
-        return optionsHandler.getOptions().getOption(optionID);
-    }
-
-    void setOption(const BaseConfigOption& optionIn)
-    {
-        try
-        {
-            cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << "\"\n";
-            optionsHandler.setOption(optionIn);
-        }
-        catch (const FileException& exception)
-        {
-            std::cerr << exception.what();
-            return;
-        }
-        updatePreview();
-    }
+    ConfigOptionPtr getOption(const string& optionID)            { return optionsHandler.getOptions().getOption(optionID); }
+    void            setOption(const BaseConfigOption& optionIn);
 
     // Save a single current configuration option to a configuration file associated with this video
     // Keeps the formatting of the current config file, but overwirtes the option if it has been changed
@@ -191,33 +137,7 @@ public:
 
     // Export the current configuration options to an arbitrary file
     // The file cannot exist already
-    void exportOptions(const string& configFileLocation)
-    {
-        std::cout << "Exporting configuration options to \"" << configFileLocation << "\"\n";
-        try
-        {
-            if (fs::exists(configFileLocation))
-                throw FileException("cannot export to a file that already exists\n", configFileLocation);
-
-            std::ofstream outf{ configFileLocation };
-
-            if (!outf)
-                throw FileException("cannot open file for exporting\n", configFileLocation);
-
-            // Invalid options are export first, under the assumption that if they are recognised by a more recent version of
-            // the program, they should be prioritised (and the parser prioritises options closer to the top of config files)
-            for ( ConfigOptionPtr opt : optionsHandler.getInvalidOptions())
-                outf << opt->getConfigFileString() << std::endl;
-
-            // Export valid options
-            for ( ConfigOptionPtr opt : optionsHandler.getOptions())
-                outf << opt->getConfigFileString() << std::endl;
-        }
-        catch (const FileException& exception)
-        {
-            std::cerr << exception.what();
-        }
-    }
+    void exportOptions(const string& configFileLocation);
 
     void printConfig() const
     {
@@ -236,43 +156,10 @@ private:
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // This is saved to `exportDir`, and also returned from the function
     // Modified from https://stackoverflow.com/a/8520815
-    string& determineExportPath()
-    {
-        string directoryPath;
-        string fileName;
-
-        // Extract the directory path and file name from videoPath
-        // These are separated by the last slash in videoPath
-        const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
-        if (string::npos != lastSlashIndex)
-        {
-            directoryPath = videoPath.substr(0,lastSlashIndex+1);
-            fileName       = videoPath.substr(lastSlashIndex+1);
-        }
-
-        exportDir = directoryPath + ".videopreview/" + fileName + "/";
-
-        return exportDir;
-    }
+    string& determineExportPath();
 
     // Read in appropriate configuration options and write over the `frames` vector
-    void makeFrames()
-    {
-        int totalFrames = video.numberOfFrames();
-        int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value() };
-        int frameSampling = totalFrames/NFrames + 1;
-
-        frames.clear();
-        int i  = 0;
-        for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
-        {
-            Mat currentFrameMat;
-            video.setFrameNumber(frameNumber);
-            video.writeCurrentFrame(currentFrameMat);
-            frames.emplace_back(currentFrameMat, frameNumber);
-            i++;
-        }
-    }
+    void makeFrames();
 
     // Exports all frames in the `frames` vector as bitmaps
     void exportFrames()
@@ -284,24 +171,7 @@ private:
     }
 
     // Exports a "preview video" for each frame in the `frames` vector
-    void exportPreviewVideos()
-    {
-        fs::create_directories(exportDir); // Make the export directory (and intermediate direcories) if it doesn't exist
-        vector<int> frameNumbers;
-        frameNumbers.reserve(frames.size()+1);
-
-        for (Frame& frame : frames)
-            frameNumbers.push_back(frame.getFrameNumber());
-        frameNumbers.push_back(video.numberOfFrames());
-
-        cout << "Exporting video previews\n";
-        int index = 0;
-        while ( index < frameNumbers.size()-1 )
-        {
-            video.exportVideo(exportDir, frameNumbers[index], frameNumbers[index+1]);
-            ++index;
-        }
-    }
+    void exportPreviewVideos();
 
     // Determine if a given configuration option has been changed since the last time the preview was updated
     // Achieved by comparing the relevant `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
@@ -318,13 +188,13 @@ private:
     }
 
 private:
-    string videoPath; // Path to the video file
-    string videoDir;  // Path to the directory containing the video file
-    string exportDir; // Path to the directory for exporting temporary files to
-    Video video;
+    string               videoPath;                   // Path to the video file
+    string               videoDir;                    // Path to the directory containing the video file
+    string               exportDir;                   // Path to the directory for exporting temporary files to
+    Video                video;
     ConfigOptionsHandler optionsHandler;
-    ConfigOptionVector currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
-    vector<Frame>        frames;// Vector of each Frame in the preview
+    ConfigOptionVector   currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
+    vector<Frame>        frames;                      // Vector of each Frame in the preview
 };
 
 
