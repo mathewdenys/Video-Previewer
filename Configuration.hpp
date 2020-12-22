@@ -7,7 +7,6 @@
 #include <vector>   // for std::vector
 #include <optional> // for std::optional
 #include <sstream>  // for std::stringstream
-#include <utility>  // for std::pair
 
 #include "Exceptions.hpp"
 
@@ -39,7 +38,7 @@ using OptionalString = std::optional<string>;
 // The "get" functions return a std::optional of that type. It is up to the caller to verify that this contains
 // a value. This base class is defined such that derived ConfigValue<T> objects can be stored in shared_ptrs and
 // passed around without knowing at complie time what data type is stored in each object.
-class AbstractConfigValue
+class BaseConfigValue
 {
 public:
     virtual OptionalBool   getBool()     const = 0;
@@ -47,13 +46,13 @@ public:
     virtual OptionalString getString()   const = 0;
     virtual string         getAsString() const = 0;
 
-    virtual ~AbstractConfigValue() = default;
+    virtual ~BaseConfigValue() = default;
 };
 
 
-// Templated derived classes of AbstractConfigValue
+// Templated derived classes of BaseConfigValue
 template <class T>
-class ConfigValue : public AbstractConfigValue
+class ConfigValue : public BaseConfigValue
 {
 public:
     ConfigValue(const T& valIn) : value{ valIn } {}
@@ -131,7 +130,7 @@ private:
 };
 
 
-using ConfigValuePtr = std::shared_ptr<AbstractConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
+using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
 
 
 // Base class for storing a single configuration option. One of its derived classes is created
@@ -214,9 +213,7 @@ protected:
     bool optionValueIsPositiveInteger() const
     {
         OptionalInt ovalue = getValue()->getInt();
-        if ( ovalue.has_value() && ovalue.value() > 0 )
-            return true;
-        return false;
+        return ovalue.has_value() && ovalue.value() > 0;
     }
 
     bool optionValueIsValidString(vector<string> validStrings) const // Assumes the ID has already been validated
@@ -233,13 +230,15 @@ protected:
     }
 
 protected:
-    string optionID;
-    ConfigValuePtr optionValue;
+    string optionID;            // The id / name of the options
+    ConfigValuePtr optionValue; // The value of the option
     bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
-    bool hasValidValue = false; // default to having an invalid value. Is changed inthe contructor if needed
+    bool hasValidValue = false; // Default to having an invalid value. Is changed inthe contructor if needed
     const static array<RecognisedConfigOption,3> recognisedConfigOptions; // Initialised out of class below
 };
 
+
+using ConfigOptionPtr = std::shared_ptr<BaseConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 
 // Templated derived classes of BaseConfigOption
@@ -252,7 +251,7 @@ public:
         BaseConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
     {}
 
-    std::shared_ptr<BaseConfigOption> clone() const override { return std::make_shared<ConfigOption<T> >(*this); } // "virtual copy constructor"
+    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOption<T> >(*this); } // "virtual copy constructor"
 
     void setValue(const T& valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
 };
@@ -262,8 +261,6 @@ public:
 /*----------------------------------------------------------------------------------------------------
     MARK: - ConfigOptionVector
    ----------------------------------------------------------------------------------------------------*/
-
-using ConfigOptionPtr = std::shared_ptr<BaseConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 // Container class for a vector of config_ptrs, with helper functions
 class ConfigOptionVector
@@ -488,9 +485,8 @@ protected:
     {
         int myInt;
         stringstream ss{ str };
-        if(!(ss >> myInt))     // stringstream extraction operator performs casts if it can returns false otherwise
-            return false;
-        return true;
+        return static_cast<bool>(ss >> myInt);     // stringstream extraction operator performs casts if it can returns false otherwise
+
     }
 
 protected:
