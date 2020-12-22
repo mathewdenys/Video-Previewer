@@ -152,16 +152,6 @@ public:
     void           print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
     bool           isValid()             const { return (hasValidID && hasValidValue); }
 
-    string  getDescription() const
-    {
-        for (RecognisedConfigOption recognisedOption : recognisedConfigOptions)
-            if (recognisedOption.getID() == optionID)
-                return recognisedOption.getDescription();
-        return "[[Unrecognised optionID has no description]]"; // If the ID has been validated, this should never to reached. Kept in for debuging purposes
-    }
-
-    virtual ~BaseConfigOption() {};
-
 protected:
     // Returns an iterator to the element of recognisedConfigOptions with the same ID
     // If no such element exists, returns an iterator to recognisedConfigOptions.end()
@@ -170,7 +160,19 @@ protected:
         auto IDmatches =  [&](RecognisedConfigOption recognisedOption) { return recognisedOption.getID() == optionID; };
         return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
+    
+public:
+    string  getDescription() const
+    {
+        auto recognisedOpt = findRecognisedOptionWithSameID();     // Iterator to the element of recognisedConfigOptions with the same ID
+        if (recognisedOpt == recognisedConfigOptions.end())        // If optionID does not match any of the recognised options
+            return "[[Unrecognised optionID has no description]]";
+        return recognisedOpt->getDescription();
+    }
 
+    virtual ~BaseConfigOption() {};
+
+protected:
     // Determines whether `optionID` is recognised, and if so, whether `optionValue` is valid
     // The results are written to the `hasValidID` and `hasValidValue` members
     // Determined by looking up `recognisedConfigOptions
