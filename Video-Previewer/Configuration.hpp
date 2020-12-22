@@ -160,7 +160,7 @@ protected:
         auto IDmatches =  [&](RecognisedConfigOption recognisedOption) { return recognisedOption.getID() == optionID; };
         return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
-    
+
 public:
     string  getDescription() const
     {
@@ -336,28 +336,6 @@ protected:
     string filePath;
     ConfigOptionVector options;
     ConfigOptionVector invalidOptions {}; // Stores unrecognised config options and those with invlaid values
-};
-
-
-
-class GlobalConfigFile : public ConfigFile
-{
-public:
-    GlobalConfigFile() : ConfigFile("/etc/videopreviewconfig") {}
-};
-
-
-class UserConfigFile : public ConfigFile
-{
-public:
-    UserConfigFile() : ConfigFile( string(std::getenv("HOME")) + "/.config/videopreview" ) {}
-};
-
-
-class LocalConfigFile : public ConfigFile
-{
-public:
-    LocalConfigFile(const string& filePathIn) : ConfigFile(filePathIn) {}
 };
 
 

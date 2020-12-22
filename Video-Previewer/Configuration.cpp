@@ -202,12 +202,12 @@ ConfigOptionsHandler::ConfigOptionsHandler(const string& videoPath)
     {
         localConfigFilePath = localDir + "/.videopreviewconfig";
         if (fs::exists(localConfigFilePath))
-            configFiles.push_back( std::make_shared<LocalConfigFile>(localConfigFilePath) );         // Load local config files
+            configFiles.push_back( std::make_shared<ConfigFile>(localConfigFilePath) );                           // Load local config files
         localDir = localDir.substr(0,localDir.find_last_of("\\/"));
     }
 
-    configFiles.push_back( std::make_shared<UserConfigFile>() );                                     // Load user config file
-    configFiles.push_back( std::make_shared<GlobalConfigFile>() );                                   // Load global config file
+    configFiles.push_back( std::make_shared<ConfigFile>(string(std::getenv("HOME")) + "/.config/videopreview") ); // Load user config file
+    configFiles.push_back( std::make_shared<ConfigFile>("/etc/videopreviewconfig") );                             // Load global config file
 
     mergeOptions();
 }
