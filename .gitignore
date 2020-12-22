@@ -1,7 +1,8 @@
-/info/
-/media/
-/.vscode/
-test.*
+*info/
+*media/
+*planning/
+*.vscode/
+*test.*
 *.code-workspace
 *.exe
 *.obj
