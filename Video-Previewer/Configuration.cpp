@@ -57,50 +57,6 @@ void BaseConfigOption::determineValidity()
     MARK: - ConfigFile + derived classes
    ----------------------------------------------------------------------------------------------------*/
 
-void ConfigFile::writeOptionToFile(ConfigOptionPtr option)
-{
-    // Open the file for reading any preexisting content
-    std::ifstream file{ filePath };
-    if (!file)
-        throw FileException("could not open file\n", filePath);
-
-    // Open a temporary file for writing to
-    string tempFilePath{ filePath + "temp" };
-    std::ofstream tempFile{ tempFilePath };
-    if (!tempFile)
-        throw FileException("could not open temporary file\n", filePath);
-
-    // Copy content from the preexisting file to the temporary file
-    // If the preexisting file already specifies the given option, it is replaced
-    string line;
-    bool optionReplaced = false;
-    while (std::getline(file, line))
-    {
-        stringstream ss{ line };
-        ss >> std::ws;     // Remove leading white space
-        if ( ss.rdbuf()->in_avail() == 0 ||     // Copy blank lines unchanged to temp file
-             ss.peek() == '#' ||                 // Copy comment lines unchanged to temp file
-             parseLine(ss).first != option->getID()                 // Copy "other" configuration options unchanged to temp file
-             )
-        {
-            tempFile << line << std::endl;
-            continue;
-        }
-
-        // The first time that the given option is found in the file, the new value is written to the temp file
-        // If the same option is specified again later in the file it is ignored
-        if (!optionReplaced)
-        {
-            tempFile << option->getConfigFileString() << std::endl;
-            optionReplaced = true;
-        }
-    }
-
-    // Move contents of tempFilePath to filePath and delete tempFilePath
-    fs::remove(filePath);
-    fs::rename(tempFilePath, filePath);
-}
-
 void ConfigFile::parseFile()
 {
     try
@@ -212,17 +168,70 @@ ConfigOptionsHandler::ConfigOptionsHandler(const string& videoPath)
     mergeOptions();
 }
 
-void ConfigOptionsHandler::saveOption(ConfigOptionPtr option, const string& filePath)
+void ConfigOptionsHandler::saveOptions(ConfigOptionVector optionsToSave, const ConfigFilePtr file)
+// Note: options is explicitly passed by value as its elements get deleted
 {
-    // If filePath corresponds to any of the files in configFiles, use the corresponding ConfigFile's writeOptionToFile() member function
-    for (ConfigFilePtr file : configFiles)
-        if (file->getFilePath() == filePath)
+    string filePath = file->getFilePath();
+    std::cout << "Saving configuration options to \"" << filePath << "\"\n";
+    
+    // Open the file for reading any preexisting content
+    std::ifstream ifs{ filePath };
+    if (!file)
+        throw FileException("could not open file\n", filePath);
+    
+    // Open a temporary file for writing to
+    string tempFilePath{ filePath + ".temp" };
+    std::ofstream ofs{ tempFilePath };
+    if (!ofs)
+        throw FileException("could not open temporary file\n", tempFilePath);
+    
+    // Copy each line from the preexisting file to the temporary, while
+    // updating the first instance of any options that have changed.
+    string line;
+    while (std::getline(ifs, line))
+    {
+        // Do not modify the line if all the updated options have been saved already,
+        if (optionsToSave.size() == 0)
         {
-            file->writeOptionToFile(option);
-            return;
+            ofs << line << std::endl;
+            continue;
         }
+        
+        // Get the ID of the option specified on the given line
+        // Returns empty string for comments and blank lines
+        stringstream ss { line };
+        string       id { ConfigFile::parseLine(ss).first };
+        
+        // Search for a matching option ID in the vector of options to save
+        auto         IDmatches        = [&](ConfigOptionPtr option) { return option->getID() == id; };
+        auto         updatedOptionItr = std::find_if(optionsToSave.begin(), optionsToSave.end(), IDmatches);
+        
+        // Do not modify the line if the id of the option on the current line doesn't match any of the options to save
+        if (updatedOptionItr == optionsToSave.end())
+        {
+            ofs << line << std::endl;
+            continue;
+        }
+        
+        // Modify the line with the current value of the option
+        std::cout << "\tSaving \"" << (*updatedOptionItr)->getID() << "\"\n";
+        ofs << (*updatedOptionItr)->getConfigFileString() << std::endl;
+        
+        // Once an option has been saved, remove the corresponding ConfigOptionPtr from optionsToSave
+        // This is because only the first instance of an option is modified in the configuration file
+        optionsToSave.erase(updatedOptionItr);
+    }
+    
+    // Append any options that weren't already defined in the file to the end of the temporary file
+    for (ConfigOptionPtr& option : optionsToSave)
+    {
+        ofs << option->getConfigFileString() << std::endl;
+        std::cout << "\tSaving \"" << option->getID() << "\"\n";
+    }
 
-    std::cerr << "Could not save option to configuration file \"" << filePath << "\" as it is not a recognised configuration file\n";
+    // Move contents of tempFilePath to filePath and delete tempFilePath
+    fs::remove(filePath);
+    fs::rename(tempFilePath, filePath);
 }
 
 void ConfigOptionsHandler::mergeOptions()

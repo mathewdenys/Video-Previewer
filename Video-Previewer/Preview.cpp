@@ -66,24 +66,52 @@ void VideoPreview::setOption(const BaseConfigOption& optionIn)
     updatePreview();
 }
 
-void VideoPreview::exportOptions(const string& configFileLocation)
+void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePath)
 {
-    std::cout << "Exporting configuration options to \"" << configFileLocation << "\"\n";
+    // There are two cases to deal with: either filePath corresponds to a preexisting
+    // configuration file (with a corresponding ConfigFile in optionsHandler), or to an
+    // arbitrary file. I think of the first case as "saving" the options, and the second
+    // case as "exporting" the options.
+    
+    // Case 1: filePath corresponds to a preexisting configuration file
+    // To deal with this possibility I search for a ConfigFile in optionsHandler with the same file path
+    // If one is found, we can call the saveOptions() overload that accepts a ConfigFilePtr
+    for (ConfigFilePtr file : optionsHandler.getConfigFiles())
+        if (filePath == file->getFilePath())
+        {
+            try
+            {
+                saveOptions(options, file);
+                return;
+            }
+            catch (const FileException& exception)
+            {
+                std::cerr << "Could not save option: " << exception.what();
+            }
+            
+        }
+        
+    // Case 2: filePath does NOT correspond a preexisting configuration file
+    // In this case
+    std::cout << "Exporting configuration options to \"" << filePath << "\"\n";
     try
     {
-        if (fs::exists(configFileLocation))
-            throw FileException("cannot export to a file that already exists\n", configFileLocation);
+        if (fs::exists(filePath))
+            throw FileException("cannot export to a file that already exists\n", filePath);
 
-        std::ofstream outf{ configFileLocation };
+        std::ofstream outf{ filePath };
 
         if (!outf)
-            throw FileException("cannot open file for exporting\n", configFileLocation);
+            throw FileException("cannot open file for exporting\n", filePath);
 
-        // Invalid options are export first, under the assumption that if they are recognised by a more recent version of
+        // Invalid options are exported first, under the assumption that if they are recognised by a more recent version of
         // the program, they should be prioritised (and the parser prioritises options closer to the top of config files)
         for ( ConfigOptionPtr opt : optionsHandler.getInvalidOptions())
             outf << opt->getConfigFileString() << std::endl;
 
+        // Blank line between invalid and valid options
+        outf << std::endl;
+        
         // Export valid options
         for ( ConfigOptionPtr opt : optionsHandler.getOptions())
             outf << opt->getConfigFileString() << std::endl;

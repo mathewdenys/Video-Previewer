@@ -112,32 +112,17 @@ public:
     ConfigOptionPtr getOption(const string& optionID)            { return optionsHandler.getOptions().getOption(optionID); }
     void            setOption(const BaseConfigOption& optionIn);
 
-    // Save a single current configuration option to a configuration file associated with this video
-    // Keeps the formatting of the current config file, but overwirtes the option if it has been changed
-    void saveOption(ConfigOptionPtr option, const string& filePath)
-    {
-        std::cout << "Writing configuration option \"" << option->getID() << "\" to file \"" << filePath << "\"\n";
-        try
-        {
-            optionsHandler.saveOption(option, filePath);
-        }
-        catch (const FileException& exception)
-        {
-            std::cerr << "Could not save option: " << exception.what();
-        }
-    }
-
-    // Save all the current configuration options to a configuration file associated with this video
-    // Keeps the formatting of the current config file, but overwirtes any options that have been changed
-    void saveOptions(const string& filePath)
-    {
-        for (ConfigOptionPtr opt : optionsHandler.getOptions())
-            saveOption(opt, filePath);
-    }
-
-    // Export the current configuration options to an arbitrary file
-    // The file cannot exist already
-    void exportOptions(const string& configFileLocation);
+    // Save a set of current configuration options to either 1) a preexisiting configuration file, or 2) an arbitrary new file
+    // In the case of 1, the formatting of the file is maintained, but any options that have been changed are overwritten
+    // Function overrides allow the file to be passed as either a string, or a ConfigFilePtr
+    void saveOptions(ConfigOptionVector options, const ConfigFilePtr& file) { optionsHandler.saveOptions(options, file); }
+    void saveOptions(ConfigOptionVector options, const string& filePath);   // defined in Preview.cpp
+    
+    void saveAllOptions(const ConfigFilePtr& file)                          { optionsHandler.saveAllOptions(file); }
+    void saveAllOptions(const string& filePath)                             { saveOptions(optionsHandler.getOptions(), filePath); }
+    
+    void saveOption (ConfigOptionPtr option, const ConfigFilePtr& file) { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
+    void saveOption (ConfigOptionPtr option, const string& filePath)    { saveOptions(ConfigOptionVector{option}, filePath); }
 
     void printConfig() const
     {

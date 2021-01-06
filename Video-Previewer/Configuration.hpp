@@ -232,8 +232,9 @@ public:
 class ConfigOptionVector
 {
 public:
-    ConfigOptionVector() {}                                                           // Default constructor
-    ConfigOptionVector(vector<ConfigOptionPtr> optionsIn) : options{ optionsIn } {}
+    ConfigOptionVector() {}                                                          // Default constructor
+    ConfigOptionVector(vector<ConfigOptionPtr> optionsIn) : options{ optionsIn } {}  // Construct from vector of ConfigOptionPtrs
+    ConfigOptionVector(ConfigOptionPtr optionIn) : options{ optionIn } {}            // Construct from a single ConfigOptionPtr
 
     using iterator       = vector<ConfigOptionPtr>::iterator;
     using const_iterator = vector<ConfigOptionPtr>::const_iterator;
@@ -249,6 +250,7 @@ public:
     void           erase(iterator i1, iterator i2)   { options.erase(i1, i2); }
     void           push_back(ConfigOptionPtr option) { options.push_back(option); }
     void           clear()                           { options.clear(); }
+    long           size() const                      { return options.size(); }
 
     // Return a `ConfigOptionPtr` to the element in `options` corresponding to `optionID`.
     // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
@@ -281,9 +283,7 @@ private:
     MARK: - ConfigFile + derived classes
    ----------------------------------------------------------------------------------------------------*/
 
-// Base class corresponding to a single configuration file. Has two main purposes
-//      1. Parsing the file into a ConfigOptionVector
-//      2. Writing configuration options into the corresponding file
+// Base class corresponding to a single configuration file
 class ConfigFile
 {
 public:
@@ -293,20 +293,16 @@ public:
     ConfigOptionVector& getOptions()        { return options; }
     ConfigOptionVector& getInvalidOptions() { return invalidOptions; }
 
-    // Write an option to the file `filePath`, which is a preexisting configuration file
-    // If the file already specifies the option [more than once], its value will be overwritten [and additional ones removed]
-    void writeOptionToFile(ConfigOptionPtr option);
-
-protected:
-    // Parse the file `filePath` and write the parsed options to the `options` vector
-    void parseFile();
-
     using idValPair = pair<string,string>;
 
     // Parse a single line of the configuration file and return a std::pair containing strings representing the
     // option's ID and value. Each line is assumed to be formatted as `id = val`, i.e. blank lines and comment
     // lines are not handled.
-    idValPair parseLine(stringstream& ss);
+    static idValPair parseLine(stringstream& ss);
+
+protected:
+    // Parse the file `filePath` and write the parsed options to the `options` vector
+    void parseFile();
 
     // Return a `ConfigOptionPtr` from an `idValPair`
     ConfigOptionPtr makeOptionFromStrings(const idValPair& inputPair);
@@ -357,12 +353,19 @@ class ConfigOptionsHandler
 public:
     ConfigOptionsHandler(const string& videoPath);
 
+    vector<ConfigFilePtr>&     getConfigFiles()                            { return configFiles; }
     const ConfigOptionVector&  getOptions()                                { return configOptions; }
     const ConfigOptionVector&  getInvalidOptions()                         { return invalidConfigOptions; }
     void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
-    void saveOption(ConfigOptionPtr option, const string& filePath);
-
+    // Save a set of current configuration options to a preexisting configuration file
+    // The first time that the given option is found in the file, the up-to-date value is overwritten
+    // If the same option is specified again later in the file it is left unchanged
+    // Any new options that are unspecified in the file are appended to the end
+    void saveOptions(ConfigOptionVector options, const ConfigFilePtr file);
+    
+    void saveAllOptions(const ConfigFilePtr file)                          { saveOptions(configOptions, file); }
+    
     void print() const
     {
         for (ConfigOptionPtr option : configOptions)
