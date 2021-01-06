@@ -214,12 +214,15 @@ class ConfigOption : public BaseConfigOption
 {
 public:
     ConfigOption(const string& idIn, const T& valIn) :
-        BaseConfigOption{ idIn, std::make_shared< ConfigValue<T> >(valIn) }
+        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
     {}
 
     ConfigOptionPtr clone() const override { return std::make_shared<ConfigOption<T> >(*this); } // "virtual copy constructor"
 
-    void setValue(const T& valIn) { optionValue = std::make_shared< ConfigValue<T> >(valIn); }
+    void setValue(const T& valIn) { optionValue = makeConfigValuePtr(valIn); }
+    
+private:
+    ConfigValuePtr makeConfigValuePtr(const T& valIn) { return std::make_shared< ConfigValue<T> >(valIn); }
 };
 
 
