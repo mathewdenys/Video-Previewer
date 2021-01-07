@@ -24,8 +24,8 @@ namespace fs = std::filesystem;
 
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements
-            - The set of virtual getX() statements in BaseConfigOption and ConfigOption<T>
-            - The set of template specialised ConfigValue::getAsString() functions
+            - Add a new ConfigValueX class
+            - Add a new ConfigOptionX class
             - ConfigOptionsHandler::makeOptionFromStrings()
    ----------------------------------------------------------------------------------------------------*/
 
@@ -36,46 +36,57 @@ using OptionalString = std::optional<string>;
 
 // Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string.
 // The "get" functions return a std::optional of that type. It is up to the caller to verify that this contains
-// a value. This base class is defined such that derived ConfigValue<T> objects can be stored in shared_ptrs and
+// a value. This base class is defined such that derived ConfigValueX objects can be stored in shared_ptrs and
 // passed around without knowing at complie time what data type is stored in each object.
 class BaseConfigValue
 {
 public:
-    virtual OptionalBool   getBool()     const = 0;
-    virtual OptionalInt    getInt()      const = 0;
-    virtual OptionalString getString()   const = 0;
+    virtual OptionalBool   getBool()     const { return std::optional<bool>{}; }
+    virtual OptionalInt    getInt()      const { return std::optional<int>{}; }
+    virtual OptionalString getString()   const { return std::optional<string>{}; }
     virtual string         getAsString() const = 0;
 
     virtual ~BaseConfigValue() = default;
 };
 
 
-// Templated derived classes of BaseConfigValue
-template <class T>
-class ConfigValue : public BaseConfigValue
+// Derived classes of BaseConfigValue
+class ConfigValueBool : public BaseConfigValue
 {
 public:
-    ConfigValue(const T& valIn) : value{ valIn } {}
-
-    // These "get" functions must be explicitly defined because virtual functions can't be templated
-    OptionalBool   getBool()     const override { return get<bool>(); }
-    OptionalInt    getInt()      const override { return get<int>(); }
-    OptionalString getString()   const override { return get<string>(); }
-    string         getAsString() const override;
-
-protected:
-    // Templated functions, get<U>(), return a std::optional of type U
-    // If T = U, the std::optional contains `value`; otherwise it is "empty" (default constructor)
-    template <class U>
-    std::optional<U> get() const
-    {
-        if constexpr(std::is_same_v<T,U>)
-            return {value};
-        return std::optional<U>{};
-    }
-
+    ConfigValueBool(const bool& valIn) : value{ valIn } {}
+    
+    OptionalBool getBool()     const override { return value; }
+    string       getAsString() const override { return (getBool().value() ? "true" : "false"); }
+  
 private:
-    T value;
+    bool value;
+};
+
+
+class ConfigValueInt : public BaseConfigValue
+{
+public:
+    ConfigValueInt(const int& valIn) : value{ valIn } {}
+    
+    OptionalInt getInt()      const override { return value; }
+    string      getAsString() const override { return std::to_string(value); }
+    
+private:
+    int value;
+};
+
+
+class ConfigValueString : public BaseConfigValue
+{
+public:
+    ConfigValueString(const string& valIn) : value{ valIn } {}
+    
+    OptionalString getString()   const override { return value; }
+    string         getAsString() const override { return value; }
+    
+private:
+    string value;
 };
 
 
@@ -133,6 +144,7 @@ private:
 using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
 
 
+
 // Base class for storing a single configuration option. One of its derived classes is created
 // for each option loaded from the configuration files for a given `VideoPreview` object.
 class BaseConfigOption
@@ -175,7 +187,7 @@ public:
 protected:
     // Determines whether `optionID` is recognised, and if so, whether `optionValue` is valid
     // The results are written to the `hasValidID` and `hasValidValue` members
-    // Determined by looking up `recognisedConfigOptions
+    // Determined by looking up `recognisedConfigOptions`
     void determineValidity();
 
     bool optionValueIsBool() const
@@ -196,7 +208,7 @@ protected:
     }
 
 protected:
-    string optionID;            // The id / name of the options
+    string optionID;            // The id / name of the option
     ConfigValuePtr optionValue; // The value of the option
     bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool hasValidValue = false; // Default to having an invalid value. Is changed inthe contructor if needed
@@ -207,22 +219,52 @@ protected:
 using ConfigOptionPtr = std::shared_ptr<BaseConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 
-// Templated derived classes of BaseConfigOption
-// T corresponds to the data type of the configuration options
-template<class T>
-class ConfigOption : public BaseConfigOption
+// Derived classes of BaseConfigOption
+class ConfigOptionBool : public BaseConfigOption
 {
 public:
-    ConfigOption(const string& idIn, const T& valIn) :
+    ConfigOptionBool(const string& idIn, const bool& valIn) :
         BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
     {}
-
-    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOption<T> >(*this); } // "virtual copy constructor"
-
-    void setValue(const T& valIn) { optionValue = makeConfigValuePtr(valIn); }
+    
+    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionBool>(*this); }
+    void            setValue(const bool& valIn) { optionValue = makeConfigValuePtr(valIn); }
     
 private:
-    ConfigValuePtr makeConfigValuePtr(const T& valIn) { return std::make_shared< ConfigValue<T> >(valIn); }
+    ConfigValuePtr makeConfigValuePtr(const bool& valIn) { return std::make_shared<ConfigValueBool>(valIn); }
+    
+};
+
+
+class ConfigOptionInt : public BaseConfigOption
+{
+public:
+    ConfigOptionInt(const string& idIn, const int& valIn) :
+        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
+    {}
+    
+    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionInt>(*this); }
+    void            setValue(const int& valIn) { optionValue = makeConfigValuePtr(valIn); }
+    
+private:
+    ConfigValuePtr makeConfigValuePtr(const int& valIn) { return std::make_shared<ConfigValueInt>(valIn); }
+    
+};
+
+
+class ConfigOptionString : public BaseConfigOption
+{
+public:
+    ConfigOptionString(const string& idIn, const string& valIn) :
+        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
+    {}
+    
+    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionString>(*this); }
+    void            setValue(const string& valIn) { optionValue = makeConfigValuePtr(valIn); }
+    
+private:
+    ConfigValuePtr makeConfigValuePtr(const string& valIn) { return std::make_shared<ConfigValueString>(valIn); }
+    
 };
 
 

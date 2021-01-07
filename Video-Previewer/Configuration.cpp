@@ -1,17 +1,6 @@
 #include "Configuration.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - AbstractConfigValue & derived classes
-   ----------------------------------------------------------------------------------------------------*/
-
-// Template specialisation of ConfigValue<T>::getAsString() functions
-template<> string ConfigValue<bool>  ::getAsString() const { return (getBool().value() ? "true" : "false"); }
-template<> string ConfigValue<int>   ::getAsString() const { return std::to_string(getInt().value()); }
-template<> string ConfigValue<string>::getAsString() const { return getString().value(); }
-
-
-
-/*----------------------------------------------------------------------------------------------------
     MARK: - RecognisedConfigOption + BaseConfigOption & derived classes
    ----------------------------------------------------------------------------------------------------*/
 
@@ -132,12 +121,12 @@ ConfigOptionPtr ConfigFile::makeOptionFromStrings(const idValPair& inputPair)
     string val = inputPair.second;
 
     if (val == "true" || val == "false")
-        return std::make_shared< ConfigOption<bool> >(id, stringToBool(val));
+        return std::make_shared<ConfigOptionBool>(id, stringToBool(val));
 
     if (isInt(val))
-        return std::make_shared< ConfigOption<int> >(id, stringToInt(val));
+        return std::make_shared<ConfigOptionInt>(id, stringToInt(val));
 
-    return std::make_shared< ConfigOption<string> >(id, val);
+    return std::make_shared<ConfigOptionString>(id, val);
 }
 
 
