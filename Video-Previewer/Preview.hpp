@@ -110,7 +110,7 @@ public:
     void updatePreview();
 
     ConfigOptionPtr getOption(const string& optionID)            { return optionsHandler.getOptions().getOption(optionID); }
-    void            setOption(const BaseConfigOption& optionIn);
+    void            setOption(const ConfigOption& optionIn);
 
     // Save a set of current configuration options to either 1) a preexisiting configuration file, or 2) an arbitrary new file
     // In the case of 1, the formatting of the file is maintained, but any options that have been changed are overwritten

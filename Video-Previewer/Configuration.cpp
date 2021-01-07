@@ -1,18 +1,18 @@
 #include "Configuration.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - RecognisedConfigOption + BaseConfigOption & derived classes
+    MARK: - RecognisedConfigOption + ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
 // An array that contains every RecognisedConfigOption that the program "understands"
-const array<RecognisedConfigOption,3> BaseConfigOption::recognisedConfigOptions {
+const array<RecognisedConfigOption,3> ConfigOption::recognisedConfigOptions {
     RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
     RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
     RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
-void BaseConfigOption::determineValidity()
+void ConfigOption::determineValidity()
 {
     auto templateOption = findRecognisedOptionWithSameID();
 
@@ -121,12 +121,12 @@ ConfigOptionPtr ConfigFile::makeOptionFromStrings(const idValPair& inputPair)
     string val = inputPair.second;
 
     if (val == "true" || val == "false")
-        return std::make_shared<ConfigOptionBool>(id, stringToBool(val));
+        return std::make_shared<ConfigOption>(id, stringToBool(val));
 
     if (isInt(val))
-        return std::make_shared<ConfigOptionInt>(id, stringToInt(val));
+        return std::make_shared<ConfigOption>(id, stringToInt(val));
 
-    return std::make_shared<ConfigOptionString>(id, val);
+    return std::make_shared<ConfigOption>(id, val);
 }
 
 

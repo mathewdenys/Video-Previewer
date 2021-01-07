@@ -25,7 +25,8 @@ namespace fs = std::filesystem;
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements
             - Add a new ConfigValueX class
-            - Add a new ConfigOptionX class
+            - Add a new ConfigOption constructor
+            - Add a new ConfigOption::setValue()
             - ConfigOptionsHandler::makeOptionFromStrings()
    ----------------------------------------------------------------------------------------------------*/
 
@@ -92,14 +93,14 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - RecognisedConfigOption + BaseConfigOption & derived classes
+    MARK: - RecognisedConfigOption + ConfigOption
 
         When adding support for a new option, update
-            - BaseConfigOption::recognisedConfigOptions (declaration and definition)
+            - ConfigOption::recognisedConfigOptions (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
             - ValidOptionValues
-            - BaseConfigOption::hasValidValue()
+            - ConfigOption::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a RecognisedConfigOption may have
@@ -145,26 +146,52 @@ using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` a
 
 
 
-// Base class for storing a single configuration option. One of its derived classes is created
-// for each option loaded from the configuration files for a given `VideoPreview` object.
-class BaseConfigOption
+// Base class for storing a single configuration option. A ConfigOption object is instantiated for
+// each option loaded from the configuration files for a given `VideoPreview` object. The optionValue
+// is stored as a ConfigValuePtr, which means that the underlying data type of the value is not fixed
+// (it can be changed via the setValue() method), which allows for options to have valid values of
+// multiple different data types.
+class ConfigOption
 {
 public:
-    BaseConfigOption(const string& id, const ConfigValuePtr value) : optionID{ id }, optionValue{ value }
+    ConfigOption(const string& id, const ConfigValuePtr value): optionID{ id }, optionValue{ value }
     {
         determineValidity();
     }
-
-    virtual std::shared_ptr<BaseConfigOption> clone() const = 0; // "virtual copy constructor"
+    
+    // Constructors that accept option values of specific data types
+    ConfigOption(const string& id, const bool   value) : ConfigOption( id, std::make_shared<ConfigValueBool>(value)   ) {}
+    ConfigOption(const string& id, const int    value) : ConfigOption( id, std::make_shared<ConfigValueInt>(value)    ) {}
+    ConfigOption(const string& id, const string value) : ConfigOption( id, std::make_shared<ConfigValueString>(value) ) {}
 
     ConfigValuePtr getValue()            const { return optionValue; }
     string         getValueAsString()    const { return optionValue->getAsString(); }
     string         getID()               const { return optionID; }
     string         getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
     void           print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
+    
     bool           isValid()             const { return (hasValidID && hasValidValue); }
+    
+    void setValue(const bool value)
+    {
+        optionValue = std::make_shared<ConfigValueBool>(value);
+        determineValidity();
+    }
+    
+    void setValue(const int value)
+    {
+        optionValue = std::make_shared<ConfigValueInt>(value);
+        determineValidity();
+    }
+    
+    void setValue(const string value)
+    {
+        optionValue = std::make_shared<ConfigValueString>(value);
+        determineValidity();
+    }
+    
 
-protected:
+private:
     // Returns an iterator to the element of recognisedConfigOptions with the same ID
     // If no such element exists, returns an iterator to recognisedConfigOptions.end()
     auto findRecognisedOptionWithSameID() const
@@ -172,7 +199,7 @@ protected:
         auto IDmatches =  [&](RecognisedConfigOption recognisedOption) { return recognisedOption.getID() == optionID; };
         return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
     }
-
+    
 public:
     string  getDescription() const
     {
@@ -181,10 +208,8 @@ public:
             return "[[Unrecognised optionID has no description]]";
         return recognisedOpt->getDescription();
     }
-
-    virtual ~BaseConfigOption() {};
-
-protected:
+    
+private:
     // Determines whether `optionID` is recognised, and if so, whether `optionValue` is valid
     // The results are written to the `hasValidID` and `hasValidValue` members
     // Determined by looking up `recognisedConfigOptions`
@@ -207,7 +232,7 @@ protected:
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
 
-protected:
+private:
     string optionID;            // The id / name of the option
     ConfigValuePtr optionValue; // The value of the option
     bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
@@ -216,56 +241,7 @@ protected:
 };
 
 
-using ConfigOptionPtr = std::shared_ptr<BaseConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
-
-
-// Derived classes of BaseConfigOption
-class ConfigOptionBool : public BaseConfigOption
-{
-public:
-    ConfigOptionBool(const string& idIn, const bool& valIn) :
-        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
-    {}
-    
-    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionBool>(*this); }
-    void            setValue(const bool& valIn) { optionValue = makeConfigValuePtr(valIn); }
-    
-private:
-    ConfigValuePtr makeConfigValuePtr(const bool& valIn) { return std::make_shared<ConfigValueBool>(valIn); }
-    
-};
-
-
-class ConfigOptionInt : public BaseConfigOption
-{
-public:
-    ConfigOptionInt(const string& idIn, const int& valIn) :
-        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
-    {}
-    
-    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionInt>(*this); }
-    void            setValue(const int& valIn) { optionValue = makeConfigValuePtr(valIn); }
-    
-private:
-    ConfigValuePtr makeConfigValuePtr(const int& valIn) { return std::make_shared<ConfigValueInt>(valIn); }
-    
-};
-
-
-class ConfigOptionString : public BaseConfigOption
-{
-public:
-    ConfigOptionString(const string& idIn, const string& valIn) :
-        BaseConfigOption{ idIn, makeConfigValuePtr(valIn) }
-    {}
-    
-    ConfigOptionPtr clone() const override { return std::make_shared<ConfigOptionString>(*this); }
-    void            setValue(const string& valIn) { optionValue = makeConfigValuePtr(valIn); }
-    
-private:
-    ConfigValuePtr makeConfigValuePtr(const string& valIn) { return std::make_shared<ConfigValueString>(valIn); }
-    
-};
+using ConfigOptionPtr = std::shared_ptr<ConfigOption>; // Using `shared_ptr` allows `ConfigOptionPtr`s to be safely returned by functions
 
 
 
@@ -310,12 +286,12 @@ public:
 
     // Add a new configuration option to the `options` vector.
     // If the option already exists in `options`, the current value is removed first, to avoid conflicts
-    void setOption(const BaseConfigOption& optionIn)
+    void setOption(const ConfigOption& optionIn)
     {
         auto IDexists = [&](ConfigOptionPtr option) { return option->getID() == optionIn.getID(); };
 
         options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-        options.push_back( optionIn.clone() );
+        options.push_back( std::make_shared<ConfigOption>(optionIn) );
     }
 
 private:
@@ -398,10 +374,10 @@ class ConfigOptionsHandler
 public:
     ConfigOptionsHandler(const string& videoPath);
 
-    vector<ConfigFilePtr>&     getConfigFiles()                            { return configFiles; }
-    const ConfigOptionVector&  getOptions()                                { return configOptions; }
-    const ConfigOptionVector&  getInvalidOptions()                         { return invalidConfigOptions; }
-    void                       setOption(const BaseConfigOption& optionIn) { configOptions.setOption(optionIn); }
+    vector<ConfigFilePtr>&     getConfigFiles()                        { return configFiles; }
+    const ConfigOptionVector&  getOptions()                            { return configOptions; }
+    const ConfigOptionVector&  getInvalidOptions()                     { return invalidConfigOptions; }
+    void                       setOption(const ConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     // Save a set of current configuration options to a preexisting configuration file
     // The first time that the given option is found in the file, the up-to-date value is overwritten

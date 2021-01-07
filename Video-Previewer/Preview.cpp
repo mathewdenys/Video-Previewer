@@ -51,7 +51,7 @@ void VideoPreview::updatePreview()
 
 }
 
-void VideoPreview::setOption(const BaseConfigOption& optionIn)
+void VideoPreview::setOption(const ConfigOption& optionIn)
 {
     try
     {
