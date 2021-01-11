@@ -93,17 +93,17 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - RecognisedConfigOption + ConfigOption
+    MARK: - ConfigOptionInformation + ConfigOption
 
         When adding support for a new option, update
-            - ConfigOption::recognisedConfigOptions (declaration and definition)
+            - ConfigOption::recognisedOptionInfo (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
             - ValidOptionValues
             - ConfigOption::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
-// Enumerates the valid values a RecognisedConfigOption may have
+// Enumerates the valid values a ConfigOption may have
 enum class ValidOptionValues
 {
     eBoolean,           // A boolean
@@ -113,17 +113,17 @@ enum class ValidOptionValues
 
 
 // Class for storing information about configuration options that the program recognises
-class RecognisedConfigOption
+class ConfigOptionInformation
 {
 public:
-    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn) :
+    ConfigOptionInformation(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn) :
         id          { idIn },
         description { descriptionIn },
         validValues { validValuesIn }
     {}
 
-    RecognisedConfigOption(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
-        RecognisedConfigOption ( idIn, descriptionIn, validValuesIn )
+    ConfigOptionInformation(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+        ConfigOptionInformation ( idIn, descriptionIn, validValuesIn )
     {
         if (validValues == ValidOptionValues::eString)
             validStrings = validStringsIn;
@@ -192,19 +192,19 @@ public:
     
 
 private:
-    // Returns an iterator to the element of recognisedConfigOptions with the same ID
-    // If no such element exists, returns an iterator to recognisedConfigOptions.end()
+    // Returns an iterator to the element of recognisedOptionInfo with the same ID
+    // If no such element exists, returns an iterator to recognisedOptionInfo.end()
     auto findRecognisedOptionWithSameID() const
     {
-        auto IDmatches =  [&](RecognisedConfigOption recognisedOption) { return recognisedOption.getID() == optionID; };
-        return std::find_if(recognisedConfigOptions.begin(), recognisedConfigOptions.end(), IDmatches);
+        auto IDmatches =  [&](ConfigOptionInformation recognisedOption) { return recognisedOption.getID() == optionID; };
+        return std::find_if(recognisedOptionInfo.begin(), recognisedOptionInfo.end(), IDmatches);
     }
     
 public:
     string  getDescription() const
     {
-        auto recognisedOpt = findRecognisedOptionWithSameID();     // Iterator to the element of recognisedConfigOptions with the same ID
-        if (recognisedOpt == recognisedConfigOptions.end())        // If optionID does not match any of the recognised options
+        auto recognisedOpt = findRecognisedOptionWithSameID();     // Iterator to the element of recognisedOptionInfo with the same ID
+        if (recognisedOpt == recognisedOptionInfo.end())        // If optionID does not match any of the recognised options
             return "[[Unrecognised optionID has no description]]";
         return recognisedOpt->getDescription();
     }
@@ -212,7 +212,7 @@ public:
 private:
     // Determines whether `optionID` is recognised, and if so, whether `optionValue` is valid
     // The results are written to the `hasValidID` and `hasValidValue` members
-    // Determined by looking up `recognisedConfigOptions`
+    // Determined by looking up `recognisedOptionInfo`
     void determineValidity();
 
     bool optionValueIsBool() const
@@ -237,7 +237,7 @@ private:
     ConfigValuePtr optionValue; // The value of the option
     bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool hasValidValue = false; // Default to having an invalid value. Is changed inthe contructor if needed
-    const static array<RecognisedConfigOption,3> recognisedConfigOptions;
+    const static array<ConfigOptionInformation,3> recognisedOptionInfo;
 };
 
 

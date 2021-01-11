@@ -1,14 +1,14 @@
 #include "Configuration.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - RecognisedConfigOption + ConfigOption
+    MARK: - ConfigOptionInformation + ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
-// An array that contains every RecognisedConfigOption that the program "understands"
-const array<RecognisedConfigOption,3> ConfigOption::recognisedConfigOptions {
-    RecognisedConfigOption("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
-    RecognisedConfigOption("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
-    RecognisedConfigOption("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
+// An array that contains every ConfigOptionInformation that the program "understands"
+const array<ConfigOptionInformation,3> ConfigOption::recognisedOptionInfo {
+    ConfigOptionInformation("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
+    ConfigOptionInformation("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
+    ConfigOptionInformation("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -17,7 +17,7 @@ void ConfigOption::determineValidity()
     auto templateOption = findRecognisedOptionWithSameID();
 
     // Invalid ID
-    if ( templateOption == recognisedConfigOptions.end() )
+    if ( templateOption == recognisedOptionInfo.end() )
     {
         hasValidID = false;
         std::cerr << "\tInvalid option \"" << optionID << "\"\n";
