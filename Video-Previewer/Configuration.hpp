@@ -62,7 +62,7 @@ public:
     string       getAsString() const override { return (getBool().value() ? "true" : "false"); }
   
 private:
-    bool value;
+    bool value {};
 };
 
 
@@ -75,7 +75,7 @@ public:
     string      getAsString() const override { return std::to_string(value); }
     
 private:
-    int value;
+    int value {};
 };
 
 
@@ -88,7 +88,7 @@ public:
     string         getAsString() const override { return value; }
     
 private:
-    string value;
+    string value {};
 };
 
 
@@ -220,14 +220,14 @@ private:
         const vector<string>    getValidStrings() const { return validStrings; }
 
     private:
-        string description;                // Human-readable description
-        ValidOptionValue validValues;     // The valid values this option may have
+        string           description  {}; // Human-readable description
+        ValidOptionValue validValues  {}; // The valid values this option may have
         vector<string>   validStrings {}; // List of allowed values when validValues = ValidOptionValue::eString
     };
 
 private:
-    string         optionID;              // The id / name of the option
-    ConfigValuePtr optionValue;           // The value of the option
+    string         optionID      {};      // The id / name of the option
+    ConfigValuePtr optionValue   {};      // The value of the option
     bool           hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool           hasValidValue = false; // Default to having an invalid value. Is changed in the contructor if needed
     
@@ -289,7 +289,7 @@ public:
     }
 
 private:
-    vector<ConfigOptionPtr> options;
+    vector<ConfigOptionPtr> options {};
 };
 
 
@@ -344,9 +344,9 @@ protected:
     }
 
 protected:
-    string filePath;
-    ConfigOptionVector options;
-    ConfigOptionVector invalidOptions {}; // Stores unrecognised config options and those with invlaid values
+    string             filePath {};
+    ConfigOptionVector options {};
+    ConfigOptionVector invalidOptions {}; // Stores unrecognised config options and those with invalid values
 };
 
 
@@ -393,9 +393,9 @@ private:
     void mergeOptions();
 
 private:
-    vector<ConfigFilePtr> configFiles;
-    ConfigOptionVector configOptions;
-    ConfigOptionVector invalidConfigOptions {}; // Stores unrecognised config options and those with invlaid values
+    vector<ConfigFilePtr> configFiles {};
+    ConfigOptionVector    configOptions {};
+    ConfigOptionVector    invalidConfigOptions {}; // Stores unrecognised config options and those with invlaid values
 };
 
 
