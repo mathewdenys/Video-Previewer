@@ -2,11 +2,12 @@
 #define Configuration_hpp
 
 #include <iostream>
-#include <fstream>  // for std::ifstream, std::ofstream
-#include <array>    // for std::array
-#include <vector>   // for std::vector
-#include <optional> // for std::optional
-#include <sstream>  // for std::stringstream
+#include <fstream>       // for std::ifstream, std::ofstream
+#include <array>         // for std::array
+#include <vector>        // for std::vector
+#include <unordered_map> // for std::unordered_map
+#include <optional>      // for std::optional
+#include <sstream>       // for std::stringstream
 
 #include "Exceptions.hpp"
 
@@ -116,26 +117,23 @@ enum class ValidOptionValues
 class ConfigOptionInformation
 {
 public:
-    ConfigOptionInformation(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn) :
-        id          { idIn },
+    ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
         description { descriptionIn },
         validValues { validValuesIn }
     {}
 
-    ConfigOptionInformation(const string& idIn, const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
-        ConfigOptionInformation ( idIn, descriptionIn, validValuesIn )
+    ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+        ConfigOptionInformation ( descriptionIn, validValuesIn )
     {
         if (validValues == ValidOptionValues::eString)
             validStrings = validStringsIn;
     }
 
-    const string&            getID()           const { return id; }
     const string&            getDescription()  const { return description; }
     const ValidOptionValues& getValidValues()  const { return validValues; }
     const vector<string>     getValidStrings() const { return validStrings; }
 
 private:
-    string id;                         // Option-specific identifier
     string description;                // Human-readable description
     ValidOptionValues validValues;     // The valid values this option may have
     vector<string>    validStrings {}; // List of allowed values when validValues = ValidOptionValues::eString
@@ -190,23 +188,16 @@ public:
         determineValidity();
     }
     
-
-private:
-    // Returns an iterator to the element of recognisedOptionInfo with the same ID
-    // If no such element exists, returns an iterator to recognisedOptionInfo.end()
-    auto findRecognisedOptionWithSameID() const
-    {
-        auto IDmatches =  [&](ConfigOptionInformation recognisedOption) { return recognisedOption.getID() == optionID; };
-        return std::find_if(recognisedOptionInfo.begin(), recognisedOptionInfo.end(), IDmatches);
-    }
-    
-public:
     string  getDescription() const
     {
-        auto recognisedOpt = findRecognisedOptionWithSameID();     // Iterator to the element of recognisedOptionInfo with the same ID
-        if (recognisedOpt == recognisedOptionInfo.end())        // If optionID does not match any of the recognised options
+        try
+        {
+            return recognisedOptionInfo.at(optionID).getDescription();
+        }
+        catch (std::out_of_range exception)
+        {
             return "[[Unrecognised optionID has no description]]";
-        return recognisedOpt->getDescription();
+        }
     }
     
 private:
@@ -237,7 +228,7 @@ private:
     ConfigValuePtr optionValue; // The value of the option
     bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool hasValidValue = false; // Default to having an invalid value. Is changed inthe contructor if needed
-    const static array<ConfigOptionInformation,3> recognisedOptionInfo;
+    const static std::unordered_map<string,ConfigOptionInformation> recognisedOptionInfo;
 };
 
 

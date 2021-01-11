@@ -5,40 +5,41 @@
    ----------------------------------------------------------------------------------------------------*/
 
 // An array that contains every ConfigOptionInformation that the program "understands"
-const array<ConfigOptionInformation,3> ConfigOption::recognisedOptionInfo {
-    ConfigOptionInformation("number_of_frames", "Number of frames to show",                 ValidOptionValues::ePositiveInteger        ),
-    ConfigOptionInformation("show_frame_info",  "Show individual frame information",        ValidOptionValues::eBoolean                ),
-    ConfigOptionInformation("action_on_hover",  "Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"}) // TODO: add "slideshow","scrub" as validStrings when I support them
+const std::unordered_map<string,ConfigOptionInformation> ConfigOption::recognisedOptionInfo {
+    {"number_of_frames", ConfigOptionInformation("Number of frames to show",                 ValidOptionValues::ePositiveInteger        )},
+    {"show_frame_info",  ConfigOptionInformation("Show individual frame information",        ValidOptionValues::eBoolean                )},
+    {"action_on_hover",  ConfigOptionInformation("Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
 void ConfigOption::determineValidity()
 {
-    auto templateOption = findRecognisedOptionWithSameID();
+    try
+    {
+        // If the ID is invalid, the following throws an std::out_of_range exception
+        ConfigOptionInformation info = recognisedOptionInfo.at(optionID);
+        
+        hasValidID = true;
 
-    // Invalid ID
-    if ( templateOption == recognisedOptionInfo.end() )
+        // Invalid Value
+        if (info.getValidValues() == ValidOptionValues::eBoolean)
+            hasValidValue = optionValueIsBool();
+
+        if (info.getValidValues() == ValidOptionValues::ePositiveInteger)
+            hasValidValue = optionValueIsPositiveInteger();
+
+        if (info.getValidValues() == ValidOptionValues::eString)
+            hasValidValue = optionValueIsValidString(info.getValidStrings());
+
+        if (!hasValidValue)
+            std::cerr << "\tOption with invalid value: \"" << getID() << "\" cannot have the value \"" << optionValue->getAsString() << "\"\n";
+    }
+    catch (std::out_of_range exception)
     {
         hasValidID = false;
         std::cerr << "\tInvalid option \"" << optionID << "\"\n";
         return;
     }
-
-    hasValidID = true;
-
-    // Invalid Value
-    if (templateOption->getValidValues() == ValidOptionValues::eBoolean)
-        hasValidValue = optionValueIsBool();
-
-    if (templateOption->getValidValues() == ValidOptionValues::ePositiveInteger)
-        hasValidValue = optionValueIsPositiveInteger();
-
-    if (templateOption->getValidValues() == ValidOptionValues::eString)
-        hasValidValue = optionValueIsValidString(templateOption->getValidStrings());
-
-    if (!hasValidValue)
-        std::cerr << "\tOption with invalid value: \"" << getID() << "\" cannot have the value \"" << optionValue->getAsString() << "\"\n";
-
 }
 
 
