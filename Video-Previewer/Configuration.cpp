@@ -1,11 +1,11 @@
 #include "Configuration.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionInformation + ConfigOption
+    MARK: - ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
 // An array that contains every ConfigOptionInformation that the program "understands"
-const std::unordered_map<string,ConfigOptionInformation> ConfigOption::recognisedOptionInfo {
+const std::unordered_map<string,ConfigOption::ConfigOptionInformation> ConfigOption::recognisedOptionInfo {
     {"number_of_frames", ConfigOptionInformation("Number of frames to show",                 ValidOptionValues::ePositiveInteger        )},
     {"show_frame_info",  ConfigOptionInformation("Show individual frame information",        ValidOptionValues::eBoolean                )},
     {"action_on_hover",  ConfigOptionInformation("Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them

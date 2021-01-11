@@ -94,7 +94,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionInformation + ConfigOption
+    MARK: - ConfigOption
 
         When adding support for a new option, update
             - ConfigOption::recognisedOptionInfo (declaration and definition)
@@ -112,32 +112,6 @@ enum class ValidOptionValues
     eString,            // A set of predefined strings
 };
 
-
-// Class for storing information about configuration options that the program recognises
-class ConfigOptionInformation
-{
-public:
-    ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
-        description { descriptionIn },
-        validValues { validValuesIn }
-    {}
-
-    ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
-        ConfigOptionInformation ( descriptionIn, validValuesIn )
-    {
-        if (validValues == ValidOptionValues::eString)
-            validStrings = validStringsIn;
-    }
-
-    const string&            getDescription()  const { return description; }
-    const ValidOptionValues& getValidValues()  const { return validValues; }
-    const vector<string>     getValidStrings() const { return validStrings; }
-
-private:
-    string description;                // Human-readable description
-    ValidOptionValues validValues;     // The valid values this option may have
-    vector<string>    validStrings {}; // List of allowed values when validValues = ValidOptionValues::eString
-};
 
 
 using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
@@ -222,12 +196,41 @@ private:
         auto valueExists = [&](const string& s) { return s == optionValue->getString(); };
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
+    
+private:
+    // Class for storing information about configuration options that the program recognises
+    // Used in the static recognisedOptionInfo map
+    class ConfigOptionInformation
+    {
+    public:
+        ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
+            description { descriptionIn },
+            validValues { validValuesIn }
+        {}
+
+        ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+            ConfigOptionInformation ( descriptionIn, validValuesIn )
+        {
+            if (validValues == ValidOptionValues::eString)
+                validStrings = validStringsIn;
+        }
+
+        const string&            getDescription()  const { return description; }
+        const ValidOptionValues& getValidValues()  const { return validValues; }
+        const vector<string>     getValidStrings() const { return validStrings; }
+
+    private:
+        string description;                // Human-readable description
+        ValidOptionValues validValues;     // The valid values this option may have
+        vector<string>    validStrings {}; // List of allowed values when validValues = ValidOptionValues::eString
+    };
 
 private:
-    string optionID;            // The id / name of the option
-    ConfigValuePtr optionValue; // The value of the option
-    bool hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
-    bool hasValidValue = false; // Default to having an invalid value. Is changed inthe contructor if needed
+    string         optionID;              // The id / name of the option
+    ConfigValuePtr optionValue;           // The value of the option
+    bool           hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
+    bool           hasValidValue = false; // Default to having an invalid value. Is changed in the contructor if needed
+    
     const static std::unordered_map<string,ConfigOptionInformation> recognisedOptionInfo;
 };
 
