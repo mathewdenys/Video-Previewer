@@ -200,16 +200,16 @@ private:
 private:
     // Class for storing information about configuration options that the program recognises
     // Used in the static recognisedOptionInfo map
-    class ConfigOptionInformation
+    class OptionInformation
     {
     public:
-        ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
+        OptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
             description { descriptionIn },
             validValues { validValuesIn }
         {}
 
-        ConfigOptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
-            ConfigOptionInformation ( descriptionIn, validValuesIn )
+        OptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+            OptionInformation ( descriptionIn, validValuesIn )
         {
             if (validValues == ValidOptionValues::eString)
                 validStrings = validStringsIn;
@@ -231,7 +231,7 @@ private:
     bool           hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool           hasValidValue = false; // Default to having an invalid value. Is changed in the contructor if needed
     
-    const static std::unordered_map<string,ConfigOptionInformation> recognisedOptionInfo;
+    const static std::unordered_map<string,OptionInformation> recognisedOptionInfo;
 };
 
 
