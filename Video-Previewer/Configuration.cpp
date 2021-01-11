@@ -4,7 +4,7 @@
     MARK: - ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
-// An array that contains every ConfigOptionInformation that the program "understands"
+// A map to the all "information" associated with each optionID that the program recognises
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"number_of_frames", OptionInformation("Number of frames to show",                 ValidOptionValues::ePositiveInteger        )},
     {"show_frame_info",  OptionInformation("Show individual frame information",        ValidOptionValues::eBoolean                )},
