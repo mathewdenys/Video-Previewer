@@ -100,12 +100,12 @@ private:
             - ConfigOption::recognisedOptionInfo (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
-            - ValidOptionValues
+            - ValidOptionValue
             - ConfigOption::hasValidValue()
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a ConfigOption may have
-enum class ValidOptionValues
+enum class ValidOptionValue
 {
     eBoolean,           // A boolean
     ePositiveInteger,   // A positive integer
@@ -203,26 +203,26 @@ private:
     class OptionInformation
     {
     public:
-        OptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn) :
+        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn) :
             description { descriptionIn },
             validValues { validValuesIn }
         {}
 
-        OptionInformation(const string& descriptionIn, const ValidOptionValues& validValuesIn, const vector<string>& validStringsIn) :
+        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn) :
             OptionInformation ( descriptionIn, validValuesIn )
         {
-            if (validValues == ValidOptionValues::eString)
+            if (validValues == ValidOptionValue::eString)
                 validStrings = validStringsIn;
         }
 
-        const string&            getDescription()  const { return description; }
-        const ValidOptionValues& getValidValues()  const { return validValues; }
-        const vector<string>     getValidStrings() const { return validStrings; }
+        const string&           getDescription()  const { return description; }
+        const ValidOptionValue& getValidValues()  const { return validValues; }
+        const vector<string>    getValidStrings() const { return validStrings; }
 
     private:
         string description;                // Human-readable description
-        ValidOptionValues validValues;     // The valid values this option may have
-        vector<string>    validStrings {}; // List of allowed values when validValues = ValidOptionValues::eString
+        ValidOptionValue validValues;     // The valid values this option may have
+        vector<string>   validStrings {}; // List of allowed values when validValues = ValidOptionValue::eString
     };
 
 private:

@@ -6,9 +6,9 @@
 
 // A map to the all "information" associated with each optionID that the program recognises
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
-    {"number_of_frames", OptionInformation("Number of frames to show",                 ValidOptionValues::ePositiveInteger        )},
-    {"show_frame_info",  OptionInformation("Show individual frame information",        ValidOptionValues::eBoolean                )},
-    {"action_on_hover",  OptionInformation("Behaviour when mouse hovers over a frame", ValidOptionValues::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
+    {"number_of_frames", OptionInformation("Number of frames to show",                 ValidOptionValue::ePositiveInteger        )},
+    {"show_frame_info",  OptionInformation("Show individual frame information",        ValidOptionValue::eBoolean                )},
+    {"action_on_hover",  OptionInformation("Behaviour when mouse hovers over a frame", ValidOptionValue::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -22,13 +22,13 @@ void ConfigOption::determineValidity()
         hasValidID = true;
 
         // Invalid Value
-        if (info.getValidValues() == ValidOptionValues::eBoolean)
+        if (info.getValidValues() == ValidOptionValue::eBoolean)
             hasValidValue = optionValueIsBool();
 
-        if (info.getValidValues() == ValidOptionValues::ePositiveInteger)
+        if (info.getValidValues() == ValidOptionValue::ePositiveInteger)
             hasValidValue = optionValueIsPositiveInteger();
 
-        if (info.getValidValues() == ValidOptionValues::eString)
+        if (info.getValidValues() == ValidOptionValue::eString)
             hasValidValue = optionValueIsValidString(info.getValidStrings());
 
         if (!hasValidValue)
