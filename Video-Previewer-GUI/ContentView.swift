@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+let test = TestWrapper()
+let testString = test?.getString()
+
 struct ContentView: View {
     var body: some View {
-        Text("Hello, World!")
+        Text(testString ?? "fail")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
