@@ -24,3 +24,18 @@
 }
 
 @end
+
+
+
+@implementation VideoPreviewWrapper {
+@private
+    std::shared_ptr<VideoPreview> vp;
+}
+
+- (VideoPreviewWrapper*) init:(NSString*)filePath {
+    std::string filePathStdStr = std::string([filePath UTF8String]); // From https://stackoverflow.com/questions/8001677/how-do-i-convert-a-nsstring-into-a-stdstring
+    vp = std::make_shared<VideoPreview>(filePathStdStr);
+    return self;
+}
+
+@end

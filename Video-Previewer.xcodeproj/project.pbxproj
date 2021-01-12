@@ -10,6 +10,8 @@
 		AF5101B325AE48B000B8B5E6 /* PreviewWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B125AE48B000B8B5E6 /* PreviewWrapper.mm */; };
 		AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */; };
 		AF5101BB25AE4CD000B8B5E6 /* InfoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101BA25AE4CD000B8B5E6 /* InfoRow.swift */; };
+		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
+		AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFADD2C3255CAAB400D06F8F /* main.cpp */; };
 		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AFE460002591397E00DB3402 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
@@ -235,6 +237,8 @@
 			files = (
 				AFFB215425AE392A008B2295 /* ContentView.swift in Sources */,
 				AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */,
+				AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */,
+				AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */,
 				AF5101B325AE48B000B8B5E6 /* PreviewWrapper.mm in Sources */,
 				AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */,
 				AF5101BB25AE4CD000B8B5E6 /* InfoRow.swift in Sources */,

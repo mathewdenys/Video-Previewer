@@ -18,4 +18,12 @@
 @end
 
 
+
+@interface VideoPreviewWrapper : NSObject
+
+- (instancetype) init:(NSString*)filePath;
+
+@end
+
+
 #endif /* PreviewWrapper_h */
