@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		AF5101B325AE48B000B8B5E6 /* PreviewWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B125AE48B000B8B5E6 /* PreviewWrapper.mm */; };
+		AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */; };
+		AF5101BB25AE4CD000B8B5E6 /* InfoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101BA25AE4CD000B8B5E6 /* InfoRow.swift */; };
 		AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFADD2C3255CAAB400D06F8F /* main.cpp */; };
 		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AFE460002591397E00DB3402 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
@@ -33,6 +35,8 @@
 /* Begin PBXFileReference section */
 		AF5101B125AE48B000B8B5E6 /* PreviewWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreviewWrapper.mm; sourceTree = "<group>"; };
 		AF5101B225AE48B000B8B5E6 /* PreviewWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PreviewWrapper.hpp; sourceTree = "<group>"; };
+		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
+		AF5101BA25AE4CD000B8B5E6 /* InfoRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoRow.swift; sourceTree = "<group>"; };
 		AFADD2C0255CAAB400D06F8F /* Video-Previewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Video-Previewer"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFADD2C3255CAAB400D06F8F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFE45FE72590567100DB3402 /* Exceptions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exceptions.hpp; sourceTree = "<group>"; };
@@ -113,6 +117,8 @@
 				AFFB215E25AE392B008B2295 /* Video_Previewer_GUI.entitlements */,
 				AFFB215725AE392B008B2295 /* Preview Content */,
 				AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */,
+				AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */,
+				AF5101BA25AE4CD000B8B5E6 /* InfoRow.swift */,
 			);
 			path = "Video-Previewer-GUI";
 			sourceTree = "<group>";
@@ -230,6 +236,8 @@
 				AFFB215425AE392A008B2295 /* ContentView.swift in Sources */,
 				AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */,
 				AF5101B325AE48B000B8B5E6 /* PreviewWrapper.mm in Sources */,
+				AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */,
+				AF5101BB25AE4CD000B8B5E6 /* InfoRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

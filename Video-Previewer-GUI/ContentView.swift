@@ -12,8 +12,13 @@ let testString = test?.getString()
 
 struct ContentView: View {
     var body: some View {
-        Text(testString ?? "fail")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+        HStack {
+            Text(testString ?? "fail")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            SidePanel()
+        }
+        
     }
 }
 
