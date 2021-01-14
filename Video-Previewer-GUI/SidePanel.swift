@@ -98,6 +98,7 @@ struct InfoBlock: View {
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
+            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable (FIX)
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
@@ -131,6 +132,7 @@ struct ConfigInfoBlock: View {
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
+            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable (FIX)
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
