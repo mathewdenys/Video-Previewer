@@ -11,31 +11,29 @@ import SwiftUI
 let colorNearBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0);
 
 
+
+
+
+
 var testInfo1 = [
-    InfoPair(id: "id1", value: "vid_val1"),
-    InfoPair(id: "id2", value: "vid_val2"),
-    InfoPair(id: "idlong", value: "vid_val3"),
+    InfoPair(id: "File path",   value: "/long/path/to/a/file.mp4"),
+    InfoPair(id: "Encoding",    value: "h.264 MPEG-4"),
+    InfoPair(id: "Frame rate",  value: "60 fps"),
+    InfoPair(id: "Length",      value: "00:01:15"),
+    InfoPair(id: "# of frames", value: "4500"),
+    InfoPair(id: "Dimensions",  value: "1920x1080"),
 ]
 
 var testInfo2 = [
-    InfoPair(id: "id1", value: "frame_val1"),
-    InfoPair(id: "id2", value: "frame_val2"),
-    InfoPair(id: "idlong", value: "frame_val3"),
-    InfoPair(id: "id1", value: "frame_val1"),
-    InfoPair(id: "id2", value: "frame_val2"),
-    InfoPair(id: "idlong", value: "frame_val3"),
-    InfoPair(id: "id1", value: "frame_val1"),
-    InfoPair(id: "id2", value: "frame_val2"),
-    InfoPair(id: "idlong", value: "frame_val3"),
-    InfoPair(id: "id1", value: "frame_val1"),
-    InfoPair(id: "id2", value: "frame_val2"),
-    InfoPair(id: "idlong", value: "frame_val3"),
+    InfoPair(id: "Frame #", value: "1200"),
+    InfoPair(id: "Time stamp", value: "00:00:20"),
 ]
 
+
 var testInfo3 = [
-    InfoPair(id: "id1", value: "config_val1"),
-    InfoPair(id: "id2", value: "config_val2"),
-    InfoPair(id: "idlong", value: "config_val3"),
+    InfoPair(id: "Frames", value: "15"),
+    InfoPair(id: "Frame info", value: "false"),
+    InfoPair(id: "Hover", value: "none"),
 ]
 
 
@@ -50,10 +48,10 @@ struct InfoRow: View, Identifiable {
     var value: String
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             Text(id)
                 .foregroundColor(Color.gray)
-                .frame(maxWidth: 50, alignment: .trailing)
+                .frame(maxWidth: 80, alignment: .trailing)
             Text(value)
                 .foregroundColor(colorNearBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -180,5 +178,6 @@ struct SidePanel: View {
 struct SidePanel_Previews: PreviewProvider {
     static var previews: some View {
         SidePanel()
+            .frame(minWidth: 200, maxWidth: 250) // copy from ContentView.swift
     }
 }

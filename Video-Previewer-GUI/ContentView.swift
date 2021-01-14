@@ -16,7 +16,7 @@ struct ContentView: View {
         HStack(spacing:0) {
             PreviewPane()
             SidePanel()
-                .frame(minWidth: 150, maxWidth: 250)
+                .frame(minWidth: 200, maxWidth: 250)
         }
     }
     
