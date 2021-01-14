@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+// For text and shapes
+let colorNearBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0);
+
+
 var testInfo1 = [
     InfoPair(id: "id1", value: "vid_val1"),
     InfoPair(id: "id2", value: "vid_val2"),
@@ -31,7 +35,7 @@ struct InfoPair: Identifiable {
     var value: String;
 }
 
-struct InfoRow: View {
+struct InfoRow: View, Identifiable {
     
     var id:    String
     var value: String
@@ -42,7 +46,7 @@ struct InfoRow: View {
                 .foregroundColor(Color.gray)
                 .frame(maxWidth: 50, alignment: .trailing)
             Text(value)
-                .foregroundColor(Color.black)
+                .foregroundColor(colorNearBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -53,23 +57,48 @@ struct InfoRow: View {
     }
 }
 
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+
+        return path
+    }
+}
+
 struct InfoFrame: View {
     var title: String;
     var info:  [InfoPair];
     
+    @State private var isExpanded = true;
+    
     var body: some View {
         VStack {
-            Text(title)
-                .fontWeight(.bold)
-                .padding(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            ForEach(info) { i in InfoRow(info: i) }
-                .padding(.horizontal, 30.0)
-                .padding(.vertical, 5.0)
-            //List(info) { i in InfoRow(info: i) }
+            HStack {
+                Text(title)
+                    .fontWeight(.bold)
+                    .foregroundColor(colorNearBlack)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Triangle()
+                    .rotation(Angle(degrees: isExpanded ? 180 : 0))
+                    .fill(colorNearBlack)
+                    .frame(width: 9, height: 6)
+            }
+            .padding(.horizontal)
+            .onTapGesture { isExpanded = !isExpanded; }
+            
+            if isExpanded {
+                ForEach(info) { i in InfoRow(info: i) }
+                    .padding(.horizontal, 30.0)
+                    .padding(.vertical, 5.0)
+                //List(info) { i in InfoRow(info: i) }
+            }
         }
     }
-    
 }
 
 struct SidePanel: View {
@@ -81,9 +110,9 @@ struct SidePanel: View {
                 InfoFrame(title: "Video Information",     info: testInfo1)
                 Divider()
                 InfoFrame(title: "Frame Information",     info: testInfo2)
-                Spacer()
                 Divider()
                 InfoFrame(title: "Configuration Options", info: testInfo3)
+                Spacer()
             }
             .padding(.vertical, 10.0)
         }
