@@ -12,9 +12,33 @@ let colorNearBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0);
 
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Tooltips
+        - From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
+   ----------------------------------------------------------------------------------------------------*/
+struct Tooltip: NSViewRepresentable {
+    let tooltip: String
+    
+    func makeNSView(context: NSViewRepresentableContext<Tooltip>) -> NSView {
+        let view = NSView()
+        view.toolTip = tooltip
 
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: NSViewRepresentableContext<Tooltip>) {
+    }
+}
 
+public extension View {
+    func toolTip(_ toolTip: String) -> some View {
+        self.overlay(Tooltip(tooltip: toolTip))
+    }
+}
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Data
+   ----------------------------------------------------------------------------------------------------*/
 var testInfo1 = [
     InfoPair(id: "File path",   value: "/long/path/to/a/file.mp4"),
     InfoPair(id: "Encoding",    value: "h.264 MPEG-4"),
@@ -25,33 +49,54 @@ var testInfo1 = [
 ]
 
 var testInfo2 = [
-    InfoPair(id: "Frame #", value: "1200"),
-    InfoPair(id: "Time stamp", value: "00:00:20"),
+    InfoPair(id: "Frame #",     value: "1200",     tooltip: ""),
+    InfoPair(id: "Time stamp",  value: "00:00:20", tooltip: ""),
 ]
-
 
 var testInfo3 = [
-    InfoPair(id: "Frames", value: "15"),
-    InfoPair(id: "Frame info", value: "false"),
-    InfoPair(id: "Hover", value: "none"),
+    InfoPair(id: "Frames",      value: "15",    tooltip: "Number of frames to show"),
+    InfoPair(id: "Frame info",  value: "false", tooltip: "Whether to overlay information on each frame in the preview"),
+    InfoPair(id: "Hover",       value: "none",  tooltip: "Behaviour on mouse hover over a frame"),
 ]
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Sidebar views
+   ----------------------------------------------------------------------------------------------------*/
 
 
 struct InfoPair: Identifiable {
-    var id:    String;
-    var value: String;
+    var id:      String;
+    var value:   String;
+    var tooltip: String; // Leave as empty string for no tooltip on hover
+    
+    // Default initializer
+    init(id: String, value: String, tooltip: String) {
+        self.id = id;
+        self.value = value;
+        self.tooltip = tooltip;
+    }
+    
+    // Initializer for InfoPair without a tooltip
+    init(id: String, value: String) {
+        self.id = id;
+        self.value = value;
+        self.tooltip = "";
+    }
 }
 
 struct InfoRow: View, Identifiable {
     
-    var id:    String
-    var value: String
+    var id:      String
+    var value:   String
+    var tooltip: String
     
     var body: some View {
         HStack(alignment: .top) {
             Text(id)
                 .foregroundColor(Color.gray)
                 .frame(maxWidth: 80, alignment: .trailing)
+                .toolTip(tooltip)
             Text(value)
                 .foregroundColor(colorNearBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -59,8 +104,9 @@ struct InfoRow: View, Identifiable {
     }
     
     init(info: InfoPair) {
-        id    = info.id;
-        value = info.value;
+        id      = info.id;
+        value   = info.value;
+        tooltip = info.tooltip;
     }
 }
 
