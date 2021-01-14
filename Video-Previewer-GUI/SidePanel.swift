@@ -21,6 +21,15 @@ var testInfo2 = [
     InfoPair(id: "id1", value: "frame_val1"),
     InfoPair(id: "id2", value: "frame_val2"),
     InfoPair(id: "idlong", value: "frame_val3"),
+    InfoPair(id: "id1", value: "frame_val1"),
+    InfoPair(id: "id2", value: "frame_val2"),
+    InfoPair(id: "idlong", value: "frame_val3"),
+    InfoPair(id: "id1", value: "frame_val1"),
+    InfoPair(id: "id2", value: "frame_val2"),
+    InfoPair(id: "idlong", value: "frame_val3"),
+    InfoPair(id: "id1", value: "frame_val1"),
+    InfoPair(id: "id2", value: "frame_val2"),
+    InfoPair(id: "idlong", value: "frame_val3"),
 ]
 
 var testInfo3 = [
@@ -146,16 +155,21 @@ struct SidePanel: View {
         HStack(spacing:0) {
             Divider()
             
-            VStack(alignment: .leading) {
-                InfoBlock(title: "Video Information",     info: testInfo1)
-                Divider()
-                InfoBlock(title: "Frame Information",     info: testInfo2)
-                Spacer()
-                Divider()
-                ConfigInfoBlock(title: "Configuration Options", info: testInfo3)
-                
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        InfoBlock(title: "Video Information",     info: testInfo1)
+                        Divider()
+                        InfoBlock(title: "Frame Information",     info: testInfo2)
+                        Spacer()
+                        Divider()
+                        ConfigInfoBlock(title: "Configuration Options", info: testInfo3)
+                    }
+                    .padding(.vertical, 10.0)
+                    .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
+                }
             }
-            .padding(.vertical, 10.0)
+
         }
         
     }
