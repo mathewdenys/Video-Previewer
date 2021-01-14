@@ -93,7 +93,7 @@ struct InfoBlock: View {
                     .foregroundColor(colorNearBlack)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
-                    .rotation(Angle(degrees: isExpanded ? 180 : 0))
+                    .rotation(Angle(degrees: isExpanded ? 0 : 180))
                     .fill(colorNearBlack)
                     .frame(width: 9, height: 6)
             }
@@ -126,7 +126,7 @@ struct ConfigInfoBlock: View {
                     .foregroundColor(colorNearBlack)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
-                    .rotation(Angle(degrees: isExpanded ? 0 : 180))
+                    .rotation(Angle(degrees: isExpanded ? 180 : 0))
                     .fill(colorNearBlack)
                     .frame(width: 9, height: 6)
             }
