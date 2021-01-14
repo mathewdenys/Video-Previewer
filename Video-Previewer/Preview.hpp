@@ -136,6 +136,12 @@ public:
         if (fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
             fs::remove("media/.videopreview");
     }
+    
+    // Temporary function to test passing a cv::Mat to Swift
+    cv::Mat getFirstFrame()
+    {
+        return frames.at(0).getData();
+    }
 
 private:
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
