@@ -70,7 +70,7 @@ struct Triangle: Shape {
     }
 }
 
-struct InfoFrame: View {
+struct InfoBlock: View {
     var title: String;
     var info:  [InfoPair];
     
@@ -101,18 +101,59 @@ struct InfoFrame: View {
     }
 }
 
+
+// TODO: Make ConfigInfoBlock "extend" InfoBlock?
+struct ConfigInfoBlock: View {
+    var title: String;
+    var info:  [InfoPair];
+    
+    @State private var isExpanded = true;
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text(title)
+                    .fontWeight(.bold)
+                    .foregroundColor(colorNearBlack)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Triangle()
+                    .rotation(Angle(degrees: isExpanded ? 0 : 180))
+                    .fill(colorNearBlack)
+                    .frame(width: 9, height: 6)
+            }
+            .padding(.horizontal)
+            .onTapGesture { isExpanded = !isExpanded; }
+            
+            if isExpanded {
+                ForEach(info) { i in InfoRow(info: i) }
+                    .padding(.horizontal, 30.0)
+                    .padding(.vertical, 5.0)
+                //List(info) { i in InfoRow(info: i) }
+                HStack(alignment: .center) {
+                    Button("Save", action: doNothing)
+                    Button("Export", action: doNothing)
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+}
+
+func doNothing() { }
+
 struct SidePanel: View {
     var body: some View {
         HStack(spacing:0) {
             Divider()
             
             VStack(alignment: .leading) {
-                InfoFrame(title: "Video Information",     info: testInfo1)
+                InfoBlock(title: "Video Information",     info: testInfo1)
                 Divider()
-                InfoFrame(title: "Frame Information",     info: testInfo2)
-                Divider()
-                InfoFrame(title: "Configuration Options", info: testInfo3)
+                InfoBlock(title: "Frame Information",     info: testInfo2)
                 Spacer()
+                Divider()
+                ConfigInfoBlock(title: "Configuration Options", info: testInfo3)
+                
             }
             .padding(.vertical, 10.0)
         }
