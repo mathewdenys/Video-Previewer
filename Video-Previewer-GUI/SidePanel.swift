@@ -40,9 +40,10 @@ struct InfoRow: View {
         HStack {
             Text(id)
                 .foregroundColor(Color.gray)
-            
+                .frame(maxWidth: 50, alignment: .trailing)
             Text(value)
                 .foregroundColor(Color.black)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     
@@ -59,9 +60,13 @@ struct InfoFrame: View {
     var body: some View {
         VStack {
             Text(title)
-                .font(.headline)
-                .multilineTextAlignment(.leading)
-            List(info) { i in InfoRow(info: i) }
+                .fontWeight(.bold)
+                .padding(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            ForEach(info) { i in InfoRow(info: i) }
+                .padding(.horizontal, 30.0)
+                .padding(.vertical, 5.0)
+            //List(info) { i in InfoRow(info: i) }
         }
     }
     
@@ -69,12 +74,20 @@ struct InfoFrame: View {
 
 struct SidePanel: View {
     var body: some View {
-        VStack(alignment: .leading) {
-            InfoFrame(title: "Video Information",     info: testInfo1)
-            InfoFrame(title: "Frame Information",     info: testInfo2)
-            Spacer()
-            InfoFrame(title: "Configuration Options", info: testInfo3)
+        HStack(spacing:0) {
+            Divider()
+            
+            VStack(alignment: .leading) {
+                InfoFrame(title: "Video Information",     info: testInfo1)
+                Divider()
+                InfoFrame(title: "Frame Information",     info: testInfo2)
+                Spacer()
+                Divider()
+                InfoFrame(title: "Configuration Options", info: testInfo3)
+            }
+            .padding(.vertical, 10.0)
         }
+        
     }
 }
 
