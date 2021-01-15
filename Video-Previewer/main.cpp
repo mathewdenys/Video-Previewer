@@ -14,6 +14,10 @@ int main( int argc, char** argv )
             std::cerr << "Ignoring additional arguments.\n";
 
         VideoPreview vidprev(argv[1]);                     // argv[1] is the input video file path
+        vidprev.loadConfig();
+        vidprev.loadVideo();
+        vidprev.updatePreview();
+        
         ConfigOption updatedOption{"number_of_frames",2};
         vidprev.setOption(updatedOption);
         //vidprev.saveOption(vidprev.getOption("number_of_frames"), "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");

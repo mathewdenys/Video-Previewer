@@ -366,7 +366,8 @@ using ConfigFilePtr = std::shared_ptr<ConfigFile>;
 class ConfigOptionsHandler
 {
 public:
-    ConfigOptionsHandler(const string& videoPath);
+    ConfigOptionsHandler() {};                     // Default constructor
+    ConfigOptionsHandler(const string& videoPath); // Contructor that loads the configuration options
 
     vector<ConfigFilePtr>&     getConfigFiles()                        { return configFiles; }
     const ConfigOptionVector&  getOptions()                            { return configOptions; }
@@ -388,6 +389,9 @@ public:
     }
 
 private:
+    // Load each relevant configuration file, and push a corresponding ConfigFilePtr to configFiles
+    void loadOptions(const string& videoPath);
+    
     // Merge the valid [invalid] ConfigOptionVectors stored in each ConfigFilePtr in the configFiles vector into
     // a single ConfigOptionVector, which overwrites configOptions [invalidConfigOptions]
     void mergeOptions();

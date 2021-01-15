@@ -61,6 +61,8 @@ private:
 class Video
 {
 public:
+    Video() {};
+    
     Video(const string& path) : vc{ path }
     {
         if (!vc.isOpened())
@@ -96,14 +98,10 @@ private:
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn) :
-        videoPath{ videoPathIn },
-        video{ videoPathIn },
-        optionsHandler{ videoPathIn }
-    {
-        determineExportPath();
-        updatePreview();
-    }
+    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath(); }
+    
+    void loadVideo() { video = Video(videoPath); }
+    void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath}; }
 
     // Everything that needs to be run in order to update the actual video preview that the user sees
     // To be run on start-up and whenever configuration options are changed
