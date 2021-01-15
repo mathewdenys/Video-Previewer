@@ -12,6 +12,8 @@ let testString = test?.getString()
 
 var vp = VideoPreviewWrapper("/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/sunrise.mov") // Unable to access any files outside fo the container (?)
 
+
+
 struct ContentView: View {
     var body: some View {
         
@@ -19,9 +21,9 @@ struct ContentView: View {
 
             Text(testString ?? "fail")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
-                .resizable()
-                .frame(width: 200.0, height: 200.0)
+//            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
+//                .resizable()
+//                .frame(width: 200.0, height: 200.0)
                 
             SidePanel()
         }

@@ -38,6 +38,11 @@
     return self;
 }
 
+- (void) loadConfig { vp->loadConfig(); }
+
+- (void) loadVideo  { vp->loadVideo();  }
+
+
 - (NSImage*) getFirstFrame {
     Mat cvMat { vp->getFirstFrame() };
     NSData* data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];

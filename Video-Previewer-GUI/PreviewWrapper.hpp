@@ -23,6 +23,8 @@
 @interface VideoPreviewWrapper : NSObject
 
 - (instancetype) init:(NSString*)filePath;
+- (void)         loadConfig;
+- (void)         loadVideo;
 - (NSImage*)     getFirstFrame;
 
 @end
