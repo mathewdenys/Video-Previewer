@@ -9,6 +9,7 @@
 #define PreviewWrapper_h
 
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 
 @interface TestWrapper : NSObject
 
@@ -22,6 +23,10 @@
 @interface VideoPreviewWrapper : NSObject
 
 - (instancetype) init:(NSString*)filePath;
+- (void)         loadConfig;
+- (void)         loadVideo;
+- (void)         updatePreview;
+- (NSImage*)     getFirstFrame;
 
 @end
 

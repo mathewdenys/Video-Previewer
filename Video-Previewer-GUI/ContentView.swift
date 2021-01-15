@@ -10,7 +10,10 @@ import SwiftUI
 let test = TestWrapper()
 let testString = test?.getString()
 
+
 struct ContentView: View {
+    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    
     var body: some View {
         
         HStack(spacing:0) {
@@ -18,6 +21,12 @@ struct ContentView: View {
             SidePanel()
                 .frame(minWidth: 200, maxWidth: 250)
         }
+    }
+    
+    init() {
+        vp?.loadConfig()
+        vp?.loadVideo()
+        vp?.updatePreview()
     }
     
 }

@@ -138,23 +138,7 @@ ConfigOptionPtr ConfigFile::makeOptionFromStrings(const idValPair& inputPair)
 
 ConfigOptionsHandler::ConfigOptionsHandler(const string& videoPath)
 {
-    // Remove the name of the video file from videoPath, to isolate the directory it is in
-    string localDir = videoPath.substr(0,videoPath.find_last_of("\\/"));
-    string localConfigFilePath;
-
-    // Scan through all directories between that containing the video and the user home
-    //  directory (or the root directory if the user home directory isn't in the hierarchy)
-    while ( localDir.length() > 0 && localDir != std::getenv("HOME") )
-    {
-        localConfigFilePath = localDir + "/.videopreviewconfig";
-        if (fs::exists(localConfigFilePath))
-            configFiles.push_back( std::make_shared<ConfigFile>(localConfigFilePath) );                           // Load local config files
-        localDir = localDir.substr(0,localDir.find_last_of("\\/"));
-    }
-
-    configFiles.push_back( std::make_shared<ConfigFile>(string(std::getenv("HOME")) + "/.config/videopreview") ); // Load user config file
-    configFiles.push_back( std::make_shared<ConfigFile>("/etc/videopreviewconfig") );                             // Load global config file
-
+    loadOptions(videoPath);
     mergeOptions();
 }
 
@@ -222,6 +206,26 @@ void ConfigOptionsHandler::saveOptions(ConfigOptionVector optionsToSave, const C
     // Move contents of tempFilePath to filePath and delete tempFilePath
     fs::remove(filePath);
     fs::rename(tempFilePath, filePath);
+}
+
+void ConfigOptionsHandler::loadOptions(const string& videoPath)
+{
+    // Remove the name of the video file from videoPath, to isolate the directory it is in
+    string localDir = videoPath.substr(0,videoPath.find_last_of("\\/"));
+    string localConfigFilePath;
+
+    // Scan through all directories between that containing the video and the user home
+    //  directory (or the root directory if the user home directory isn't in the hierarchy)
+    while ( localDir.length() > 0 && localDir != std::getenv("HOME") )
+    {
+        localConfigFilePath = localDir + "/.videopreviewconfig";
+        if (fs::exists(localConfigFilePath))
+            configFiles.push_back( std::make_shared<ConfigFile>(localConfigFilePath) );                           // Load local config files
+        localDir = localDir.substr(0,localDir.find_last_of("\\/"));
+    }
+
+    configFiles.push_back( std::make_shared<ConfigFile>(string(std::getenv("HOME")) + "/.config/videopreview") ); // Load user config file
+    configFiles.push_back( std::make_shared<ConfigFile>("/etc/videopreviewconfig") );                             // Load global config file
 }
 
 void ConfigOptionsHandler::mergeOptions()

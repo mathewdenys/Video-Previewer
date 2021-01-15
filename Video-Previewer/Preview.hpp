@@ -61,6 +61,8 @@ private:
 class Video
 {
 public:
+    Video() {};
+    
     Video(const string& path) : vc{ path }
     {
         if (!vc.isOpened())
@@ -96,14 +98,10 @@ private:
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn) :
-        videoPath{ videoPathIn },
-        video{ videoPathIn },
-        optionsHandler{ videoPathIn }
-    {
-        determineExportPath();
-        updatePreview();
-    }
+    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath(); }
+    
+    void loadVideo() { video = Video(videoPath); }
+    void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath}; }
 
     // Everything that needs to be run in order to update the actual video preview that the user sees
     // To be run on start-up and whenever configuration options are changed
@@ -135,6 +133,12 @@ public:
         fs::remove_all(exportDir.erase(exportDir.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportDir)
         if (fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
             fs::remove("media/.videopreview");
+    }
+    
+    // Temporary function to test passing a cv::Mat to Swift
+    cv::Mat getFirstFrame()
+    {
+        return frames.at(0).getData();
     }
 
 private:
