@@ -38,10 +38,9 @@
     return self;
 }
 
-- (void) loadConfig { vp->loadConfig(); }
-
-- (void) loadVideo  { vp->loadVideo();  }
-
+- (void) loadConfig    { vp->loadConfig(); }
+- (void) loadVideo     { vp->loadVideo();  }
+- (void) updatePreview { vp->updatePreview(); }
 
 - (NSImage*) getFirstFrame {
     Mat cvMat { vp->getFirstFrame() };

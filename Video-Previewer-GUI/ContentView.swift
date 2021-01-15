@@ -10,25 +10,27 @@ import SwiftUI
 let test = TestWrapper()
 let testString = test?.getString()
 
-var vp = VideoPreviewWrapper("/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/sunrise.mov") // Unable to access any files outside fo the container (?)
-
-
 
 struct ContentView: View {
+    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    
     var body: some View {
         
-        HStack {
-
-            Text(testString ?? "fail")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
-//                .resizable()
-//                .frame(width: 200.0, height: 200.0)
+        HStack(spacing: 0) {
+            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
+                .resizable()
+                .frame(width: 200.0, height: 200.0)
                 
             SidePanel()
         }
-        
     }
+    
+    init() {
+        vp?.loadConfig()
+        vp?.loadVideo()
+        vp?.updatePreview()
+    }
+    
 }
 
 
