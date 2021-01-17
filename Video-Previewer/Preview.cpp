@@ -39,7 +39,6 @@ void VideoPreview::updatePreview()
     if (configOptionHasBeenChanged("number_of_frames"))
     {
         makeFrames();
-        exportFrames();
 
         // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
         // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos

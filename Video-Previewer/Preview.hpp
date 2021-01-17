@@ -36,16 +36,6 @@ public:
     int getFrameNumber() const { return frameNumber; }
     Mat getData()        const { return data; }
 
-    // Export a bitmap (.bmp) of the frame.
-    // The file will be saved in the directeory determined by `exportDir`.
-    // Naming of the individual images is taken care of internally.
-    void exportBitmap(string& exportPath)
-    {
-        string fileName = exportPath + "frame" + std::to_string(getFrameNumber()+1) + ".bmp"; // Add 1 to account for zero indexing
-        cout << '\t' << fileName << '\n';
-        cv::imwrite(fileName, getData());
-    }
-
 private:
     Mat data;
     int frameNumber;
@@ -146,15 +136,6 @@ private:
 
     // Read in appropriate configuration options and write over the `frames` vector
     void makeFrames();
-
-    // Exports all frames in the `frames` vector as bitmaps
-    void exportFrames()
-    {
-        fs::create_directories(exportDir); // Make the export directory (and intermediate direcories) if it doesn't exist
-        cout << "Exporting frame bitmaps\n";
-        for (Frame& frame : frames)
-            frame.exportBitmap(exportDir);
-    }
 
     // Exports a "preview video" for each frame in the `frames` vector
     void exportPreviewVideos();
