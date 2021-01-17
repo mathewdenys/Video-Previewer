@@ -26,7 +26,8 @@
 - (void)         loadConfig;
 - (void)         loadVideo;
 - (void)         updatePreview;
-- (NSImage*)     getFirstFrame;
+
+- (NSArray<NSImage*>*) getFrames;
 
 @end
 

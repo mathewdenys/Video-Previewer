@@ -42,42 +42,54 @@
 - (void) loadVideo     { vp->loadVideo();  }
 - (void) updatePreview { vp->updatePreview(); }
 
-- (NSImage*) getFirstFrame {
-    Mat cvMat { vp->getFirstFrame() };
-    NSData* data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
-    CGColorSpaceRef colorSpace;
+- (NSArray<NSImage*>*) getFrames {
+    vector<Frame> frames = vp->getFrames();
+    
+    NSMutableArray* images = [NSMutableArray new];
+    
+    Mat cvMatRGB;
+    for (auto frame: frames)
+    {
+        Mat cvMatBGR { frame.getData()};
+        cv::cvtColor(cvMatBGR, cvMatRGB, cv::COLOR_RGB2BGR);
+        
+        NSData* data = [NSData dataWithBytes:cvMatRGB.data length:cvMatRGB.elemSize()*cvMatRGB.total()];
+        CGColorSpaceRef colorSpace;
 
-      if (cvMat.elemSize() == 1) {
-          colorSpace = CGColorSpaceCreateDeviceGray();
-      } else {
-          colorSpace = CGColorSpaceCreateDeviceRGB();
-      }
+          if (cvMatRGB.elemSize() == 1) {
+              colorSpace = CGColorSpaceCreateDeviceGray();
+          } else {
+              colorSpace = CGColorSpaceCreateDeviceRGB();
+          }
 
-      CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+          CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
 
-      // Creating CGImage from cv::Mat
-      CGImageRef imageRef = CGImageCreate(cvMat.cols,                                //width
-                                         cvMat.rows,                                 //height
-                                         8,                                          //bits per component
-                                         8 * cvMat.elemSize(),                       //bits per pixel
-                                         cvMat.step[0],                              //bytesPerRow
-                                         colorSpace,                                 //colorspace
-                                         kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
-                                         provider,                                   //CGDataProviderRef
-                                         NULL,                                       //decode
-                                         false,                                      //should interpolate
-                                         kCGRenderingIntentDefault                   //intent
-                                         );
+          // Creating CGImage from cv::Mat
+          CGImageRef imageRef = CGImageCreate(cvMatRGB.cols,                             //width
+                                             cvMatRGB.rows,                              //height
+                                             8,                                          //bits per component
+                                             8 * cvMatRGB.elemSize(),                    //bits per pixel
+                                             cvMatRGB.step[0],                           //bytesPerRow
+                                             colorSpace,                                 //colorspace
+                                             kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
+                                             provider,                                   //CGDataProviderRef
+                                             NULL,                                       //decode
+                                             false,                                      //should interpolate
+                                             kCGRenderingIntentDefault                   //intent
+                                             );
 
-        NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
-        NSImage *image = [[NSImage alloc] init];
-        [image addRepresentation:bitmapRep];
+            NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
+            NSImage *image = [[NSImage alloc] init];
+            [image addRepresentation:bitmapRep];
 
-        CGImageRelease(imageRef);
-        CGDataProviderRelease(provider);
-        CGColorSpaceRelease(colorSpace);
-
-        return image;
+            CGImageRelease(imageRef);
+            CGDataProviderRelease(provider);
+            CGColorSpaceRelease(colorSpace);
+        
+        [images addObject: image];
+        
+    }
+    return images;
 }
 
 @end

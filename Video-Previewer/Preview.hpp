@@ -136,14 +136,7 @@ public:
             fs::remove("media/.videopreview");
     }
     
-    // Temporary function to test passing a cv::Mat to Swift
-    Mat getFirstFrame()
-    {
-        Mat BGRframe {frames.at(0).getData()};
-        Mat RGBframe;
-        cv::cvtColor(BGRframe, RGBframe, cv::COLOR_RGB2BGR); // Return as RGB, not BGR
-        return RGBframe;
-    }
+    vector<Frame> getFrames() { return frames; }
 
 private:
     // Parse `videopath` in order to determine the directory to which temporary files should be stored

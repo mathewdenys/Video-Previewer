@@ -23,26 +23,12 @@ struct FramePreview: View {
 struct VideoPreview: View {
     
     var vp: VideoPreviewWrapper
+    var frames: [NSImage]
     
     var body: some View {
         VStack{
             HStack(spacing:0) {
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-            }
-            HStack(spacing:0) {
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-            }
-            HStack(spacing:0) {
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                ForEach(frames, id: \.self) { f in FramePreview(image: f) }
             }
         }
     }
@@ -52,6 +38,8 @@ struct VideoPreview: View {
         self.vp.loadConfig()
         self.vp.loadVideo()
         self.vp.updatePreview()
+        
+        frames = vp.getFrames()
     }
 }
 
