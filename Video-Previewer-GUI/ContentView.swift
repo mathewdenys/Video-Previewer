@@ -17,7 +17,12 @@ struct ContentView: View {
     var body: some View {
         
         HStack(spacing:0) {
-            PreviewPane()
+            //PreviewPane()
+            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 200.0)
+            
             SidePanel()
                 .frame(minWidth: 200, maxWidth: 250)
         }

@@ -10,6 +10,7 @@
 
 #include <opencv2/core/mat.hpp>  // for basic OpenCV structures (Mat, Scalar)
 #include <opencv2/imgcodecs.hpp> // for reading and writing
+#include <opencv2/imgproc.hpp>   // for cv::cvtColor()
 #include <opencv2/videoio.hpp>
 
 #if defined(__has_warning)
@@ -136,9 +137,12 @@ public:
     }
     
     // Temporary function to test passing a cv::Mat to Swift
-    cv::Mat getFirstFrame()
+    Mat getFirstFrame()
     {
-        return frames.at(0).getData();
+        Mat BGRframe {frames.at(0).getData()};
+        Mat RGBframe;
+        cv::cvtColor(BGRframe, RGBframe, cv::COLOR_RGB2BGR); // Return as RGB, not BGR
+        return RGBframe;
     }
 
 private:
