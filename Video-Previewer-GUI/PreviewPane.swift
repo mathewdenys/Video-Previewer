@@ -22,46 +22,50 @@ struct FramePreview: View {
 
 struct VideoPreview: View {
     
-    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    var vp: VideoPreviewWrapper
     
     var body: some View {
         VStack{
             HStack(spacing:0) {
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
             }
             HStack(spacing:0) {
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
             }
             HStack(spacing:0) {
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
-                FramePreview(image: vp?.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
+                FramePreview(image: vp.getFirstFrame() ?? NSImage())
             }
         }
     }
     
-    init() {
-        vp?.loadConfig()
-        vp?.loadVideo()
-        vp?.updatePreview()
+    init(vp: VideoPreviewWrapper) {
+        self.vp = vp
+        self.vp.loadConfig()
+        self.vp.loadVideo()
+        self.vp.updatePreview()
     }
 }
 
 
 
 struct PreviewPane: View {
+    
+    var vp: VideoPreviewWrapper
+    
     var body: some View {
         ZStack {
             Color(red: 0.98, green: 0.98, blue: 0.98, opacity: 1.0).edgesIgnoringSafeArea(.all)
             VStack {
-                VideoPreview()
+                VideoPreview(vp: self.vp)
                 Spacer()
             }
             .padding(.all)
@@ -71,6 +75,6 @@ struct PreviewPane: View {
 
 struct PreviewPane_Previews: PreviewProvider {
     static var previews: some View {
-        PreviewPane()
+        PreviewPane(vp: VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov"))
     }
 }

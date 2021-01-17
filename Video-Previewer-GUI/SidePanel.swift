@@ -197,6 +197,9 @@ struct ConfigInfoBlock: View {
 func doNothing() { }
 
 struct SidePanel: View {
+    
+    var vp: VideoPreviewWrapper
+    
     var body: some View {
         HStack(spacing:0) {
             Divider()
@@ -223,7 +226,7 @@ struct SidePanel: View {
 
 struct SidePanel_Previews: PreviewProvider {
     static var previews: some View {
-        SidePanel()
+        SidePanel(vp: VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov"))
             .frame(minWidth: 200, maxWidth: 250) // copy from ContentView.swift
     }
 }
