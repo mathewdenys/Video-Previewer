@@ -144,12 +144,14 @@ void VideoPreview::makeFrames()
 {
     int totalFrames = video.numberOfFrames();
     int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value() };
-    int frameSampling = totalFrames/NFrames + 1;
+    int frameSampling = totalFrames/NFrames;
 
     frames.clear();
     int i  = 0;
     for (int frameNumber = 0; frameNumber < totalFrames; frameNumber += frameSampling)
     {
+        if (i == NFrames) // In some cases the frame sampling will be such that one extra frame is selected, so we ignore this final frame
+            break;
         Mat currentFrameMat;
         video.setFrameNumber(frameNumber);
         video.writeCurrentFrame(currentFrameMat);
