@@ -20,15 +20,28 @@ struct FramePreview: View {
     }
 }
 
+
 struct VideoPreview: View {
     
     var vp: VideoPreviewWrapper
-    var frames: [NSImage]
+    var frames: [NSImage?]
+    var rows, cols: Int
     
     var body: some View {
-        VStack{
-            HStack(spacing:0) {
-                ForEach(frames, id: \.self) { f in FramePreview(image: f) }
+        VStack(alignment:.leading){
+            ForEach(0..<rows) { i in
+                HStack(spacing: 0) {
+                    ForEach(0..<cols) { j in
+                        let index = i*cols + j
+                        if (index < frames.count)
+                        {
+                            Image(nsImage: frames[i*cols+j] ?? NSImage())
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 200.0)
+                        }
+                    }
+                }
             }
         }
     }
@@ -40,6 +53,8 @@ struct VideoPreview: View {
         self.vp.updatePreview()
         
         frames = vp.getFrames()
+        cols = 5 // TODO: hard coded for now, but eventually this will be adaptive to the window size
+        rows = (frames.count / cols) + 1
     }
 }
 
