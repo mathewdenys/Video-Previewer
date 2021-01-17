@@ -183,12 +183,4 @@ private:
     vector<Frame>        frames;                      // Vector of each Frame in the preview
 };
 
-// Temporary class for testing C++ - Swfit interoperabililty
-class Test
-{
-public:
-    string getString() { return "String from C++"; }
-};
-
-
 #endif /* Preview_hpp */

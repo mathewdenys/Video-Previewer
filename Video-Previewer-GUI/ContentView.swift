@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-let test = TestWrapper()
-let testString = test?.getString()
-
 
 struct ContentView: View {
     

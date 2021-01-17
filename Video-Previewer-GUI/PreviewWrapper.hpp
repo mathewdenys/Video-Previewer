@@ -11,15 +11,6 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
-@interface TestWrapper : NSObject
-
-- (instancetype) init;
-- (NSString*)    getString;
-
-@end
-
-
-
 @interface VideoPreviewWrapper : NSObject
 
 - (instancetype) init:(NSString*)filePath;
