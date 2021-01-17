@@ -12,28 +12,13 @@ let testString = test?.getString()
 
 
 struct ContentView: View {
-    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
-    
     var body: some View {
-        
         HStack(spacing:0) {
-            //PreviewPane()
-            Image(nsImage: vp?.getFirstFrame() ?? NSImage())
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200.0)
-            
+            PreviewPane()
             SidePanel()
                 .frame(minWidth: 200, maxWidth: 250)
         }
     }
-    
-    init() {
-        vp?.loadConfig()
-        vp?.loadVideo()
-        vp?.updatePreview()
-    }
-    
 }
 
 
