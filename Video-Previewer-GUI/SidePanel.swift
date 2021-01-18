@@ -89,7 +89,7 @@ struct InfoRow: View, Identifiable {
         HStack(alignment: .top) {
             Text(id)
                 .foregroundColor(Color.gray)
-                .frame(maxWidth: 80, alignment: .trailing)
+                .frame(maxWidth: 120, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
                 .foregroundColor(colorNearBlack)
@@ -153,7 +153,7 @@ struct InfoBlock: View {
 // TODO: Make ConfigInfoBlock "extend" InfoBlock?
 struct ConfigInfoBlock: View {
     var title: String;
-    var info:  [InfoPair];
+    var vp:    VideoPreviewWrapper;
     
     @State private var isExpanded = true;
     
@@ -174,10 +174,13 @@ struct ConfigInfoBlock: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(info) { i in InfoRow(info: i) }
+                ForEach(vp.getOptionInformation(), id: \.self){ option in
+                    InfoRow(info: InfoPair(id: option.getID(),
+                            value: vp.getOptionValueString(option.getID()),
+                            tooltip: option.getDescription()))
+                    }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
-                //List(info) { i in InfoRow(info: i) }
                 HStack(alignment: .center) {
                     Button("Save", action: doNothing)
                     Button("Export", action: doNothing)
@@ -206,21 +209,13 @@ struct SidePanel: View {
                         InfoBlock(title: "Frame Information",     info: testInfo2)
                         Spacer()
                         Divider()
-                        ConfigInfoBlock(title: "Configuration Options", info:
-                            [
-                                InfoPair(id: "Frames",     value: vp.getOptionValueString("number_of_frames"), tooltip: vp.getOptionDescription("number_of_frames") ),
-                                InfoPair(id: "Frame info", value: vp.getOptionValueString("show_frame_info"),  tooltip: vp.getOptionDescription("show_frame_info")  ),
-                                InfoPair(id: "Hover",      value: vp.getOptionValueString("action_on_hover"),  tooltip: vp.getOptionDescription("action_on_hover")  ),
-                            ]
-                        )
+                        ConfigInfoBlock(title: "Configuration Options", vp: self.vp)
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
                 }.hideIndicators()
             }
-
         }
-        
     }
 }
 

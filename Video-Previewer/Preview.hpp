@@ -118,6 +118,8 @@ public:
         cout << "Current configuration options:\n";
         optionsHandler.print();
     }
+    
+    const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }
 
     ~VideoPreview()
     {

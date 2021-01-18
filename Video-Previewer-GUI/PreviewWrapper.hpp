@@ -11,6 +11,15 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+@interface OptionInformation : NSObject
+
+- (instancetype) initWithID:(NSString*)optionID initWithDescription:(NSString*)description;
+- (NSString*)    getID;
+- (NSString*)    getDescription;
+
+@end
+
+
 @interface VideoPreviewWrapper : NSObject
 
 - (instancetype) init:(NSString*)filePath;
@@ -21,7 +30,7 @@
 - (NSArray<NSImage*>*) getFrames;
 
 - (NSString*) getOptionValueString:(NSString*)optionID;
-- (NSString*) getOptionDescription:(NSString*)optionID;
+- (NSArray<OptionInformation*>*) getOptionInformation;
 
 @end
 

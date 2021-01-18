@@ -5,6 +5,7 @@
    ----------------------------------------------------------------------------------------------------*/
 
 // A map from each optionID that the program recognisesto an associated OptionInformation object
+// The order here determines the order the configuration options are displayed in the GUI
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"number_of_frames", OptionInformation("Number of frames to show",                 ValidOptionValue::ePositiveInteger        )},
     {"show_frame_info",  OptionInformation("Show individual frame information",        ValidOptionValue::eBoolean                )},

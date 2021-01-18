@@ -226,13 +226,13 @@ private:
     };
 
 private:
-    using OptionInformationMap = std::unordered_map<string,OptionInformation>;
-    
     string         optionID      {};      // The id / name of the option
     ConfigValuePtr optionValue   {};      // The value of the option
     bool           hasValidID    = false; // Default to having an unrecognised ID. Is changed in the constructor if needed
     bool           hasValidValue = false; // Default to having an invalid value. Is changed in the contructor if needed
     
+public:
+    using OptionInformationMap = std::unordered_map<string,OptionInformation>;    
     const static OptionInformationMap recognisedOptionInfo; // A map from each optionID that the program recognisesto an associated OptionInformation object
 };
 

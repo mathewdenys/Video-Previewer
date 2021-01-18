@@ -9,6 +9,30 @@
 #include "Preview.hpp"
 
 
+@implementation OptionInformation {
+@private
+    NSString *optionID;
+    NSString *description;
+}
+
+- (OptionInformation*) initWithID:(NSString*)optionID initWithDescription:(NSString*)description{
+    self->optionID = optionID;
+    self->description = description;
+    return self;
+}
+
+- (NSString*) getID {
+    return optionID;
+}
+
+- (NSString*) getDescription {
+    return description;
+}
+
+@end
+
+
+
 @implementation VideoPreviewWrapper {
 @private
     std::shared_ptr<VideoPreview> vp;
@@ -82,11 +106,19 @@
     return [NSString stringWithUTF8String:option->getValueAsString().c_str()];
 }
 
-- (NSString*) getOptionDescription:(NSString*)optionID {
-    ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
-    if (!option)
-        return @"";
-    return [NSString stringWithUTF8String:option->getDescription().c_str()];
+- (NSArray<OptionInformation*>*) getOptionInformation {
+    ConfigOption::OptionInformationMap oim = vp->getRecognisedOptionInformation();
+    
+    NSMutableArray* options = [NSMutableArray new];
+    
+    for (auto opt: oim)
+    {
+        NSString* i = [NSString stringWithUTF8String:(opt.first).c_str()];
+        NSString* d = [NSString stringWithUTF8String:(opt.second.getDescription()).c_str()];
+        [options addObject: [[OptionInformation alloc] initWithID: i initWithDescription: d] ];
+    }
+    
+    return options;
 }
 
 @end
