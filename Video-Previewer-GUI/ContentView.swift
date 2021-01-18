@@ -19,7 +19,7 @@ struct ContentView: View {
         HStack(spacing:0) {
             PreviewPaneView(vp: self.vp!)
             SidePanelView(vp: self.vp!)
-                .frame(minWidth: 250, maxWidth: 300)
+                .frame(maxWidth: 300)
         }
     }
 }

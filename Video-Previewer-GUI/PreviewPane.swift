@@ -25,44 +25,31 @@ struct FramePreviewView: View {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - VideoPreviewView
+    MARK: - FrameTableView
    ----------------------------------------------------------------------------------------------------*/
 
-struct VideoPreviewView: View {
-    let vp: VideoPreviewWrapper
-    var frames: [NSImage?]
-    var rows, cols: Int
+struct FrameTableView: View {
+    let cols: Int
+    let rows: Int
+    var frames:  [NSImage?]
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView() {
-                VStack(alignment:.leading){
-                    ForEach(0..<rows) { i in
-                        HStack(spacing: 0) {
-                            ForEach(0..<cols) { j in
-                                let index = i*cols + j
-                                if (index < frames.count)
-                                {
-                                    FramePreviewView(image: frames[i*cols+j] ?? NSImage())
-                                }
+        ScrollView() {
+            VStack(alignment:.leading){
+                ForEach(0..<rows, id: \.self) { i in
+                    HStack(spacing: 0) {
+                        ForEach(0..<cols, id: \.self) { j in
+                            let index = i*cols + j
+                            if (index < frames.count)
+                            {
+                                FramePreviewView(image: frames[i*cols+j] ?? NSImage())
                             }
-                            Spacer()
                         }
+                        Spacer()
                     }
                 }
             }
         }
-    }
-    
-    init(vp: VideoPreviewWrapper) {
-        self.vp = vp
-        self.vp.loadConfig()
-        self.vp.loadVideo()
-        self.vp.updatePreview()
-        
-        frames = vp.getFrames()
-        cols   = 5                            // TODO: make this will be adaptive to the window size
-        rows   = (frames.count / cols) + 1
     }
 }
 
@@ -73,15 +60,30 @@ struct VideoPreviewView: View {
 
 struct PreviewPaneView: View {
     let vp: VideoPreviewWrapper
+    var frames: [NSImage?]
     
     var body: some View {
         ZStack {
             Color(red: 0.98, green: 0.98, blue: 0.98, opacity: 1.0).edgesIgnoringSafeArea(.all)
             VStack {
-                VideoPreviewView(vp: self.vp)
+                GeometryReader { geometry in
+                    let c = Int(floor(geometry.size.width / 200))
+                    let r = (frames.count / c) + 1
+                    
+                    FrameTableView(cols: c, rows: r, frames: self.frames)
+                }
                 Spacer()
             }.padding(.all)
         }
+    }
+    
+    init(vp: VideoPreviewWrapper) {
+        self.vp = vp
+        self.vp.loadConfig()
+        self.vp.loadVideo()
+        self.vp.updatePreview()
+        
+        frames = vp.getFrames()
     }
 }
 
