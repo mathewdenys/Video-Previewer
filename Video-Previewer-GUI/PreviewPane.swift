@@ -50,7 +50,7 @@ struct VideoPreviewView: View {
                         }
                     }
                 }
-            }.hideIndicators()
+            }
         }
     }
     
