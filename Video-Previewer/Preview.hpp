@@ -121,18 +121,14 @@ public:
     
     string getVideoNameString()        { return videoPath; }
     string getVideoNumOfFramesString() { return std::to_string(video.getNumberOfFrames()); }
+    string getVideoWidthString()       { return std::to_string(video.getDimensions().width);  }
+    string getVideoHeightString()      { return std::to_string(video.getDimensions().height); }
     
     string getVideoFPSString()
     {
         std::stringstream ss;
         ss << video.getFPS() << " fps";
         return ss.str();
-    }
-    
-    string getVideoDimensionsString()
-    {
-        cv::Size size { video.getDimensions() };
-        return std::to_string(size.width) + "x" + std::to_string(size.height);
     }
     
     string getVideoCodecString()

@@ -33,7 +33,8 @@
 - (NSString*)                    getVideoFPSString;
 - (NSString*)                    getVideoLengthString;
 - (NSString*)                    getVideoNumOfFramesString;
-- (NSString*)                    getVideoDimensionsString;
+- (NSString*)                    getVideoWidthString;
+- (NSString*)                    getVideoHeightString;
 
 // Getter functions for the configuration options
 - (NSString*)                    getOptionValueString:(NSString*)optionID; // Returns a string corresponding to the value of the option corresponding to optionID

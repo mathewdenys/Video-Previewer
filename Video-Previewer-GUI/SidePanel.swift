@@ -226,7 +226,7 @@ struct SidePanelView: View {
                                 InfoPair(id: "Frame rate",  value: vp.getVideoFPSString()),
                                 InfoPair(id: "Length",      value: vp.getVideoLengthString()),
                                 InfoPair(id: "# of frames", value: vp.getVideoNumOfFramesString()),
-                                InfoPair(id: "Dimensions",  value: vp.getVideoDimensionsString()),
+                                InfoPair(id: "Dimensions",  value: vp.getVideoWidthString() + "\u{00d7}" + vp.getVideoHeightString()),
                             ]
                         )
                         Divider()

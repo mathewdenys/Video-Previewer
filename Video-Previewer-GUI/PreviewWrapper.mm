@@ -107,7 +107,8 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 - (NSString*) getVideoNameString        { return [NSString fromString:vp->getVideoNameString()       ]; }
 - (NSString*) getVideoFPSString         { return [NSString fromString:vp->getVideoFPSString()        ]; }
-- (NSString*) getVideoDimensionsString  { return [NSString fromString:vp->getVideoDimensionsString() ]; }
+- (NSString*) getVideoWidthString       { return [NSString fromString:vp->getVideoWidthString()      ]; }
+- (NSString*) getVideoHeightString      { return [NSString fromString:vp->getVideoHeightString()     ]; }
 - (NSString*) getVideoNumOfFramesString { return [NSString fromString:vp->getVideoNumOfFramesString()]; }
 - (NSString*) getVideoCodecString       { return [NSString fromString:vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromString:vp->getVideoLengthString()     ]; }
