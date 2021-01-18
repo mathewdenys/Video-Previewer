@@ -28,21 +28,25 @@ struct VideoPreview: View {
     var rows, cols: Int
     
     var body: some View {
-        VStack(alignment:.leading){
-            ForEach(0..<rows) { i in
-                HStack(spacing: 0) {
-                    ForEach(0..<cols) { j in
-                        let index = i*cols + j
-                        if (index < frames.count)
-                        {
-                            Image(nsImage: frames[i*cols+j] ?? NSImage())
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 200.0)
+        GeometryReader { geometry in
+            ScrollView() {
+                VStack(alignment:.leading){
+                    ForEach(0..<rows) { i in
+                        HStack(spacing: 0) {
+                            ForEach(0..<cols) { j in
+                                let index = i*cols + j
+                                if (index < frames.count)
+                                {
+                                    Image(nsImage: frames[i*cols+j] ?? NSImage())
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 200.0)
+                                }
+                            }
                         }
                     }
                 }
-            }
+            }.hideIndicators()
         }
     }
     
