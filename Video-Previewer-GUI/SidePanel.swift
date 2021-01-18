@@ -216,7 +216,7 @@ struct SidePanel: View {
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
-                }
+                }.hideIndicators()
             }
 
         }
