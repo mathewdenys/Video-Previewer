@@ -7,7 +7,7 @@
 void Video::exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
 {
     string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
-    cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getFrameSize());
+    cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getDimensions());
     setFrameNumber(frameBegin);
 
     cout << '\t' << fileName << '\n';

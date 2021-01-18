@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mp4")
     
     var body: some View {
         HStack(spacing:0) {

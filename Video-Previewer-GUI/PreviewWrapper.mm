@@ -121,4 +121,12 @@
     return options;
 }
 
+
+- (NSString*) getVideoName        { return [NSString stringWithUTF8String:(vp->getVideoName()).c_str()]; }
+- (NSString*) getVideoFPS         { return [NSString stringWithUTF8String:(vp->getVideoFPS()).c_str()]; }
+- (NSString*) getVideoDimensions  { return [NSString stringWithUTF8String:(vp->getVideoDimensions()).c_str()]; }
+- (NSString*) getVideoNumOfFrames { return [NSString stringWithUTF8String:(vp->getVideoNumOfFrames()).c_str()]; }
+- (NSString*) getVideoCodec       { return [NSString stringWithUTF8String:(vp->getVideoCodec()).c_str()]; }
+- (NSString*) getVideoLength      { return [NSString stringWithUTF8String:(vp->getVideoLength()).c_str()]; }
+
 @end

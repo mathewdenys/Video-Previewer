@@ -68,9 +68,10 @@ public:
     // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
     void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
 
-private:
-    double   getFPS()       const { return vc.get(cv::CAP_PROP_FPS); }
-    cv::Size getFrameSize() const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
+    double   getFPS()            const { return vc.get(cv::CAP_PROP_FPS); }
+    cv::Size getDimensions()     const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); } // TODO: remove cv::Size from the start of the return statement
+    int      getNumberOfFrames() const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    int      getCodec()          const { return vc.get(cv::CAP_PROP_FOURCC); }
 
 private:
     cv::VideoCapture vc;
@@ -89,7 +90,7 @@ private:
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath(); }
+    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath();}
     
     void loadVideo() { video = Video(videoPath); }
     void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath}; }
@@ -128,8 +129,40 @@ public:
             fs::remove("media/.videopreview");
     }
     
-    vector<Frame> getFrames() { return frames; }
-
+    vector<Frame> getFrames()   { return frames; }
+    
+    string        getVideoName() { return videoPath; }
+    string        getVideoFPS()  { return std::to_string(video.getFPS()) + " fps"; }
+    //string        getVideoLength() { return }
+    string        getVideoDimensions() {
+        cv::Size size { video.getDimensions() };
+        return std::to_string(size.width) + "x" + std::to_string(size.height);
+    }
+    string        getVideoNumOfFrames() { return std::to_string(video.getNumberOfFrames()); }
+    string        getVideoCodec()
+    {
+        int ex = video.getCodec();
+        char EXT[] = {static_cast<char>(ex & 0XFF) , static_cast<char>((ex & 0XFF00) >> 8),static_cast<char>((ex & 0XFF0000) >> 16),static_cast<char>((ex & 0XFF000000) >> 24), 0}; // See https://docs.opencv.org/2.4/doc/tutorials/highgui/video-write/video-write.html
+        return EXT;
+    }
+    string       getVideoLength()
+    {
+        double fps     = video.getFPS();
+        int    nFrames = video.getNumberOfFrames();
+        
+        int    seconds = nFrames / fps;
+        
+        int h = seconds / 60*60;
+        int m = seconds / 60;
+        int s = seconds % 60;
+        
+        string H = h<10 ? '0' + std::to_string(h) : std::to_string(h);
+        string M = m<10 ? '0' + std::to_string(m) : std::to_string(m);
+        string S = s<10 ? '0' + std::to_string(s) : std::to_string(s);
+        
+        return H + ':' + M + ':' + S;
+    }
+    
 private:
     // Parse `videopath` in order to determine the directory to which temporary files should be stored
     // This is saved to `exportDir`, and also returned from the function

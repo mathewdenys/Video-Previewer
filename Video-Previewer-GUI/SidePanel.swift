@@ -39,18 +39,10 @@ public extension View {
 /*----------------------------------------------------------------------------------------------------
     MARK: - Data
    ----------------------------------------------------------------------------------------------------*/
-var testInfo1 = [
-    InfoPair(id: "File path",   value: "/long/path/to/a/file.mp4"),
-    InfoPair(id: "Encoding",    value: "h.264 MPEG-4"),
-    InfoPair(id: "Frame rate",  value: "60 fps"),
-    InfoPair(id: "Length",      value: "00:01:15"),
-    InfoPair(id: "# of frames", value: "4500"),
-    InfoPair(id: "Dimensions",  value: "1920x1080"),
-]
 
 var testInfo2 = [
-    InfoPair(id: "Frame #",     value: "1200",     tooltip: ""),
-    InfoPair(id: "Time stamp",  value: "00:00:20", tooltip: ""),
+    InfoPair(id: "Frame #",     value: "-", tooltip: ""),
+    InfoPair(id: "Time stamp",  value: "-", tooltip: ""),
 ]
 
 
@@ -204,7 +196,16 @@ struct SidePanel: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        InfoBlock(title: "Video Information",     info: testInfo1)
+                        InfoBlock(title: "Video Information",     info:
+                            [
+                                InfoPair(id: "File path",   value: vp.getVideoName()),
+                                InfoPair(id: "Encoding",    value: vp.getVideoCodec()),
+                                InfoPair(id: "Frame rate",  value: vp.getVideoFPS()),
+                                InfoPair(id: "Length",      value: vp.getVideoLength()),
+                                InfoPair(id: "# of frames", value: vp.getVideoNumOfFrames()),
+                                InfoPair(id: "Dimensions",  value: vp.getVideoDimensions()),
+                            ]
+                        )
                         Divider()
                         InfoBlock(title: "Frame Information",     info: testInfo2)
                         Spacer()

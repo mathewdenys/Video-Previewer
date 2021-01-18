@@ -32,6 +32,13 @@
 - (NSString*) getOptionValueString:(NSString*)optionID;
 - (NSArray<OptionInformation*>*) getOptionInformation;
 
+- (NSString*) getVideoName;
+- (NSString*) getVideoFPS;
+- (NSString*) getVideoDimensions;
+- (NSString*) getVideoNumOfFrames;
+- (NSString*) getVideoCodec;
+- (NSString*) getVideoLength;
+
 @end
 
 
