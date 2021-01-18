@@ -121,8 +121,12 @@ public:
     
     string getVideoNameString()        { return videoPath; }
     string getVideoNumOfFramesString() { return std::to_string(video.getNumberOfFrames()); }
-    string getVideoWidthString()       { return std::to_string(video.getDimensions().width);  }
-    string getVideoHeightString()      { return std::to_string(video.getDimensions().height); }
+    
+    wstring getVideoDimensionsString() // use wstring to support the unicode times symbol
+    {
+        cv::Size dims { video.getDimensions() };
+        return std::to_wstring(dims.width) + L"\u00d7" + std::to_wstring(dims.height);
+    }
     
     string getVideoFPSString()
     {
