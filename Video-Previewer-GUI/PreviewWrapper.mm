@@ -8,125 +8,179 @@
 #include "PreviewWrapper.hpp"
 #include "Preview.hpp"
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - NSString - std::string conversion
+        - From: https://stackoverflow.com/a/7424962
+   ----------------------------------------------------------------------------------------------------*/
 
-@implementation OptionInformation {
-@private
-    NSString *optionID;
-    NSString *description;
+@interface NSString (cppstring_additions)
+
++(NSString*) fromString:(const string&)s;
++(NSString*) fromWString:(const wstring&)ws;
+-(string)    getString;
+-(wstring)   getWString;
+
+@end
+
+
+@implementation NSString (cppstring_additions)
+
+#if TARGET_RT_BIG_ENDIAN
+const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32BE);
+#else
+const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE);
+#endif
+
++(NSString*) fromString:(const string&)s
+{
+    NSString* result = [[NSString alloc] initWithUTF8String:s.c_str()];
+    return result;
 }
 
-- (OptionInformation*) initWithID:(NSString*)optionID initWithDescription:(NSString*)description{
-    self->optionID = optionID;
-    self->description = description;
-    return self;
++(NSString*) fromWString:(const wstring&)ws
+{
+    char* data = (char*)ws.data();
+    unsigned long size = ws.size() * sizeof(wchar_t);
+
+    NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:kEncoding_wchar_t];
+    return result;
 }
 
-- (NSString*) getID {
-    return optionID;
+-(string) getString
+{
+    return [self UTF8String];
 }
 
-- (NSString*) getDescription {
-    return description;
+-(wstring) getWString
+{
+    NSData* asData = [self dataUsingEncoding:kEncoding_wchar_t];
+    return std::wstring((wchar_t*)[asData bytes], [asData length] / sizeof(wchar_t));
 }
 
 @end
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - OptionInformation
+   ----------------------------------------------------------------------------------------------------*/
 
-@implementation VideoPreviewWrapper {
+@implementation OptionInformation {
 @private
+    NSString *ID;
+    NSString *description;
+}
+
+- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description
+{
+    self->ID          = ID;
+    self->description = description;
+    return self;
+}
+
+- (NSString*) getID { return ID; }
+
+- (NSString*) getDescription { return description; }
+
+@end
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - VideoPreviewWrapper
+   ----------------------------------------------------------------------------------------------------*/
+
+@implementation VideoPreviewWrapper
+{
+    @private
     std::shared_ptr<VideoPreview> vp;
 }
 
-- (VideoPreviewWrapper*) init:(NSString*)filePath {
-    std::string filePathStdStr = std::string([filePath UTF8String]); // From https://stackoverflow.com/questions/8001677/how-do-i-convert-a-nsstring-into-a-stdstring
+- (VideoPreviewWrapper*) init:(NSString*)filePath
+{
+    std::string filePathStdStr = [filePath getString];
     vp = std::make_shared<VideoPreview>(filePathStdStr);
     return self;
 }
 
-- (void) loadConfig    { vp->loadConfig(); }
-- (void) loadVideo     { vp->loadVideo();  }
-- (void) updatePreview { vp->updatePreview(); }
+- (void)      loadConfig          { vp->loadConfig();    }
+- (void)      loadVideo           { vp->loadVideo();     }
+- (void)      updatePreview       { vp->updatePreview(); }
 
-- (NSArray<NSImage*>*) getFrames {
-    vector<Frame> frames = vp->getFrames();
-    
-    NSMutableArray* images = [NSMutableArray new];
-    
-    Mat cvMatRGB;
-    for (auto frame: frames)
-    {
-        Mat cvMatBGR { frame.getData()};
-        cv::cvtColor(cvMatBGR, cvMatRGB, cv::COLOR_RGB2BGR);
-        
-        NSData* data = [NSData dataWithBytes:cvMatRGB.data length:cvMatRGB.elemSize()*cvMatRGB.total()];
-        CGColorSpaceRef colorSpace;
+- (NSString*) getVideoNameString        { return [NSString fromString:vp->getVideoNameString()       ]; }
+- (NSString*) getVideoFPSString         { return [NSString fromString:vp->getVideoFPSString()        ]; }
+- (NSString*) getVideoDimensionsString  { return [NSString fromString:vp->getVideoDimensionsString() ]; }
+- (NSString*) getVideoNumOfFramesString { return [NSString fromString:vp->getVideoNumOfFramesString()]; }
+- (NSString*) getVideoCodecString       { return [NSString fromString:vp->getVideoCodecString()      ]; }
+- (NSString*) getVideoLengthString      { return [NSString fromString:vp->getVideoLengthString()     ]; }
 
-          if (cvMatRGB.elemSize() == 1) {
-              colorSpace = CGColorSpaceCreateDeviceGray();
-          } else {
-              colorSpace = CGColorSpaceCreateDeviceRGB();
-          }
-
-          CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-
-          // Creating CGImage from cv::Mat
-          CGImageRef imageRef = CGImageCreate(cvMatRGB.cols,                             //width
-                                             cvMatRGB.rows,                              //height
-                                             8,                                          //bits per component
-                                             8 * cvMatRGB.elemSize(),                    //bits per pixel
-                                             cvMatRGB.step[0],                           //bytesPerRow
-                                             colorSpace,                                 //colorspace
-                                             kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
-                                             provider,                                   //CGDataProviderRef
-                                             NULL,                                       //decode
-                                             false,                                      //should interpolate
-                                             kCGRenderingIntentDefault                   //intent
-                                             );
-
-            NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
-            NSImage *image = [[NSImage alloc] init];
-            [image addRepresentation:bitmapRep];
-
-            CGImageRelease(imageRef);
-            CGDataProviderRelease(provider);
-            CGColorSpaceRelease(colorSpace);
-        
-        [images addObject: image];
-        
-    }
-    return images;
-}
-
-
-- (NSString*) getOptionValueString:(NSString*)optionID {
+- (NSString*) getOptionValueString:(NSString*)optionID
+{
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
-    if (!option)
-        return @"-";
-    return [NSString stringWithUTF8String:option->getValueAsString().c_str()];
+    return option ? [NSString fromString:option->getValueAsString()] : @"-";    // If the option isn't specified, display "-"
 }
 
-- (NSArray<OptionInformation*>*) getOptionInformation {
+- (NSArray<OptionInformation*>*) getOptionInformation
+{
     ConfigOption::OptionInformationMap oim = vp->getRecognisedOptionInformation();
     
     NSMutableArray* options = [NSMutableArray new];
-    
     for (auto opt: oim)
     {
         NSString* i = [NSString stringWithUTF8String:(opt.first).c_str()];
         NSString* d = [NSString stringWithUTF8String:(opt.second.getDescription()).c_str()];
-        [options addObject: [[OptionInformation alloc] initWithID: i initWithDescription: d] ];
+        [options addObject: [[OptionInformation alloc] initWithID: i withDescription: d] ];
     }
     
     return options;
 }
 
+// Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
+- (NSArray<NSImage*>*) getFrames
+{
+    vector<Frame>   frames = vp->getFrames();
+    NSMutableArray* images = [NSMutableArray new];
+    
+    Mat cvMat;
+    for (auto frame: frames)
+    {
+        cv::cvtColor(frame.getData(), cvMat, cv::COLOR_RGB2BGR); // Convert from BGR to RGB
+        
+        NSData* data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
+        CGColorSpaceRef colorSpace;
 
-- (NSString*) getVideoName        { return [NSString stringWithUTF8String:(vp->getVideoName()).c_str()]; }
-- (NSString*) getVideoFPS         { return [NSString stringWithUTF8String:(vp->getVideoFPS()).c_str()]; }
-- (NSString*) getVideoDimensions  { return [NSString stringWithUTF8String:(vp->getVideoDimensions()).c_str()]; }
-- (NSString*) getVideoNumOfFrames { return [NSString stringWithUTF8String:(vp->getVideoNumOfFrames()).c_str()]; }
-- (NSString*) getVideoCodec       { return [NSString stringWithUTF8String:(vp->getVideoCodec()).c_str()]; }
-- (NSString*) getVideoLength      { return [NSString stringWithUTF8String:(vp->getVideoLength()).c_str()]; }
+        if (cvMat.elemSize() == 1)
+            colorSpace = CGColorSpaceCreateDeviceGray();
+        else
+            colorSpace = CGColorSpaceCreateDeviceRGB();
+
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+
+        CGImageRef imageRef = CGImageCreate(cvMat.cols,                                 //width
+                                            cvMat.rows,                                 //height
+                                            8,                                          //bits per component
+                                            8 * cvMat.elemSize(),                       //bits per pixel
+                                            cvMat.step[0],                              //bytesPerRow
+                                            colorSpace,                                 //colorspace
+                                            kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
+                                            provider,                                   //CGDataProviderRef
+                                            NULL,                                       //decode
+                                            false,                                      //should interpolate
+                                            kCGRenderingIntentDefault                   //intent
+                                            );
+
+        NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
+        NSImage *image = [[NSImage alloc] init];
+        [image addRepresentation:bitmapRep];
+
+        CGImageRelease(imageRef);
+        CGDataProviderRelease(provider);
+        CGColorSpaceRelease(colorSpace);
+        
+        [images addObject: image];
+    }
+    
+    return images;
+}
 
 @end
+
+

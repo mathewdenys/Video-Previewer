@@ -60,18 +60,17 @@ public:
             throw FileException("file either could not be opened or is not an accepted format\n", path);
     }
 
-    int  getFrameNumber()                 const { return vc.get(cv::CAP_PROP_POS_FRAMES); }
-    int  numberOfFrames()                 const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    void setFrameNumber(const int num)          { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    void writeCurrentFrame(Mat& frameOut)       { vc.read(frameOut); }// Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
+    int      getFrameNumber()    const    { return vc.get(cv::CAP_PROP_POS_FRAMES);  }
+    int      getNumberOfFrames() const    { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    int      getCodec()          const    { return vc.get(cv::CAP_PROP_FOURCC); }
+    double   getFPS()            const    { return vc.get(cv::CAP_PROP_FPS);    }
+    cv::Size getDimensions()     const    { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
+    
+    void setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); }                       // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
     void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
-
-    double   getFPS()            const { return vc.get(cv::CAP_PROP_FPS); }
-    cv::Size getDimensions()     const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); } // TODO: remove cv::Size from the start of the return statement
-    int      getNumberOfFrames() const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    int      getCodec()          const { return vc.get(cv::CAP_PROP_FOURCC); }
 
 private:
     cv::VideoCapture vc;
@@ -99,20 +98,20 @@ public:
     // To be run on start-up and whenever configuration options are changed
     void updatePreview();
 
-    ConfigOptionPtr getOption(const string& optionID)            { return optionsHandler.getOptions().getOption(optionID); }
+    ConfigOptionPtr getOption(const string& optionID)                       { return optionsHandler.getOptions().getOption(optionID); }
     void            setOption(const ConfigOption& optionIn);
 
     // Save a set of current configuration options to either 1) a preexisiting configuration file, or 2) an arbitrary new file
     // In the case of 1, the formatting of the file is maintained, but any options that have been changed are overwritten
     // Function overrides allow the file to be passed as either a string, or a ConfigFilePtr
     void saveOptions(ConfigOptionVector options, const ConfigFilePtr& file) { optionsHandler.saveOptions(options, file); }
-    void saveOptions(ConfigOptionVector options, const string& filePath);   // defined in Preview.cpp
+    void saveOptions(ConfigOptionVector options, const string& filePath);
     
     void saveAllOptions(const ConfigFilePtr& file)                          { optionsHandler.saveAllOptions(file); }
     void saveAllOptions(const string& filePath)                             { saveOptions(optionsHandler.getOptions(), filePath); }
     
-    void saveOption (ConfigOptionPtr option, const ConfigFilePtr& file) { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
-    void saveOption (ConfigOptionPtr option, const string& filePath)    { saveOptions(ConfigOptionVector{option}, filePath); }
+    void saveOption (ConfigOptionPtr option, const ConfigFilePtr& file)     { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
+    void saveOption (ConfigOptionPtr option, const string& filePath)        { saveOptions(ConfigOptionVector{option}, filePath); }
 
     void printConfig() const
     {
@@ -120,32 +119,30 @@ public:
         optionsHandler.print();
     }
     
-    const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }
-
-    ~VideoPreview()
+    string getVideoNameString()        { return videoPath; }
+    string getVideoNumOfFramesString() { return std::to_string(video.getNumberOfFrames()); }
+    
+    string getVideoFPSString()
     {
-        fs::remove_all(exportDir.erase(exportDir.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportDir)
-        if (fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
-            fs::remove("media/.videopreview");
+        std::stringstream ss;
+        ss << video.getFPS() << " fps";
+        return ss.str();
     }
     
-    vector<Frame> getFrames()   { return frames; }
-    
-    string        getVideoName() { return videoPath; }
-    string        getVideoFPS()  { return std::to_string(video.getFPS()) + " fps"; }
-    //string        getVideoLength() { return }
-    string        getVideoDimensions() {
+    string getVideoDimensionsString()
+    {
         cv::Size size { video.getDimensions() };
         return std::to_string(size.width) + "x" + std::to_string(size.height);
     }
-    string        getVideoNumOfFrames() { return std::to_string(video.getNumberOfFrames()); }
-    string        getVideoCodec()
-    {
+    
+    string getVideoCodecString()
+    {   // Refer to https://docs.opencv.org/2.4/doc/tutorials/highgui/video-write/video-write.html
         int ex = video.getCodec();
-        char EXT[] = {static_cast<char>(ex & 0XFF) , static_cast<char>((ex & 0XFF00) >> 8),static_cast<char>((ex & 0XFF0000) >> 16),static_cast<char>((ex & 0XFF000000) >> 24), 0}; // See https://docs.opencv.org/2.4/doc/tutorials/highgui/video-write/video-write.html
+        char EXT[] = {static_cast<char>(ex & 0XFF) , static_cast<char>((ex & 0XFF00) >> 8),static_cast<char>((ex & 0XFF0000) >> 16),static_cast<char>((ex & 0XFF000000) >> 24), 0};
         return EXT;
     }
-    string       getVideoLength()
+    
+    string getVideoLengthString()
     {
         double fps     = video.getFPS();
         int    nFrames = video.getNumberOfFrames();
@@ -161,6 +158,17 @@ public:
         string S = s<10 ? '0' + std::to_string(s) : std::to_string(s);
         
         return H + ':' + M + ':' + S;
+    }
+    
+    const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }
+    
+    vector<Frame> getFrames()   { return frames; }
+    
+    ~VideoPreview()
+    {
+        fs::remove_all(exportDir.erase(exportDir.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportDir)
+        if (fs::exists("media/.videopreview") && fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
+            fs::remove("media/.videopreview");
     }
     
 private:

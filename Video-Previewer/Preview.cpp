@@ -142,7 +142,7 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int totalFrames = video.numberOfFrames();
+    int totalFrames = video.getNumberOfFrames();
     int NFrames{ optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value() };
     int frameSampling = totalFrames/NFrames;
 
@@ -168,7 +168,7 @@ void VideoPreview::exportPreviewVideos()
 
     for (Frame& frame : frames)
         frameNumbers.push_back(frame.getFrameNumber());
-    frameNumbers.push_back(video.numberOfFrames());
+    frameNumbers.push_back(video.getNumberOfFrames());
 
     cout << "Exporting video previews\n";
     int index = 0;

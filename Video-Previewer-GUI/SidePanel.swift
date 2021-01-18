@@ -7,13 +7,15 @@
 
 import SwiftUI
 
-// For text and shapes
-let colorNearBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0);
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Constants
+   ----------------------------------------------------------------------------------------------------*/
 
+let almostBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0); // For text and shapes
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Tooltips
+    MARK: - Tooltip
         - From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
    ----------------------------------------------------------------------------------------------------*/
 struct Tooltip: NSViewRepresentable {
@@ -26,8 +28,7 @@ struct Tooltip: NSViewRepresentable {
         return view
     }
     
-    func updateNSView(_ nsView: NSView, context: NSViewRepresentableContext<Tooltip>) {
-    }
+    func updateNSView(_ nsView: NSView, context: NSViewRepresentableContext<Tooltip>) { }
 }
 
 public extension View {
@@ -36,25 +37,25 @@ public extension View {
     }
 }
 
+
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Data
+    MARK: - Temporary data
    ----------------------------------------------------------------------------------------------------*/
 
-var testInfo2 = [
+var tempInfo = [
     InfoPair(id: "Frame #",     value: "-", tooltip: ""),
     InfoPair(id: "Time stamp",  value: "-", tooltip: ""),
 ]
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Sidebar views
+    MARK: - InfoPair
    ----------------------------------------------------------------------------------------------------*/
-
 
 struct InfoPair: Identifiable {
     var id:      String;
     var value:   String;
-    var tooltip: String; // Leave as empty string for no tooltip on hover
+    var tooltip: String;
     
     // Default initializer
     init(id: String, value: String, tooltip: String) {
@@ -71,8 +72,12 @@ struct InfoPair: Identifiable {
     }
 }
 
-struct InfoRow: View, Identifiable {
-    
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - InfoRowView
+   ----------------------------------------------------------------------------------------------------*/
+
+struct InfoRowView: View, Identifiable {
     var id:      String
     var value:   String
     var tooltip: String
@@ -84,7 +89,7 @@ struct InfoRow: View, Identifiable {
                 .frame(maxWidth: 120, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
-                .foregroundColor(colorNearBlack)
+                .foregroundColor(almostBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -95,6 +100,11 @@ struct InfoRow: View, Identifiable {
         tooltip = info.tooltip;
     }
 }
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Triangle
+   ----------------------------------------------------------------------------------------------------*/
 
 struct Triangle: Shape {
     func path(in rect: CGRect) -> Path {
@@ -109,7 +119,12 @@ struct Triangle: Shape {
     }
 }
 
-struct InfoBlock: View {
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - InfoBlockView
+   ----------------------------------------------------------------------------------------------------*/
+
+struct InfoBlockView: View {
     var title: String;
     var info:  [InfoPair];
     
@@ -120,30 +135,33 @@ struct InfoBlock: View {
             HStack {
                 Text(title)
                     .fontWeight(.bold)
-                    .foregroundColor(colorNearBlack)
+                    .foregroundColor(almostBlack)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
                     .rotation(Angle(degrees: isExpanded ? 0 : 180))
-                    .fill(colorNearBlack)
+                    .fill(almostBlack)
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
-            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable (FIX)
+            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(info) { i in InfoRow(info: i) }
+                ForEach(info) { i in InfoRowView(info: i) }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
-                //List(info) { i in InfoRow(info: i) }
             }
         }
     }
 }
 
 
-// TODO: Make ConfigInfoBlock "extend" InfoBlock?
-struct ConfigInfoBlock: View {
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigBlockView
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigBlockView: View {
     var title: String;
     var vp:    VideoPreviewWrapper;
     
@@ -154,11 +172,11 @@ struct ConfigInfoBlock: View {
             HStack {
                 Text(title)
                     .fontWeight(.bold)
-                    .foregroundColor(colorNearBlack)
+                    .foregroundColor(almostBlack)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
                     .rotation(Angle(degrees: isExpanded ? 180 : 0))
-                    .fill(colorNearBlack)
+                    .fill(almostBlack)
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
@@ -167,7 +185,7 @@ struct ConfigInfoBlock: View {
             
             if isExpanded {
                 ForEach(vp.getOptionInformation(), id: \.self){ option in
-                    InfoRow(info: InfoPair(id: option.getID(),
+                    InfoRowView(info: InfoPair(id: option.getID(),
                             value: vp.getOptionValueString(option.getID()),
                             tooltip: option.getDescription()))
                     }
@@ -185,7 +203,12 @@ struct ConfigInfoBlock: View {
 
 func doNothing() { }
 
-struct SidePanel: View {
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - SidePanelView
+   ----------------------------------------------------------------------------------------------------*/
+
+struct SidePanelView: View {
     
     var vp: VideoPreviewWrapper
     
@@ -196,21 +219,21 @@ struct SidePanel: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        InfoBlock(title: "Video Information",     info:
+                        InfoBlockView(title: "Video Information", info:
                             [
-                                InfoPair(id: "File path",   value: vp.getVideoName()),
-                                InfoPair(id: "Encoding",    value: vp.getVideoCodec()),
-                                InfoPair(id: "Frame rate",  value: vp.getVideoFPS()),
-                                InfoPair(id: "Length",      value: vp.getVideoLength()),
-                                InfoPair(id: "# of frames", value: vp.getVideoNumOfFrames()),
-                                InfoPair(id: "Dimensions",  value: vp.getVideoDimensions()),
+                                InfoPair(id: "File path",   value: vp.getVideoNameString()),
+                                InfoPair(id: "Encoding",    value: vp.getVideoCodecString()),
+                                InfoPair(id: "Frame rate",  value: vp.getVideoFPSString()),
+                                InfoPair(id: "Length",      value: vp.getVideoLengthString()),
+                                InfoPair(id: "# of frames", value: vp.getVideoNumOfFramesString()),
+                                InfoPair(id: "Dimensions",  value: vp.getVideoDimensionsString()),
                             ]
                         )
                         Divider()
-                        InfoBlock(title: "Frame Information",     info: testInfo2)
+                        InfoBlockView(title: "Frame Information",     info: tempInfo)
                         Spacer()
                         Divider()
-                        ConfigInfoBlock(title: "Configuration Options", vp: self.vp)
+                        ConfigBlockView(title: "Configuration Options", vp: self.vp)
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
@@ -222,7 +245,7 @@ struct SidePanel: View {
 
 struct SidePanel_Previews: PreviewProvider {
     static var previews: some View {
-        SidePanel(vp: VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov"))
+        SidePanelView(vp: VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov"))
             .frame(minWidth: 200, maxWidth: 250) // copy from ContentView.swift
     }
 }

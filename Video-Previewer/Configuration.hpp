@@ -14,6 +14,7 @@
 using std::cout;
 using std::array;
 using std::string;
+using std::wstring;
 using std::stringstream;
 using std::vector;
 using std::pair;
@@ -21,7 +22,7 @@ using std::pair;
 namespace fs = std::filesystem;
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - AbstractConfigValue & derived classes
+    MARK: - ConfigValues
 
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements

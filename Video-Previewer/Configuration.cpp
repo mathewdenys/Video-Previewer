@@ -7,9 +7,9 @@
 // A map from each optionID that the program recognisesto an associated OptionInformation object
 // The order here determines the order the configuration options are displayed in the GUI
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
-    {"number_of_frames", OptionInformation("Number of frames to show",                 ValidOptionValue::ePositiveInteger        )},
-    {"show_frame_info",  OptionInformation("Show individual frame information",        ValidOptionValue::eBoolean                )},
-    {"action_on_hover",  OptionInformation("Behaviour when mouse hovers over a frame", ValidOptionValue::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
+    {"number_of_frames", OptionInformation("Number of frames to show",                                    ValidOptionValue::ePositiveInteger        )},
+    {"show_frame_info",  OptionInformation("Whether to overlay information on each frame in the preview", ValidOptionValue::eBoolean                )},
+    {"action_on_hover",  OptionInformation("Behaviour when mouse hovers over a frame",                    ValidOptionValue::eString, {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 

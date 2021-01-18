@@ -5,15 +5,13 @@
 //  Created by Mathew Denys on 13/01/21.
 //
 
-#ifndef PreviewWrapper_h
-#define PreviewWrapper_h
-
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+
 @interface OptionInformation : NSObject
 
-- (instancetype) initWithID:(NSString*)optionID initWithDescription:(NSString*)description;
+- (instancetype) initWithID:(NSString*)optionID withDescription:(NSString*)description;
 - (NSString*)    getID;
 - (NSString*)    getDescription;
 
@@ -22,24 +20,26 @@
 
 @interface VideoPreviewWrapper : NSObject
 
-- (instancetype) init:(NSString*)filePath;
-- (void)         loadConfig;
-- (void)         loadVideo;
-- (void)         updatePreview;
+- (instancetype)                 init:(NSString*)filePath;
 
-- (NSArray<NSImage*>*) getFrames;
+// Wrapper functions for VideoPreview
+- (void)                         loadConfig;
+- (void)                         loadVideo;
+- (void)                         updatePreview;
 
-- (NSString*) getOptionValueString:(NSString*)optionID;
-- (NSArray<OptionInformation*>*) getOptionInformation;
+// Getter functions for displaying information about the video file
+- (NSString*)                    getVideoNameString;
+- (NSString*)                    getVideoCodecString;
+- (NSString*)                    getVideoFPSString;
+- (NSString*)                    getVideoLengthString;
+- (NSString*)                    getVideoNumOfFramesString;
+- (NSString*)                    getVideoDimensionsString;
 
-- (NSString*) getVideoName;
-- (NSString*) getVideoFPS;
-- (NSString*) getVideoDimensions;
-- (NSString*) getVideoNumOfFrames;
-- (NSString*) getVideoCodec;
-- (NSString*) getVideoLength;
+// Getter functions for the configuration options
+- (NSString*)                    getOptionValueString:(NSString*)optionID; // Returns a string corresponding to the value of the option corresponding to optionID
+- (NSArray<OptionInformation*>*) getOptionInformation;                     // Returns an array consisting of an OptionInformation instance for each recognised option
+
+// Getter function for the preview video frames
+- (NSArray<NSImage*>*)           getFrames;                                // Returns an array consisting of images of each frame in the preview
 
 @end
-
-
-#endif /* PreviewWrapper_h */

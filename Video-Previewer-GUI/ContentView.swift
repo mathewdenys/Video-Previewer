@@ -8,14 +8,17 @@
 import SwiftUI
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ContentView
+   ----------------------------------------------------------------------------------------------------*/
+
 struct ContentView: View {
-    
-    var vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mp4")
+    let vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
     
     var body: some View {
         HStack(spacing:0) {
-            PreviewPane(vp: self.vp!)
-            SidePanel(vp: self.vp!)
+            PreviewPaneView(vp: self.vp!)
+            SidePanelView(vp: self.vp!)
                 .frame(minWidth: 250, maxWidth: 300)
         }
     }
@@ -30,7 +33,7 @@ struct ContentView_Previews: PreviewProvider {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Hide Indicators
+    MARK: - Hide Scroll Indicators
         - The following code is a work around for a known bug whereby hiding a ScrollView's indicator breaks the ability to scroll
         - From: https://stackoverflow.com/a/60464182
    ----------------------------------------------------------------------------------------------------*/
