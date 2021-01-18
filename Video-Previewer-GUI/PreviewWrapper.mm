@@ -74,4 +74,19 @@
     return images;
 }
 
+
+- (NSString*) getOptionValueString:(NSString*)optionID {
+    ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
+    if (!option)
+        return @"-";
+    return [NSString stringWithUTF8String:option->getValueAsString().c_str()];
+}
+
+- (NSString*) getOptionDescription:(NSString*)optionID {
+    ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
+    if (!option)
+        return @"";
+    return [NSString stringWithUTF8String:option->getDescription().c_str()];
+}
+
 @end

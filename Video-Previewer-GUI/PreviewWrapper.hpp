@@ -20,6 +20,9 @@
 
 - (NSArray<NSImage*>*) getFrames;
 
+- (NSString*) getOptionValueString:(NSString*)optionID;
+- (NSString*) getOptionDescription:(NSString*)optionID;
+
 @end
 
 

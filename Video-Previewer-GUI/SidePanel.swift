@@ -53,12 +53,6 @@ var testInfo2 = [
     InfoPair(id: "Time stamp",  value: "00:00:20", tooltip: ""),
 ]
 
-var testInfo3 = [
-    InfoPair(id: "Frames",      value: "15",    tooltip: "Number of frames to show"),
-    InfoPair(id: "Frame info",  value: "false", tooltip: "Whether to overlay information on each frame in the preview"),
-    InfoPair(id: "Hover",       value: "none",  tooltip: "Behaviour on mouse hover over a frame"),
-]
-
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - Sidebar views
@@ -212,7 +206,13 @@ struct SidePanel: View {
                         InfoBlock(title: "Frame Information",     info: testInfo2)
                         Spacer()
                         Divider()
-                        ConfigInfoBlock(title: "Configuration Options", info: testInfo3)
+                        ConfigInfoBlock(title: "Configuration Options", info:
+                            [
+                                InfoPair(id: "Frames",     value: vp.getOptionValueString("number_of_frames"), tooltip: vp.getOptionDescription("number_of_frames") ),
+                                InfoPair(id: "Frame info", value: vp.getOptionValueString("show_frame_info"),  tooltip: vp.getOptionDescription("show_frame_info")  ),
+                                InfoPair(id: "Hover",      value: vp.getOptionValueString("action_on_hover"),  tooltip: vp.getOptionDescription("action_on_hover")  ),
+                            ]
+                        )
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
