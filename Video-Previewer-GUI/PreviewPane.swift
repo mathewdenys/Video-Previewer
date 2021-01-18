@@ -43,6 +43,7 @@ struct VideoPreview: View {
                                         .frame(width: 200.0)
                                 }
                             }
+                            Spacer()
                         }
                     }
                 }
