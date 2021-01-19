@@ -8,6 +8,14 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+@interface FrameWrapper : NSObject
+//
+//- (instancetype) initFromFrame:(const Frame&)frameIn;
+- (NSImage*)     getImage;
+- (int)          getFrameNumber;
+//
+@end
+
 
 @interface OptionInformation : NSObject
 
@@ -40,6 +48,6 @@
 - (NSArray<OptionInformation*>*) getOptionInformation;                     // Returns an array consisting of an OptionInformation instance for each recognised option
 
 // Getter function for the preview video frames
-- (NSArray<NSImage*>*)           getFrames;                                // Returns an array consisting of images of each frame in the preview
+- (NSArray<FrameWrapper*>*)       getFrames;                               // Returns an array consisting of a FrameWrapper for each frame in the preview
 
 @end

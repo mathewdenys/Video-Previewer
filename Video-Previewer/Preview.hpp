@@ -32,9 +32,10 @@ class Frame
 {
 public:
     Frame(const Mat& dataIn, const int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
-
-    int getFrameNumber() const { return frameNumber; }
-    Mat getData()        const { return data; }
+    
+    Mat getData()                     const { return data; }
+    int getFrameNumber()              const { return frameNumber; }
+    int getFrameNumberHumanReadable() const { return frameNumber + 1; } // OpenCV indexes frames from 0
 
 private:
     Mat data;
@@ -91,8 +92,8 @@ class VideoPreview
 public:
     VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath();}
     
-    void loadVideo() { video = Video(videoPath); }
-    void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath}; }
+    void loadVideo()  { video = Video(videoPath); }
+    void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath }; }
 
     // Everything that needs to be run in order to update the actual video preview that the user sees
     // To be run on start-up and whenever configuration options are changed

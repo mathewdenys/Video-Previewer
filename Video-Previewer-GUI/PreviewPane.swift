@@ -12,13 +12,20 @@ import SwiftUI
    ----------------------------------------------------------------------------------------------------*/
 
 struct FramePreviewView: View {
-    let image: NSImage
+    let frame: FrameWrapper
     
     var body: some View {
-        Image(nsImage: image)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: CGFloat(frameWidth))
+        ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
+            Image(nsImage: frame.getImage() ?? NSImage())
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: CGFloat(frameWidth))
+            Text("\(frame.getFrameNumber())")
+                .foregroundColor(Color.white)
+                .padding(.all, 2.0)
+                .background(Color(red:0, green:0, blue:0, opacity:0.2))
+                .padding(.all, 3.0)
+        }
     }
 }
 
@@ -28,7 +35,7 @@ struct FramePreviewView: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct PreviewPaneView: View {
-    var frames: [NSImage?]
+    var frames: [FrameWrapper?]
     let cols: Int
     let rows: Int
     
@@ -44,7 +51,7 @@ struct PreviewPaneView: View {
                                     let index = i*cols + j
                                     if (index < frames.count)
                                     {
-                                        FramePreviewView(image: frames[i*cols+j] ?? NSImage())
+                                            FramePreviewView(frame: frames[index]!)
                                     }
                                 }
                                 Spacer()

@@ -66,8 +66,8 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 @implementation OptionInformation {
 @private
-    NSString *ID;
-    NSString *description;
+    NSString* ID;
+    NSString* description;
 }
 
 - (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description
@@ -82,6 +82,65 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getDescription { return description; }
 
 @end
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - FrameWrapper
+   ----------------------------------------------------------------------------------------------------*/
+
+@implementation FrameWrapper
+{
+    @private
+    NSImage* image;
+    int      frameNumber;
+}
+
+- (FrameWrapper*) initFromFrame:(const Frame&)frameIn
+{
+    frameNumber = frameIn.getFrameNumberHumanReadable();
+    
+    // Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
+    Mat cvMat;
+    cv::cvtColor(frameIn.getData(), cvMat, cv::COLOR_RGB2BGR); // Convert from BGR to RGB
+
+    NSData* data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
+    CGColorSpaceRef colorSpace;
+
+    if (cvMat.elemSize() == 1)
+        colorSpace = CGColorSpaceCreateDeviceGray();
+    else
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+
+    CGImageRef imageRef = CGImageCreate(cvMat.cols,                                 //width
+                                        cvMat.rows,                                 //height
+                                        8,                                          //bits per component
+                                        8 * cvMat.elemSize(),                       //bits per pixel
+                                        cvMat.step[0],                              //bytesPerRow
+                                        colorSpace,                                 //colorspace
+                                        kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
+                                        provider,                                   //CGDataProviderRef
+                                        NULL,                                       //decode
+                                        false,                                      //should interpolate
+                                        kCGRenderingIntentDefault                   //intent
+                                        );
+
+    NSBitmapImageRep* bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
+    image = [[NSImage alloc] init];
+    [image addRepresentation:bitmapRep];
+
+    CGImageRelease(imageRef);
+    CGDataProviderRelease(provider);
+    CGColorSpaceRelease(colorSpace);
+    
+    return self;
+}
+
+- (NSImage*) getImage       { return image; }
+- (int)      getFrameNumber { return frameNumber; }
+
+@end
+
 
 
 /*----------------------------------------------------------------------------------------------------
@@ -133,52 +192,17 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return options;
 }
 
-// Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
-- (NSArray<NSImage*>*) getFrames
+- (NSArray<FrameWrapper*>*) getFrames
 {
-    vector<Frame>   frames = vp->getFrames();
-    NSMutableArray* images = [NSMutableArray new];
+    vector<Frame> frames = vp->getFrames();
+    NSMutableArray* frameWrappers = [NSMutableArray new];
     
-    Mat cvMat;
-    for (auto frame: frames)
+    for (Frame frame: frames)
     {
-        cv::cvtColor(frame.getData(), cvMat, cv::COLOR_RGB2BGR); // Convert from BGR to RGB
-        
-        NSData* data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
-        CGColorSpaceRef colorSpace;
-
-        if (cvMat.elemSize() == 1)
-            colorSpace = CGColorSpaceCreateDeviceGray();
-        else
-            colorSpace = CGColorSpaceCreateDeviceRGB();
-
-        CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-
-        CGImageRef imageRef = CGImageCreate(cvMat.cols,                                 //width
-                                            cvMat.rows,                                 //height
-                                            8,                                          //bits per component
-                                            8 * cvMat.elemSize(),                       //bits per pixel
-                                            cvMat.step[0],                              //bytesPerRow
-                                            colorSpace,                                 //colorspace
-                                            kCGImageAlphaNone|kCGBitmapByteOrderDefault,//bitmap info
-                                            provider,                                   //CGDataProviderRef
-                                            NULL,                                       //decode
-                                            false,                                      //should interpolate
-                                            kCGRenderingIntentDefault                   //intent
-                                            );
-
-        NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:imageRef];
-        NSImage *image = [[NSImage alloc] init];
-        [image addRepresentation:bitmapRep];
-
-        CGImageRelease(imageRef);
-        CGDataProviderRelease(provider);
-        CGColorSpaceRelease(colorSpace);
-        
-        [images addObject: image];
+        [frameWrappers addObject: [[FrameWrapper alloc] initFromFrame: frame]];
     }
     
-    return images;
+    return frameWrappers;
 }
 
 @end

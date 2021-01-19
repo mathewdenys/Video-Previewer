@@ -25,7 +25,7 @@ let sidePanelMinWidth = 300.0 // The miniumum width of the side panel
 
 struct ContentView: View {
     let vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
-    var frames: [NSImage?]
+    var frames: [FrameWrapper?]
     
     var body: some View {
         GeometryReader { geometry in
