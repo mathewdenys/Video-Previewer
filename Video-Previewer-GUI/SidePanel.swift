@@ -86,7 +86,7 @@ struct InfoRowView: View, Identifiable {
         HStack(alignment: .top) {
             Text(id)
                 .foregroundColor(Color.gray)
-                .frame(maxWidth: 120, alignment: .trailing)
+                .frame(width: 120, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
                 .foregroundColor(almostBlack)
