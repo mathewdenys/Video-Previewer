@@ -61,6 +61,28 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigOptionWrapper
+   ----------------------------------------------------------------------------------------------------*/
+
+@implementation ConfigOptionWrapper {
+@private
+    NSNumber* boolVal;
+    NSNumber* intVal;
+    NSString* stringVal;
+}
+
+- (ConfigOptionWrapper*) initWithBool:  (const bool)    val { boolVal   = [NSNumber numberWithBool: val]; return self; }
+- (ConfigOptionWrapper*) initWithInt:   (const int)     val { intVal    = [NSNumber numberWithInt:  val]; return self;  }
+- (ConfigOptionWrapper*) initWithString:(const string&) val { stringVal = [NSString fromString:     val]; return self;  }
+
+- (NSNumber*) getBool   { return boolVal; }
+- (NSNumber*) getInt    { return intVal; }
+- (NSString*) getString { return stringVal; }
+
+@end
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - OptionInformation
    ----------------------------------------------------------------------------------------------------*/
 
@@ -173,6 +195,16 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getVideoNumOfFramesString { return [NSString fromString:  vp->getVideoNumOfFramesString()]; }
 - (NSString*) getVideoCodecString       { return [NSString fromString:  vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromString:  vp->getVideoLengthString()     ]; }
+
+- (ConfigOptionWrapper*) getOptionValue:(NSString*)optionID
+{
+    ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
+    ConfigValuePtr  value  = option->getValue();
+    
+    if (value->getBool().has_value())   { return [[ConfigOptionWrapper alloc] initWithBool:value->getBool().value()]; }
+    if (value->getInt().has_value())    { return [[ConfigOptionWrapper alloc] initWithInt: value->getInt().value()];  }
+    return [[ConfigOptionWrapper alloc] initWithString:value->getString().value()];
+}
 
 - (NSString*) getOptionValueString:(NSString*)optionID
 {

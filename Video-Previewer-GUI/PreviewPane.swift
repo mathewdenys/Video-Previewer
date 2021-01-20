@@ -14,6 +14,7 @@ import SwiftUI
 
 struct FramePreviewView: View {
     @EnvironmentObject var globalVars: GlobalVars
+    var vp:    VideoPreviewWrapper
     let frame: FrameWrapper
     
     var body: some View {
@@ -45,6 +46,7 @@ struct FramePreviewView: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct PreviewPaneView: View {
+    var vp:     VideoPreviewWrapper
     var frames: [FrameWrapper?]
     let cols: Int
     let rows: Int
@@ -60,7 +62,7 @@ struct PreviewPaneView: View {
                                 let index = i*cols + j
                                 if (index < frames.count)
                                 {
-                                        FramePreviewView(frame: frames[index]!)
+                                    FramePreviewView(vp: self.vp, frame: frames[index]!)
                                 }
                             }
                             Spacer()

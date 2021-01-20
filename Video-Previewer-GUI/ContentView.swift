@@ -60,7 +60,7 @@ struct ContentView: View {
             let previewWidth: Double = frameWidth*Double(cols) + scrollBarWidth + 2.0*previewPadding
             
             HStack(spacing:0) {
-                PreviewPaneView(frames: self.frames, cols: cols, rows: rows)
+                PreviewPaneView(vp: self.vp!, frames: self.frames, cols: cols, rows: rows)
                     .frame(width: CGFloat(previewWidth))
                 SidePanelView(vp: self.vp!)
             }

@@ -18,6 +18,19 @@
 @end
 
 
+@interface ConfigOptionWrapper : NSObject
+
+//- (instancetype) initWithBool:  (bool )    val;
+//- (instancetype) initWithInt:   (int )     val;
+//- (instancetype) initWithString:(const string&) val;
+
+- (NSNumber*)      getBool;
+- (NSNumber*)       getInt;
+- (NSString*) getString;
+
+@end
+
+
 @interface OptionInformation : NSObject
 
 - (instancetype) initWithID:(NSString*)optionID withDescription:(NSString*)description;
@@ -45,6 +58,7 @@
 - (NSString*)                    getVideoDimensionsString;
 
 // Getter functions for the configuration options
+- (ConfigOptionWrapper*)         getOptionValue:(NSString*)optionID;       // Returns a ConfigOptionWrapper containing the value of the configuration option
 - (NSString*)                    getOptionValueString:(NSString*)optionID; // Returns a string corresponding to the value of the option corresponding to optionID
 - (NSArray<OptionInformation*>*) getOptionInformation;                     // Returns an array consisting of an OptionInformation instance for each recognised option
 
