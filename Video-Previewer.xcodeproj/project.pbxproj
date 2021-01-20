@@ -55,6 +55,7 @@
 		AFFB215D25AE392B008B2295 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AFFB215E25AE392B008B2295 /* Video_Previewer_GUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Video_Previewer_GUI.entitlements; sourceTree = "<group>"; };
 		AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Video-Previewer-GUI-Bridging-Header.h"; sourceTree = "<group>"; };
+		AFFDAC4925B8E88A002D8D64 /* PreviewWrapperCpp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PreviewWrapperCpp.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +112,7 @@
 			children = (
 				AF5101B225AE48B000B8B5E6 /* PreviewWrapper.hpp */,
 				AF5101B125AE48B000B8B5E6 /* PreviewWrapper.mm */,
+				AFFDAC4925B8E88A002D8D64 /* PreviewWrapperCpp.hpp */,
 				AFFB215125AE392A008B2295 /* AppDelegate.swift */,
 				AFFB215325AE392A008B2295 /* ContentView.swift */,
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
