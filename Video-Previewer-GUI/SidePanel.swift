@@ -68,7 +68,7 @@ struct InfoRowView: View, Identifiable {
     var body: some View {
         HStack(alignment: .top) {
             Text(id)
-                .foregroundColor(Color.gray)
+                .foregroundColor(.gray)
                 .frame(width: 120, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
@@ -108,8 +108,10 @@ struct Triangle: Shape {
    ----------------------------------------------------------------------------------------------------*/
 
 struct InfoBlockView: View {
+    @EnvironmentObject var globalVars: GlobalVars
     var title: String;
     var info:  [InfoPair];
+    var displaysFrameInfo = false
     
     @State private var isExpanded = true;
     
@@ -130,9 +132,14 @@ struct InfoBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
+                if (displaysFrameInfo && globalVars.selectedFrame == nil) {
+                    Text("No frame selected")
+                        .foregroundColor(.gray)
+                } else {
                 ForEach(info) { i in InfoRowView(info: i) }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
+                }
             }
         }
     }
@@ -217,7 +224,8 @@ struct SidePanelView: View {
                             [
                                 InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
                                 InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
-                            ]
+                            ],
+                                      displaysFrameInfo: true
                         )
                         Spacer()
                         Divider()
