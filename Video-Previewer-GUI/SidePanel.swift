@@ -192,7 +192,7 @@ func doNothing() { }
    ----------------------------------------------------------------------------------------------------*/
 
 struct SidePanelView: View {
-    @EnvironmentObject var selectedFrame: SelectedFrame
+    @EnvironmentObject var globalVars: GlobalVars
     var vp: VideoPreviewWrapper
     
     var body: some View {
@@ -215,8 +215,8 @@ struct SidePanelView: View {
                         Divider()
                         InfoBlockView(title: "Frame Information",     info:
                             [
-                                InfoPair(id: "Frame #",    value: selectedFrame.frame == nil ? "-" : String(selectedFrame.frame!.getFrameNumber()) ),
-                                InfoPair(id: "Time stamp", value: selectedFrame.frame == nil ? "-" : selectedFrame.frame!.getTimeStampString()     ),
+                                InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
+                                InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
                             ]
                         )
                         Spacer()

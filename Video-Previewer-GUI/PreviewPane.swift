@@ -7,21 +7,13 @@
 
 import SwiftUI
 
-/*----------------------------------------------------------------------------------------------------
-    MARK: - SelectedFrame
-   ----------------------------------------------------------------------------------------------------*/
-
-class SelectedFrame: ObservableObject {
-    @Published var frame: FrameWrapper? = nil
-}
-
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - FramePreviewView
    ----------------------------------------------------------------------------------------------------*/
 
 struct FramePreviewView: View {
-    @EnvironmentObject var selectedFrame: SelectedFrame
+    @EnvironmentObject var globalVars: GlobalVars
     let frame: FrameWrapper
     
     var body: some View {
@@ -30,7 +22,7 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
-                .border(frame.getFrameNumber() == selectedFrame.frame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
+                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             Text("\(frame.getFrameNumber())")
                 .foregroundColor(Color.white)
                 .padding(.all, 2.0)
@@ -38,11 +30,11 @@ struct FramePreviewView: View {
                 .padding(.all, frameBorderWidth)
         }
         .onTapGesture {
-            if (selectedFrame.frame != nil && selectedFrame.frame?.getFrameNumber() == frame.getFrameNumber()) {
-                selectedFrame.frame = nil      // If this frame is selected
+            if (globalVars.selectedFrame != nil && globalVars.selectedFrame?.getFrameNumber() == frame.getFrameNumber()) {
+                globalVars.selectedFrame = nil      // If this frame is selected
                 return
             }
-            selectedFrame.frame = self.frame  // If either no frame or a different frame is selected
+            globalVars.selectedFrame = self.frame  // If either no frame or a different frame is selected
         }
     }
 }
