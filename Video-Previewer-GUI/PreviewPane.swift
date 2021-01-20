@@ -52,23 +52,21 @@ struct PreviewPaneView: View {
     var body: some View {
         ZStack {
             Color(red: 0.98, green: 0.98, blue: 0.98, opacity: 1.0).edgesIgnoringSafeArea(.all)
-            VStack {
-                ScrollView() {
-                    VStack(alignment:.leading){
-                        ForEach(0..<rows, id: \.self) { i in
-                            HStack(spacing: 0) {
-                                ForEach(0..<cols, id: \.self) { j in
-                                    let index = i*cols + j
-                                    if (index < frames.count)
-                                    {
-                                            FramePreviewView(frame: frames[index]!)
-                                    }
+            ScrollView() {
+                VStack(alignment:.leading){
+                    ForEach(0..<rows, id: \.self) { i in
+                        HStack(spacing: 0) {
+                            ForEach(0..<cols, id: \.self) { j in
+                                let index = i*cols + j
+                                if (index < frames.count)
+                                {
+                                        FramePreviewView(frame: frames[index]!)
                                 }
-                                Spacer()
                             }
+                            Spacer()
                         }
-                    }.padding(.all, CGFloat(previewPadding))
-                }
+                    }
+                }.padding([.vertical,.leading], CGFloat(previewPadding)) // No need to pad the RHS because the size of the view takes that into account
             }
         }
     }
