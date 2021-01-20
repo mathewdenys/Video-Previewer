@@ -8,12 +8,21 @@
 import SwiftUI
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - SelectedFrame
+   ----------------------------------------------------------------------------------------------------*/
+
+class SelectedFrame: ObservableObject {
+    @Published var frame: FrameWrapper? = nil
+}
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - FramePreviewView
    ----------------------------------------------------------------------------------------------------*/
 
 struct FramePreviewView: View {
+    @EnvironmentObject var selectedFrame: SelectedFrame
     let frame: FrameWrapper
-    @State var isSelected = false
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
@@ -21,7 +30,7 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
-                .border(isSelected ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
+                .border(frame.getFrameNumber() == selectedFrame.frame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             Text("\(frame.getFrameNumber())")
                 .foregroundColor(Color.white)
                 .padding(.all, 2.0)
@@ -29,8 +38,11 @@ struct FramePreviewView: View {
                 .padding(.all, frameBorderWidth)
         }
         .onTapGesture {
-            isSelected = !isSelected;
-            print("frame \(frame.getFrameNumber()) is \(isSelected ? "" : "not") selected")
+            if (selectedFrame.frame != nil && selectedFrame.frame?.getFrameNumber() == frame.getFrameNumber()) {
+                selectedFrame.frame = nil      // If this frame is selected
+                return
+            }
+            selectedFrame.frame = self.frame  // If either no frame or a different frame is selected
         }
     }
 }

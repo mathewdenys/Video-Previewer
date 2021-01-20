@@ -32,16 +32,6 @@ public extension View {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Temporary data
-   ----------------------------------------------------------------------------------------------------*/
-
-var tempInfo = [
-    InfoPair(id: "Frame #",     value: "-", tooltip: ""),
-    InfoPair(id: "Time stamp",  value: "-", tooltip: ""),
-]
-
-
-/*----------------------------------------------------------------------------------------------------
     MARK: - InfoPair
    ----------------------------------------------------------------------------------------------------*/
 
@@ -202,6 +192,7 @@ func doNothing() { }
    ----------------------------------------------------------------------------------------------------*/
 
 struct SidePanelView: View {
+    @EnvironmentObject var selectedFrame: SelectedFrame
     var vp: VideoPreviewWrapper
     
     var body: some View {
@@ -222,7 +213,12 @@ struct SidePanelView: View {
                             ]
                         )
                         Divider()
-                        InfoBlockView(title: "Frame Information",     info: tempInfo)
+                        InfoBlockView(title: "Frame Information",     info:
+                            [
+                                InfoPair(id: "Frame #",    value: selectedFrame.frame == nil ? "-" : String(selectedFrame.frame!.getFrameNumber()) ),
+                                InfoPair(id: "Time stamp", value: "-"),
+                            ]
+                        )
                         Spacer()
                         Divider()
                         ConfigBlockView(title: "Configuration Options", vp: self.vp)
