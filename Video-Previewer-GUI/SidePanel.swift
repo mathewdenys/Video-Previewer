@@ -216,7 +216,7 @@ struct SidePanelView: View {
                         InfoBlockView(title: "Frame Information",     info:
                             [
                                 InfoPair(id: "Frame #",    value: selectedFrame.frame == nil ? "-" : String(selectedFrame.frame!.getFrameNumber()) ),
-                                InfoPair(id: "Time stamp", value: "-"),
+                                InfoPair(id: "Time stamp", value: selectedFrame.frame == nil ? "-" : selectedFrame.frame!.getTimeStampString()     ),
                             ]
                         )
                         Spacer()

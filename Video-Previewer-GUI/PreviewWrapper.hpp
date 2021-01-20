@@ -11,8 +11,9 @@
 @interface FrameWrapper : NSObject
 //
 //- (instancetype) initFromFrame:(const Frame&)frameIn;
-- (NSImage*)     getImage;
-- (int)          getFrameNumber;
+- (NSImage*)  getImage;
+- (NSString*) getTimeStampString;
+- (int)       getFrameNumber;
 //
 @end
 

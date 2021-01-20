@@ -24,6 +24,17 @@
 using cv::Mat;
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - Functions
+   ----------------------------------------------------------------------------------------------------*/
+
+// Convert an integer representing a number of seconds to a timestamp of the form hh:mm:ss
+string secondsToTimeStamp(const int seconds);
+
+// Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
+// Rounds down to the nearest integer
+int frameNumberToSeconds(const int frameNumber, const int fps);
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - Frame
    ----------------------------------------------------------------------------------------------------*/
 
@@ -31,15 +42,19 @@ using cv::Mat;
 class Frame
 {
 public:
-    Frame(const Mat& dataIn, const int frameNumberIn) : data{ dataIn }, frameNumber{ frameNumberIn } {}
+    Frame(const Mat& dataIn, const int frameNumberIn, const double fps)
+        : data{ dataIn }, frameNumber{ frameNumberIn }, seconds{ frameNumberToSeconds(frameNumberIn, fps) }
+    {}
     
     Mat getData()                     const { return data; }
     int getFrameNumber()              const { return frameNumber; }
     int getFrameNumberHumanReadable() const { return frameNumber + 1; } // OpenCV indexes frames from 0
+    string gettimeStampString()       const { return secondsToTimeStamp(seconds); }
 
 private:
     Mat data;
     int frameNumber;
+    int seconds;
 };
 
 
@@ -145,20 +160,8 @@ public:
     
     string getVideoLengthString()
     {
-        double fps     = video.getFPS();
-        int    nFrames = video.getNumberOfFrames();
-        
-        int    seconds = nFrames / fps;
-        
-        int h = seconds / 60*60;
-        int m = seconds / 60;
-        int s = seconds % 60;
-        
-        string H = h<10 ? '0' + std::to_string(h) : std::to_string(h);
-        string M = m<10 ? '0' + std::to_string(m) : std::to_string(m);
-        string S = s<10 ? '0' + std::to_string(s) : std::to_string(s);
-        
-        return H + ':' + M + ':' + S;
+        int    seconds = frameNumberToSeconds(video.getNumberOfFrames(), video.getFPS());
+        return secondsToTimeStamp(seconds);
     }
     
     const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }

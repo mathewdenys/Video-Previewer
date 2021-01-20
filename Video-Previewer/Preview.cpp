@@ -1,6 +1,28 @@
 #include "Preview.hpp"
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - Functions
+   ----------------------------------------------------------------------------------------------------*/
+
+string secondsToTimeStamp(const int seconds)
+{
+    int h = seconds / 60*60;
+    int m = seconds / 60;
+    int s = seconds % 60;
+
+    string H = h<10 ? '0' + std::to_string(h) : std::to_string(h);
+    string M = m<10 ? '0' + std::to_string(m) : std::to_string(m);
+    string S = s<10 ? '0' + std::to_string(s) : std::to_string(s);
+
+    return H + ':' + M + ':' + S;
+}
+
+// Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
+// Rounds down to the nearest integer
+int frameNumberToSeconds(const int frameNumber, const int fps) { return frameNumber / fps; }
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - Video
    ----------------------------------------------------------------------------------------------------*/
 
@@ -155,7 +177,7 @@ void VideoPreview::makeFrames()
         Mat currentFrameMat;
         video.setFrameNumber(frameNumber);
         video.writeCurrentFrame(currentFrameMat);
-        frames.emplace_back(currentFrameMat, frameNumber);
+        frames.emplace_back(currentFrameMat, frameNumber, video.getFPS());
         i++;
     }
 }

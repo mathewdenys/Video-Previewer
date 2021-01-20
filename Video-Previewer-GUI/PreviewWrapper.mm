@@ -90,13 +90,15 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 @implementation FrameWrapper
 {
     @private
-    NSImage* image;
-    int      frameNumber;
+    NSImage*  image;
+    NSString* timeStamp;
+    int       frameNumber;
 }
 
 - (FrameWrapper*) initFromFrame:(const Frame&)frameIn
 {
     frameNumber = frameIn.getFrameNumberHumanReadable();
+    timeStamp   = [NSString fromString:frameIn.gettimeStampString()];
     
     // Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
     Mat cvMat;
@@ -136,8 +138,9 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return self;
 }
 
-- (NSImage*) getImage       { return image; }
-- (int)      getFrameNumber { return frameNumber; }
+- (NSImage*)  getImage           { return image; }
+- (NSString*) getTimeStampString { return timeStamp; }
+- (int)       getFrameNumber     { return frameNumber; }
 
 @end
 
