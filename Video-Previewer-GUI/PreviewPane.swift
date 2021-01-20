@@ -13,6 +13,7 @@ import SwiftUI
 
 struct FramePreviewView: View {
     let frame: FrameWrapper
+    @State var isSelected = false
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
@@ -20,11 +21,16 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
+                .border(isSelected ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             Text("\(frame.getFrameNumber())")
                 .foregroundColor(Color.white)
                 .padding(.all, 2.0)
                 .background(Color(red:0, green:0, blue:0, opacity:0.2))
-                .padding(.all, 3.0)
+                .padding(.all, frameBorderWidth)
+        }
+        .onTapGesture {
+            isSelected = !isSelected;
+            print("frame \(frame.getFrameNumber()) is \(isSelected ? "" : "not") selected")
         }
     }
 }

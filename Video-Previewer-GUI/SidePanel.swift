@@ -202,7 +202,6 @@ func doNothing() { }
    ----------------------------------------------------------------------------------------------------*/
 
 struct SidePanelView: View {
-    
     var vp: VideoPreviewWrapper
     
     var body: some View {
