@@ -4,22 +4,28 @@
     MARK: - Functions
    ----------------------------------------------------------------------------------------------------*/
 
-string secondsToTimeStamp(const int seconds)
+string secondsToTimeStamp(const double seconds)
 {
-    int h = seconds / 60*60;
-    int m = seconds / 60;
-    int s = seconds % 60;
+    int iseconds = static_cast<int>(seconds);
+    
+    int h = iseconds / 60*60;
+    int m = iseconds / 60;
+    int s = iseconds % 60;
+    int r = int(seconds*100 - (floor(seconds))*100); // First two decimal places of `seconds`
+    
+    auto intToString { [](int i){ return i<10 ? '0' + std::to_string(i) : std::to_string(i); } };
 
-    string H = h<10 ? '0' + std::to_string(h) : std::to_string(h);
-    string M = m<10 ? '0' + std::to_string(m) : std::to_string(m);
-    string S = s<10 ? '0' + std::to_string(s) : std::to_string(s);
-
-    return H + ':' + M + ':' + S;
+    string H = intToString(h);
+    string M = intToString(m);
+    string S = intToString(s);
+    string R = intToString(r);
+    
+    return H + ':' + M + ':' + S + ':' + R;
 }
 
 // Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
 // Rounds down to the nearest integer
-int frameNumberToSeconds(const int frameNumber, const int fps) { return frameNumber / fps; }
+double frameNumberToSeconds(const int frameNumber, const int fps) { return static_cast<double>(frameNumber) / fps; }
 
 
 /*----------------------------------------------------------------------------------------------------

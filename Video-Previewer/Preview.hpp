@@ -28,11 +28,11 @@ using cv::Mat;
    ----------------------------------------------------------------------------------------------------*/
 
 // Convert an integer representing a number of seconds to a timestamp of the form hh:mm:ss
-string secondsToTimeStamp(const int seconds);
+string secondsToTimeStamp(const double seconds);
 
 // Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
 // Rounds down to the nearest integer
-int frameNumberToSeconds(const int frameNumber, const int fps);
+double frameNumberToSeconds(const int frameNumber, const int fps);
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - Frame
@@ -52,9 +52,9 @@ public:
     string gettimeStampString()       const { return secondsToTimeStamp(seconds); }
 
 private:
-    Mat data;
-    int frameNumber;
-    int seconds;
+    Mat    data;
+    int    frameNumber;
+    double seconds;
 };
 
 
