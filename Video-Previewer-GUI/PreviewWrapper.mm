@@ -220,6 +220,23 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return options;
 }
 
+
+- (void) setOptionValue:(NSString*)optionID withBool:(bool)val
+{
+    vp->setOption([optionID getString], val);
+}
+
+- (void) setOptionValue:(NSString*)optionID withInt:(int)val
+{
+    vp->setOption([optionID getString], val);
+}
+
+- (void) setOptionValue:(NSString*)optionID withString:(NSString *)val
+{
+    vp->setOption([optionID getString], [val getString]);
+}
+
+
 - (NSArray<FrameWrapper*>*) getFrames
 {
     vector<Frame> frames = vp->getFrames();

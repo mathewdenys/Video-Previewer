@@ -23,8 +23,8 @@
 //- (instancetype) initWithInt:   (int )     val;
 //- (instancetype) initWithString:(const string&) val;
 
-- (NSNumber*)      getBool;
-- (NSNumber*)       getInt;
+- (NSNumber*) getBool;
+- (NSNumber*) getInt;
 - (NSString*) getString;
 
 @end
@@ -56,12 +56,16 @@
 - (NSString*)                    getVideoNumOfFramesString;
 - (NSString*)                    getVideoDimensionsString;
 
-// Getter functions for the configuration options
+// Getter & setter functions for the configuration options
 - (ConfigOptionWrapper*)         getOptionValue:(NSString*)optionID;       // Returns a ConfigOptionWrapper containing the value of the configuration option
 - (NSString*)                    getOptionValueString:(NSString*)optionID; // Returns a string corresponding to the value of the option corresponding to optionID
 - (NSArray<OptionInformation*>*) getOptionInformation;                     // Returns an array consisting of an OptionInformation instance for each recognised option
 
+- (void)                         setOptionValue:(NSString*)optionID withBool:(bool)val;
+- (void)                         setOptionValue:(NSString*)optionID withInt:(int)val;
+- (void)                         setOptionValue:(NSString*)optionID withString:(NSString*)val;
+
 // Getter function for the preview video frames
-- (NSArray<FrameWrapper*>*)       getFrames;                               // Returns an array consisting of a FrameWrapper for each frame in the preview
+- (NSArray<FrameWrapper*>*)      getFrames;                               // Returns an array consisting of a FrameWrapper for each frame in the preview
 
 @end
