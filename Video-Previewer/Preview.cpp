@@ -78,12 +78,45 @@ void VideoPreview::updatePreview()
 
 }
 
-void VideoPreview::setOption(const ConfigOption& optionIn)
+void VideoPreview::setOption(const string& optionID, const bool val)
 {
+    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
     try
     {
-        cout << "Setting configuration option \"" << optionIn.getID() << "\" to value \"" << optionIn.getValueAsString() << "\"\n";
-        optionsHandler.setOption(optionIn);
+        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << (val ? "true" : "false") << "\"\n";
+        optionsHandler.getOptions().getOption(optionID)->setValue(val);
+    }
+    catch (const FileException& exception)
+    {
+        std::cerr << exception.what();
+        return;
+    }
+    updatePreview();
+}
+
+void VideoPreview::setOption(const string& optionID, const int val)
+{
+    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
+    try
+    {
+        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << val << "\"\n";
+        optionsHandler.getOptions().getOption(optionID)->setValue(val);
+    }
+    catch (const FileException& exception)
+    {
+        std::cerr << exception.what();
+        return;
+    }
+    updatePreview();
+}
+
+void VideoPreview::setOption(const string& optionID, const string val)
+{
+    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
+    try
+    {
+        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << val << "\"\n";
+        optionsHandler.getOptions().getOption(optionID)->setValue(val);
     }
     catch (const FileException& exception)
     {

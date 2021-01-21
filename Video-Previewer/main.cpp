@@ -18,8 +18,7 @@ int main( int argc, char** argv )
         vidprev.loadVideo();
         vidprev.updatePreview();
         
-        ConfigOption updatedOption{"number_of_frames",2};
-        vidprev.setOption(updatedOption);
+        vidprev.setOption("number_of_frames","test (should fail)");
         //vidprev.saveOption(vidprev.getOption("number_of_frames"), "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
         vidprev.saveAllOptions("/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
     }

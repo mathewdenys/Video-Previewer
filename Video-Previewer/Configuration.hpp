@@ -147,20 +147,29 @@ public:
     
     void setValue(const bool value)
     {
+        ConfigValuePtr oldValue { optionValue };
         optionValue = std::make_shared<ConfigValueBool>(value);
         determineValidity();
+        if (!hasValidValue)
+            optionValue = oldValue;
     }
     
     void setValue(const int value)
     {
+        ConfigValuePtr oldValue { optionValue };
         optionValue = std::make_shared<ConfigValueInt>(value);
         determineValidity();
+        if (!hasValidValue)
+            optionValue = oldValue;
     }
     
     void setValue(const string value)
     {
+        ConfigValuePtr oldValue { optionValue };
         optionValue = std::make_shared<ConfigValueString>(value);
         determineValidity();
+        if (!hasValidValue)
+            optionValue = oldValue;
     }
     
     string  getDescription() const
@@ -281,16 +290,6 @@ public:
         return nullptr;
     }
 
-    // Add a new configuration option to the `options` vector.
-    // If the option already exists in `options`, the current value is removed first, to avoid conflicts
-    void setOption(const ConfigOption& optionIn)
-    {
-        auto IDexists = [&](ConfigOptionPtr option) { return option->getID() == optionIn.getID(); };
-
-        options.erase( std::remove_if(options.begin(), options.end(), IDexists), options.end() );
-        options.push_back( std::make_shared<ConfigOption>(optionIn) );
-    }
-
 private:
     vector<ConfigOptionPtr> options {};
 };
@@ -364,7 +363,6 @@ using ConfigFilePtr = std::shared_ptr<ConfigFile>;
 // Container class for dealing with configuration options. Has three main purposes
 //      1. Merging all the configuration files into a single set of options
 //      2. Storing the current state of the configuration options
-//          2a. Providing a public interface for changing configuration options
 //      3. Writing options to configuration files
 class ConfigOptionsHandler
 {
@@ -375,7 +373,6 @@ public:
     vector<ConfigFilePtr>&     getConfigFiles()                        { return configFiles; }
     const ConfigOptionVector&  getOptions()                            { return configOptions; }
     const ConfigOptionVector&  getInvalidOptions()                     { return invalidConfigOptions; }
-    void                       setOption(const ConfigOption& optionIn) { configOptions.setOption(optionIn); }
 
     // Save a set of current configuration options to a preexisting configuration file
     // The first time that the given option is found in the file, the up-to-date value is overwritten
