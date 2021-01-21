@@ -5,23 +5,12 @@
 //  Created by Mathew Denys on 13/01/21.
 //
 
-#include "PreviewWrapper.hpp"
-#include "Preview.hpp"
+#import "PreviewWrapperCpp.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - NSString - std::string conversion
+    MARK: - NSString
         - From: https://stackoverflow.com/a/7424962
    ----------------------------------------------------------------------------------------------------*/
-
-@interface NSString (cppstring_additions)
-
-+(NSString*) fromString:(const string&)s;
-+(NSString*) fromWString:(const wstring&)ws;
--(string)    getString;
--(wstring)   getWString;
-
-@end
-
 
 @implementation NSString (cppstring_additions)
 
@@ -117,6 +106,15 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     int       frameNumber;
 }
 
+- (NSImage*)  getImage           { return image; }
+- (NSString*) getTimeStampString { return timeStamp; }
+- (int)       getFrameNumber     { return frameNumber; }
+
+@end
+
+
+@implementation FrameWrapper (cpp_compatibility)
+
 - (FrameWrapper*) initFromFrame:(const Frame&)frameIn
 {
     frameNumber = frameIn.getFrameNumberHumanReadable();
@@ -160,12 +158,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return self;
 }
 
-- (NSImage*)  getImage           { return image; }
-- (NSString*) getTimeStampString { return timeStamp; }
-- (int)       getFrameNumber     { return frameNumber; }
-
 @end
-
 
 
 /*----------------------------------------------------------------------------------------------------

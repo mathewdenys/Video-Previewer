@@ -10,7 +10,6 @@
 
 @interface FrameWrapper : NSObject
 //
-//- (instancetype) initFromFrame:(const Frame&)frameIn;
 - (NSImage*)  getImage;
 - (NSString*) getTimeStampString;
 - (int)       getFrameNumber;
