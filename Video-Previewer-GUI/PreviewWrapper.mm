@@ -20,13 +20,13 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE);
 #endif
 
-+(NSString*) fromString:(const string&)s
++(NSString*) fromStdString:(const string&)s
 {
     NSString* result = [[NSString alloc] initWithUTF8String:s.c_str()];
     return result;
 }
 
-+(NSString*) fromWString:(const wstring&)ws
++(NSString*) fromStdWString:(const wstring&)ws
 {
     char* data = (char*)ws.data();
     unsigned long size = ws.size() * sizeof(wchar_t);
@@ -35,12 +35,12 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return result;
 }
 
--(string) getString
+-(string) getStdString
 {
     return [self UTF8String];
 }
 
--(wstring) getWString
+-(wstring) getStdWString
 {
     NSData* asData = [self dataUsingEncoding:kEncoding_wchar_t];
     return std::wstring((wchar_t*)[asData bytes], [asData length] / sizeof(wchar_t));
@@ -62,7 +62,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 - (ConfigOptionWrapper*) initWithBool:  (const bool)    val { boolVal   = [NSNumber numberWithBool: val]; return self; }
 - (ConfigOptionWrapper*) initWithInt:   (const int)     val { intVal    = [NSNumber numberWithInt:  val]; return self;  }
-- (ConfigOptionWrapper*) initWithString:(const string&) val { stringVal = [NSString fromString:     val]; return self;  }
+- (ConfigOptionWrapper*) initWithString:(const string&) val { stringVal = [NSString fromStdString:     val]; return self;  }
 
 - (NSNumber*) getBool   { return boolVal; }
 - (NSNumber*) getInt    { return intVal; }
@@ -131,7 +131,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (FrameWrapper*) initFromFrame:(const Frame&)frameIn
 {
     frameNumber = frameIn.getFrameNumberHumanReadable();
-    timeStamp   = [NSString fromString:frameIn.gettimeStampString()];
+    timeStamp   = [NSString fromStdString:frameIn.gettimeStampString()];
     
     // Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
     Mat cvMat;
@@ -186,7 +186,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 - (VideoPreviewWrapper*) init:(NSString*)filePath
 {
-    std::string filePathStdStr = [filePath getString];
+    std::string filePathStdStr = [filePath getStdString];
     vp = std::make_shared<VideoPreview>(filePathStdStr);
     
     [self loadConfig   ];
@@ -200,12 +200,12 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (void)      loadVideo           { vp->loadVideo();     }
 - (void)      updatePreview       { vp->updatePreview(); }
 
-- (NSString*) getVideoNameString        { return [NSString fromString:  vp->getVideoNameString()       ]; }
-- (NSString*) getVideoFPSString         { return [NSString fromString:  vp->getVideoFPSString()        ]; }
-- (NSString*) getVideoDimensionsString  { return [NSString fromWString: vp->getVideoDimensionsString() ]; }
-- (NSString*) getVideoNumOfFramesString { return [NSString fromString:  vp->getVideoNumOfFramesString()]; }
-- (NSString*) getVideoCodecString       { return [NSString fromString:  vp->getVideoCodecString()      ]; }
-- (NSString*) getVideoLengthString      { return [NSString fromString:  vp->getVideoLengthString()     ]; }
+- (NSString*) getVideoNameString        { return [NSString fromStdString:  vp->getVideoNameString()       ]; }
+- (NSString*) getVideoFPSString         { return [NSString fromStdString:  vp->getVideoFPSString()        ]; }
+- (NSString*) getVideoDimensionsString  { return [NSString fromStdWString: vp->getVideoDimensionsString() ]; }
+- (NSString*) getVideoNumOfFramesString { return [NSString fromStdString:  vp->getVideoNumOfFramesString()]; }
+- (NSString*) getVideoCodecString       { return [NSString fromStdString:  vp->getVideoCodecString()      ]; }
+- (NSString*) getVideoLengthString      { return [NSString fromStdString:  vp->getVideoLengthString()     ]; }
 
 - (ConfigOptionWrapper*) getOptionValue:(NSString*)optionID
 {
@@ -220,7 +220,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getOptionValueString:(NSString*)optionID
 {
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
-    return option ? [NSString fromString:option->getValueAsString()] : @"-";    // If the option isn't specified, display "-"
+    return option ? [NSString fromStdString:option->getValueAsString()] : @"-";    // If the option isn't specified, display "-"
 }
 
 - (NSArray<OptionInformation*>*) getOptionInformation
@@ -230,21 +230,21 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     NSMutableArray* options = [NSMutableArray new];
     for (auto opt: oim)
     {
-        NSString* i = [NSString fromString:opt.first];
-        NSString* d = [NSString fromString:opt.second.getDescription()];
+        NSString* i = [NSString fromStdString:opt.first];
+        NSString* d = [NSString fromStdString:opt.second.getDescription()];
         
         ValidOptionValue v = opt.second.getValidValues();
         NSString* v_string;
         switch (v)
         {
             case ValidOptionValue::eBoolean:
-                v_string = [NSString fromString:string("boolean")];
+                v_string = [NSString fromStdString:string("boolean")];
                  break;
             case ValidOptionValue::ePositiveInteger:
-                v_string = [NSString fromString:string("positiveInteger")];
+                v_string = [NSString fromStdString:string("positiveInteger")];
                  break;
             default:
-                v_string = [NSString fromString:string("string")];
+                v_string = [NSString fromStdString:string("string")];
                  break;
         }
         
@@ -253,7 +253,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
         {
             vector<string> strings_std { opt.second.getValidStrings() };
             for (string s : strings_std)
-                [strings_ns addObject: [NSString fromString:s]];
+                [strings_ns addObject: [NSString fromStdString:s]];
         }
         [options addObject: [[OptionInformation alloc] initWithID: i withDescription: d withValidValues:v_string withValidStrings:strings_ns] ];
     }
@@ -264,17 +264,17 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 - (void) setOptionValue:(NSString*)optionID withBool:(bool)val
 {
-    vp->setOption([optionID getString], val);
+    vp->setOption([optionID getStdString], val);
 }
 
 - (void) setOptionValue:(NSString*)optionID withInt:(int)val
 {
-    vp->setOption([optionID getString], val);
+    vp->setOption([optionID getStdString], val);
 }
 
 - (void) setOptionValue:(NSString*)optionID withString:(NSString *)val
 {
-    vp->setOption([optionID getString], [val getString]);
+    vp->setOption([optionID getStdString], [val getStdString]);
 }
 
 

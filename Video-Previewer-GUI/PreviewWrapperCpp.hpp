@@ -12,10 +12,10 @@
 
 @interface NSString (cppstring_additions)
 
-+(NSString*) fromString:(const string&)s;
-+(NSString*) fromWString:(const wstring&)ws;
--(string)    getString;
--(wstring)   getWString;
++(NSString*) fromStdString:(const string&)s;
++(NSString*) fromStdWString:(const wstring&)ws;
+-(string)    getStdString;
+-(wstring)   getStdWString;
 
 @end
 
