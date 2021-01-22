@@ -14,7 +14,6 @@ import SwiftUI
 
 struct FramePreviewView: View {
     @EnvironmentObject var globalVars: GlobalVars
-    var vp:    VideoPreviewWrapper
     let frame: FrameWrapper
     
     var body: some View {
@@ -25,7 +24,7 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let b = vp.getOptionValue("show_frame_info")?.getBool() {
+            if let b = globalVars.vp.getOptionValue("show_frame_info")?.getBool() {
                 if (b.boolValue) {
                     Text("\(frame.getFrameNumber())")
                         .foregroundColor(Color.white)
@@ -51,8 +50,7 @@ struct FramePreviewView: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct PreviewPaneView: View {
-    var vp:     VideoPreviewWrapper
-    var frames: [FrameWrapper?]
+    @EnvironmentObject var globalVars: GlobalVars
     let cols: Int
     let rows: Int
     
@@ -65,9 +63,9 @@ struct PreviewPaneView: View {
                         HStack(spacing: 0) {
                             ForEach(0..<cols, id: \.self) { j in
                                 let index = i*cols + j
-                                if (index < frames.count)
+                                if (index < globalVars.frames!.count)
                                 {
-                                    FramePreviewView(vp: self.vp, frame: frames[index]!)
+                                    FramePreviewView(frame: globalVars.frames![index]!)
                                 }
                             }
                             Spacer()

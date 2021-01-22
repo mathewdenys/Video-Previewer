@@ -152,8 +152,8 @@ struct InfoBlockView: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct ConfigBlockView: View {
+    @EnvironmentObject var globalVars: GlobalVars
     var title: String;
-    var vp:    VideoPreviewWrapper;
     
     @State private var isExpanded = true;
     
@@ -174,10 +174,10 @@ struct ConfigBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(vp.getOptionInformation(), id: \.self){ option in
+                ForEach(globalVars.vp.getOptionInformation(), id: \.self){ option in
                     InfoRowView(info: InfoPair(id: option.getID(),
-                            value: vp.getOptionValueString(option.getID()),
-                            tooltip: option.getDescription()))
+                                               value: globalVars.vp.getOptionValueString(option.getID()),
+                                               tooltip: option.getDescription()))
                     }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
@@ -200,7 +200,6 @@ func doNothing() { }
 
 struct SidePanelView: View {
     @EnvironmentObject var globalVars: GlobalVars
-    var vp: VideoPreviewWrapper
     
     var body: some View {
         HStack(spacing:0) {
@@ -211,12 +210,12 @@ struct SidePanelView: View {
                     VStack(alignment: .leading) {
                         InfoBlockView(title: "Video Information", info:
                             [
-                                InfoPair(id: "File path",   value: vp.getVideoNameString()),
-                                InfoPair(id: "Encoding",    value: vp.getVideoCodecString()),
-                                InfoPair(id: "Frame rate",  value: vp.getVideoFPSString()),
-                                InfoPair(id: "Length",      value: vp.getVideoLengthString()),
-                                InfoPair(id: "# of frames", value: vp.getVideoNumOfFramesString()),
-                                InfoPair(id: "Dimensions",  value: vp.getVideoDimensionsString()),
+                                InfoPair(id: "File path",   value: globalVars.vp.getVideoNameString()),
+                                InfoPair(id: "Encoding",    value: globalVars.vp.getVideoCodecString()),
+                                InfoPair(id: "Frame rate",  value: globalVars.vp.getVideoFPSString()),
+                                InfoPair(id: "Length",      value: globalVars.vp.getVideoLengthString()),
+                                InfoPair(id: "# of frames", value: globalVars.vp.getVideoNumOfFramesString()),
+                                InfoPair(id: "Dimensions",  value: globalVars.vp.getVideoDimensionsString()),
                             ]
                         )
                         Divider()
@@ -229,7 +228,7 @@ struct SidePanelView: View {
                         )
                         Spacer()
                         Divider()
-                        ConfigBlockView(title: "Configuration Options", vp: self.vp)
+                        ConfigBlockView(title: "Configuration Options")
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
@@ -241,7 +240,7 @@ struct SidePanelView: View {
 
 struct SidePanel_Previews: PreviewProvider {
     static var previews: some View {
-        SidePanelView(vp: VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov"))
+        SidePanelView()
             .frame(minWidth: 200, maxWidth: 250) // copy from ContentView.swift
     }
 }

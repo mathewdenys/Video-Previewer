@@ -25,8 +25,14 @@ let sidePanelMinWidth = 300.0 // The miniumum width of the side panel
     MARK: - GlobalVars
    ----------------------------------------------------------------------------------------------------*/
 
-class GlobalVars: ObservableObject {
-    @Published var selectedFrame: FrameWrapper? = nil
+class GlobalVars: ObservableObject {    
+    @Published var vp:            VideoPreviewWrapper = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    @Published var frames:        [FrameWrapper?]?    = nil
+    @Published var selectedFrame: FrameWrapper?       = nil
+    
+    init() {
+        frames = vp.getFrames()
+    }
 }
 
 /*----------------------------------------------------------------------------------------------------
@@ -34,10 +40,10 @@ class GlobalVars: ObservableObject {
    ----------------------------------------------------------------------------------------------------*/
 
 struct ContentView: View {
-    let vp = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
-    var frames: [FrameWrapper?]
+    @EnvironmentObject var globalVars: GlobalVars
     
     var body: some View {
+        
         GeometryReader { geometry in
             // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
             //  i.e. the width of the side panel + the width of a scrollbar on the side panel and on the preview pane + padding on each side of the preview
@@ -52,7 +58,7 @@ struct ContentView: View {
             let cols: Int = Int(maxWidthOfPreview / frameWidth)
             
             // Determine the number of rows required to display the frames
-            let rows: Int = (frames.count / cols) + 1
+            let rows: Int = (globalVars.frames!.count / cols) + 1
             
             // Determine the actual width of the entire video preview pane
             // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
@@ -60,19 +66,11 @@ struct ContentView: View {
             let previewWidth: Double = frameWidth*Double(cols) + scrollBarWidth + 2.0*previewPadding
             
             HStack(spacing:0) {
-                PreviewPaneView(vp: self.vp!, frames: self.frames, cols: cols, rows: rows)
+                PreviewPaneView(cols: cols, rows: rows)
                     .frame(width: CGFloat(previewWidth))
-                SidePanelView(vp: self.vp!)
+                SidePanelView()
             }
         }
-    }
-    
-    init() {
-        vp!.loadConfig()
-        vp!.loadVideo()
-        vp!.updatePreview()
-        
-        frames = vp!.getFrames()
     }
 }
 

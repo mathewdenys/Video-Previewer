@@ -175,6 +175,11 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 {
     std::string filePathStdStr = [filePath getString];
     vp = std::make_shared<VideoPreview>(filePathStdStr);
+    
+    [self loadConfig   ];
+    [self loadVideo    ];
+    [self updatePreview];
+    
     return self;
 }
 
