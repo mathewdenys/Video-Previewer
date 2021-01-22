@@ -32,9 +32,12 @@
 
 @interface OptionInformation : NSObject
 
-- (instancetype) initWithID:(NSString*)optionID withDescription:(NSString*)description;
-- (NSString*)    getID;
-- (NSString*)    getDescription;
+//- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues;
+- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues withValidStrings:(NSMutableArray<NSString*>*)validStrings;
+- (NSString*)           getID;
+- (NSString*)           getDescription;
+- (NSString*)           getValidValues;
+- (NSArray<NSString*>*) getValidStrings;
 
 @end
 

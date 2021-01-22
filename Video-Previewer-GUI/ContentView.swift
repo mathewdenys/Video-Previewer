@@ -13,7 +13,9 @@ import SwiftUI
 
 let almostBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0); // For text and shapes
 
-let frameBorderWidth  = CGFloat(3.0)
+let frameBorderWidth       = CGFloat(3.0)
+let infoDescriptionWidth   = CGFloat(80)  // Width of the first column in the information blocks
+let configDescriptionWidth = CGFloat(120)  // Width of the first column in the congiuation blocks
 
 let frameWidth        = 200.0 // The width of the individual frames in the video preview
 let previewPadding    = 15.0  // The padding around the frames in the video preview

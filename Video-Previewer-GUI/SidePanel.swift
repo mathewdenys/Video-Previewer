@@ -8,6 +8,42 @@
 import SwiftUI
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - Triangle
+   ----------------------------------------------------------------------------------------------------*/
+
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+
+        return path
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - NumbersOnly
+        - See: https://programmingwithswift.com/numbers-only-textfield-with-swiftui/
+   ----------------------------------------------------------------------------------------------------*/
+
+class NumbersOnly: ObservableObject {
+    @Published var value = "" {
+        didSet {
+            let filtered = value.filter { $0.isNumber }
+            
+            if value != filtered {
+                value = filtered
+            }
+        }
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - Tooltip
         - From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
    ----------------------------------------------------------------------------------------------------*/
@@ -69,7 +105,7 @@ struct InfoRowView: View, Identifiable {
         HStack(alignment: .top) {
             Text(id)
                 .foregroundColor(.gray)
-                .frame(width: 120, alignment: .trailing)
+                .frame(width: infoDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
                 .foregroundColor(almostBlack)
@@ -81,24 +117,6 @@ struct InfoRowView: View, Identifiable {
         id      = info.id;
         value   = info.value;
         tooltip = info.tooltip;
-    }
-}
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - Triangle
-   ----------------------------------------------------------------------------------------------------*/
-
-struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
-
-        return path
     }
 }
 
@@ -146,6 +164,66 @@ struct InfoBlockView: View {
 }
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigRowView
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigRowView: View, Identifiable {
+    @EnvironmentObject var globalVars: GlobalVars
+    var id:           String
+    var tooltip:      String
+    let valueType:    String
+    let validStrings: Array<String>
+    
+    @ObservedObject var input = NumbersOnly()
+    @State var selection = "temp..."
+    @State var temp = false
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Text(id)
+                .foregroundColor(.gray)
+                .frame(width: configDescriptionWidth, alignment: .trailing)
+                .toolTip(tooltip)
+            
+            // To work on: input methods for each config option, but they don't actually interact with the C++ code yet
+            switch valueType {
+            case "boolean":
+                Toggle("", isOn: $temp)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .labelsHidden()
+                
+            case "positiveInteger":
+                TextField("Input", text: $input.value)
+                    .foregroundColor(almostBlack)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+            case "string":
+                Picker("",selection: $selection) {
+                    ForEach(validStrings, id: \.self) { string in
+                            Text(string)
+                        }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .labelsHidden()
+            
+            default:
+                Text("Unknown")
+                    .foregroundColor(almostBlack)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+    
+    
+    init(id: String, tooltip: String, valueType: String, validStrings: Array<String>) {
+        self.id = id
+        self.tooltip = tooltip
+        self.valueType = valueType
+        self.validStrings = validStrings
+    }
+}
+
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - ConfigBlockView
@@ -156,6 +234,12 @@ struct ConfigBlockView: View {
     var title: String;
     
     @State private var isExpanded = true;
+    
+    func setOptionTest(ID: String, val: Bool)
+    {
+        globalVars.vp.setOptionValue(ID, with: true)
+    }
+    
     
     var body: some View {
         VStack {
@@ -174,13 +258,19 @@ struct ConfigBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(globalVars.vp.getOptionInformation(), id: \.self){ option in
-                    InfoRowView(info: InfoPair(id: option.getID(),
-                                               value: globalVars.vp.getOptionValueString(option.getID()),
-                                               tooltip: option.getDescription()))
+                ForEach(globalVars.vp.getOptionInformation(), id: \.self) { option in
+                    ConfigRowView(id: option.getID(),tooltip: option.getDescription(), valueType: option.getValidValues(), validStrings: option.getValidStrings() )
                     }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
+                
+                // Temporary: button that actually sends input to the C++ code
+                Button(action: {
+                        setOptionTest(ID: "show_frame_info", val: true)
+                }) {
+                    Text("Update show_frame_info")
+                }
+                
                 HStack(alignment: .center) {
                     Button("Save", action: doNothing)
                     Button("Export", action: doNothing)

@@ -77,20 +77,33 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 @implementation OptionInformation {
 @private
-    NSString* ID;
-    NSString* description;
+    NSString*           ID;
+    NSString*           description;
+    NSString*           validValues;
+    NSArray<NSString*>* validStrings;
 }
 
-- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description
+- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues
 {
     self->ID          = ID;
     self->description = description;
+    self->validValues = validValues;
+    
     return self;
 }
 
-- (NSString*) getID { return ID; }
+- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues withValidStrings:(NSArray<NSString*>*)validStrings
+{
+    self = [[OptionInformation alloc] initWithID: ID withDescription: description withValidValues: validValues];
+    self->validStrings = validStrings;
+    
+    return self;
+}
 
-- (NSString*) getDescription { return description; }
+- (NSString*)           getID           { return ID; }
+- (NSString*)           getDescription  { return description; }
+- (NSString*)           getValidValues  { return validValues; }
+- (NSArray<NSString*>*) getValidStrings { return validStrings; }
 
 @end
 
@@ -217,9 +230,32 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     NSMutableArray* options = [NSMutableArray new];
     for (auto opt: oim)
     {
-        NSString* i = [NSString stringWithUTF8String:(opt.first).c_str()];
-        NSString* d = [NSString stringWithUTF8String:(opt.second.getDescription()).c_str()];
-        [options addObject: [[OptionInformation alloc] initWithID: i withDescription: d] ];
+        NSString* i = [NSString fromString:opt.first];
+        NSString* d = [NSString fromString:opt.second.getDescription()];
+        
+        ValidOptionValue v = opt.second.getValidValues();
+        NSString* v_string;
+        switch (v)
+        {
+            case ValidOptionValue::eBoolean:
+                v_string = [NSString fromString:string("boolean")];
+                 break;
+            case ValidOptionValue::ePositiveInteger:
+                v_string = [NSString fromString:string("positiveInteger")];
+                 break;
+            default:
+                v_string = [NSString fromString:string("string")];
+                 break;
+        }
+        
+        NSMutableArray* strings_ns = [NSMutableArray new];
+        if (v == ValidOptionValue::eString)
+        {
+            vector<string> strings_std { opt.second.getValidStrings() };
+            for (string s : strings_std)
+                [strings_ns addObject: [NSString fromString:s]];
+        }
+        [options addObject: [[OptionInformation alloc] initWithID: i withDescription: d withValidValues:v_string withValidStrings:strings_ns] ];
     }
     
     return options;
