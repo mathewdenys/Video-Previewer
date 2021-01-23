@@ -50,23 +50,43 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionWrapper
+    MARK: - ConfigValueWrapper
    ----------------------------------------------------------------------------------------------------*/
 
-@implementation ConfigOptionWrapper {
+@implementation ConfigValueWrapper {
 @private
     NSNumber* boolVal;
     NSNumber* intVal;
     NSString* stringVal;
 }
 
-- (ConfigOptionWrapper*) initWithBool:  (const bool)    val { boolVal   = [NSNumber numberWithBool: val]; return self; }
-- (ConfigOptionWrapper*) initWithInt:   (const int)     val { intVal    = [NSNumber numberWithInt:  val]; return self;  }
-- (ConfigOptionWrapper*) initWithString:(const string&) val { stringVal = [NSString fromStdString:     val]; return self;  }
+- (ConfigValueWrapper*) initWithBool:  (const bool)    val { boolVal   = [NSNumber numberWithBool: val]; return self; }
+- (ConfigValueWrapper*) initWithInt:   (const int)     val { intVal    = [NSNumber numberWithInt:  val]; return self;  }
+- (ConfigValueWrapper*) initWithString:(const string&) val { stringVal = [NSString fromStdString:  val]; return self;  }
 
 - (NSNumber*) getBool   { return boolVal; }
 - (NSNumber*) getInt    { return intVal; }
 - (NSString*) getString { return stringVal; }
+
+@end
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigOptionWrapper
+   ----------------------------------------------------------------------------------------------------*/
+
+@implementation ConfigOptionWrapper {
+@private
+    NSString* ID;
+    ConfigValueWrapper* value;
+}
+
+- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withBoolValue:   (const bool)    val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithBool: val];   return self;}
+- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withIntValue:    (const int)     val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithInt: val];    return self;}
+- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withStringValue: (const string&) val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithString: val]; return self;}
+
+- (ConfigValueWrapper*) getValue { return value; }
+- (NSString*)           getID    { return ID;    }
 
 @end
 
@@ -207,14 +227,14 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getVideoCodecString       { return [NSString fromStdString:  vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromStdString:  vp->getVideoLengthString()     ]; }
 
-- (ConfigOptionWrapper*) getOptionValue:(NSString*)optionID
+- (ConfigValueWrapper*) getOptionValue:(NSString*)optionID
 {
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
     ConfigValuePtr  value  = option->getValue();
     
-    if (value->getBool().has_value())   { return [[ConfigOptionWrapper alloc] initWithBool:value->getBool().value()]; }
-    if (value->getInt().has_value())    { return [[ConfigOptionWrapper alloc] initWithInt: value->getInt().value()];  }
-    return [[ConfigOptionWrapper alloc] initWithString:value->getString().value()];
+    if (value->getBool().has_value())   { return [[ConfigValueWrapper alloc] initWithBool:value->getBool().value()]; }
+    if (value->getInt().has_value())    { return [[ConfigValueWrapper alloc] initWithInt: value->getInt().value()];  }
+    return [[ConfigValueWrapper alloc] initWithString:value->getString().value()];
 }
 
 - (NSString*) getOptionValueString:(NSString*)optionID
