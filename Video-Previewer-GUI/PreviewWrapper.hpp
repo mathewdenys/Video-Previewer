@@ -67,8 +67,10 @@
 - (NSString*)                    getVideoNumOfFramesString;
 - (NSString*)                    getVideoDimensionsString;
 
+- (NSNumber*)                    getVideoNumOfFrames;
+
 // Getter & setter functions for the configuration options
-- (ConfigValueWrapper*)         getOptionValue:(NSString*)optionID;       // Returns a ConfigValueWrapper containing the value of the configuration option
+- (ConfigValueWrapper*)          getOptionValue:(NSString*)optionID;       // Returns a ConfigValueWrapper containing the value of the configuration option
 - (NSString*)                    getOptionValueString:(NSString*)optionID; // Returns a string corresponding to the value of the option corresponding to optionID
 - (NSArray<OptionInformation*>*) getOptionInformation;                     // Returns an array consisting of an OptionInformation instance for each recognised option
 

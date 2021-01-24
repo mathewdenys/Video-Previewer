@@ -227,6 +227,8 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getVideoCodecString       { return [NSString fromStdString:  vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromStdString:  vp->getVideoLengthString()     ]; }
 
+- (NSNumber*) getVideoNumOfFrames { return [NSNumber numberWithInt:vp->getVideoNumOfFrames()]; }
+
 - (ConfigValueWrapper*) getOptionValue:(NSString*)optionID
 {
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));

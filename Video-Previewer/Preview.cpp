@@ -74,7 +74,10 @@ void VideoPreview::updatePreview()
             exportPreviewVideos();
     }
 
-    currentPreviewConfigOptions = optionsHandler.getOptions();
+    // Update `currentPreviewConfigOptions` (we explicitly don't want them to point to the same resource)
+    currentPreviewConfigOptions.clear();
+    for (ConfigOptionPtr opt : optionsHandler.getOptions())
+        currentPreviewConfigOptions.push_back(std::make_shared<ConfigOption>(opt->getID(),opt->getValue()));
 
 }
 

@@ -166,61 +166,131 @@ struct InfoBlockView: View {
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - ConfigRowView
+        A ConfigRowView is displayed for each recognised configuration option
+        A different display is defined for each possible value of OptionInformation.getValidValues()
    ----------------------------------------------------------------------------------------------------*/
 
 struct ConfigRowView: View, Identifiable {
     @EnvironmentObject var globalVars: GlobalVars
+    @ObservedObject    var intValidator = NumbersOnly()
+    
+    // Information relating to the configuration option being displayed
     var id:           String
     var tooltip:      String
     let valueType:    String
     let validStrings: Array<String>
     
-    @ObservedObject var input = NumbersOnly()
-    @State var selection = "temp..."
-    @State var temp = false
+    // Storing the value of the option. Initial values are assigned here; a "proper" value
+    // from globalVars.vp is assigned in the HStack.onAppear{} modifier
+    @State var inputBool:   Bool   = false
+    @State var inputInt:    Int    = 0
+    @State var inputString: String = ""
+    
+    
+    init(id: String, tooltip: String, valueType: String, validStrings: Array<String>) {
+        self.id           = id
+        self.tooltip      = tooltip
+        self.valueType    = valueType
+        self.validStrings = validStrings
+    }
+    
     
     var body: some View {
+        
+        // The following Bindings allow me to update globalVars.vp when the inputX variables
+        // are updated. They are required because the SwiftUI Toggle, Stepper, Picker etc. use
+        // double bindings when setting their value, and I need to be able to sneak in an run
+        // some additional code, rather than just updating the local variable.
+        // Another approach would be to use a didSet{} method on the inputX variables, but this
+        // has the rather significant downside of being called when the inputX variables are
+        // initialised in the .onAppear{}.
+        
+        let bindBool = Binding<Bool> (
+            get: { self.inputBool },
+            set: { self.inputBool = $0
+                   globalVars.vp.setOptionValue(id, with: inputBool)
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+
+        let bindInt = Binding<Int>(
+            get: { self.inputInt},
+            set: { self.inputInt = $0
+                   globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+
+        let bindString = Binding<String>(
+            get: { self.inputString},
+            set: { self.inputString = $0
+                   globalVars.vp.setOptionValue(id, with: inputString)
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
         HStack(alignment: .top) {
+            
+            // Left hand column: option ID
             Text(id)
                 .foregroundColor(.gray)
                 .frame(width: configDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
             
-            // To work on: input methods for each config option, but they don't actually interact with the C++ code yet
+            // Right hand column: option value (editable)
             switch valueType {
-            case "boolean":
-                Toggle("", isOn: $temp)
+            
+                /*------------------------------------------------------------
+                    Boolean value
+                 ------------------------------------------------------------*/
+                case "boolean":
+                    
+                    Toggle("", isOn: bindBool)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                    
+                /*------------------------------------------------------------
+                    Positive integer value
+                 ------------------------------------------------------------*/
+                case "positiveInteger":
+                    
+                    TextField("\(inputInt)",             // When not being interacted with, the TextField displays the current value of inputInt
+                              text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
+                              onCommit: {
+                                inputInt = Int(intValidator.value) ?? -1
+                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                globalVars.configUpdateCounter += 1
+                              }
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Stepper("", value: bindInt)
+                        .labelsHidden()
+                
+                /*------------------------------------------------------------
+                    String value
+                 ------------------------------------------------------------*/
+                case "string":
+                    
+                    Picker("",selection: bindString) {
+                        ForEach(validStrings, id: \.self) { string in Text(string) }
+                    }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
                 
-            case "positiveInteger":
-                TextField("Input", text: $input.value)
-                    .foregroundColor(almostBlack)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-            case "string":
-                Picker("",selection: $selection) {
-                    ForEach(validStrings, id: \.self) { string in
-                            Text(string)
-                        }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .labelsHidden()
-            
-            default:
-                Text("Unknown")
-                    .foregroundColor(almostBlack)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                /*------------------------------------------------------------
+                    Default value (should never be reached)
+                 ------------------------------------------------------------*/
+                default:
+                    Spacer()
             }
         }
-    }
-    
-    
-    init(id: String, tooltip: String, valueType: String, validStrings: Array<String>) {
-        self.id = id
-        self.tooltip = tooltip
-        self.valueType = valueType
-        self.validStrings = validStrings
+        .foregroundColor(almostBlack)
+        .onAppear {
+            if let b = globalVars.vp.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
+            if let i = globalVars.vp.getOptionValue(id)?.getInt()    { inputInt = i.intValue }
+            if let s = globalVars.vp.getOptionValue(id)?.getString() { inputString = s }
+        }
     }
 }
 
@@ -234,12 +304,6 @@ struct ConfigBlockView: View {
     var title: String;
     
     @State private var isExpanded = true;
-    
-    func setOptionTest(ID: String, val: Bool)
-    {
-        globalVars.vp.setOptionValue(ID, with: true)
-    }
-    
     
     var body: some View {
         VStack {
@@ -259,17 +323,10 @@ struct ConfigBlockView: View {
             
             if isExpanded {
                 ForEach(globalVars.vp.getOptionInformation(), id: \.self) { option in
-                    ConfigRowView(id: option.getID(),tooltip: option.getDescription(), valueType: option.getValidValues(), validStrings: option.getValidStrings() )
+                    ConfigRowView(id: option.getID(), tooltip: option.getDescription(), valueType: option.getValidValues(), validStrings: option.getValidStrings() )
                     }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 5.0)
-                
-                // Temporary: button that actually sends input to the C++ code
-                Button(action: {
-                        setOptionTest(ID: "show_frame_info", val: true)
-                }) {
-                    Text("Update show_frame_info")
-                }
                 
                 HStack(alignment: .center) {
                     Button("Save", action: doNothing)

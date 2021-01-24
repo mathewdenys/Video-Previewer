@@ -167,6 +167,8 @@ public:
         return secondsToTimeStamp(seconds);
     }
     
+    int getVideoNumOfFrames() { return video.getNumberOfFrames(); }
+    
     const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }
     
     vector<Frame> getFrames()   { return frames; }
