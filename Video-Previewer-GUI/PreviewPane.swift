@@ -14,7 +14,7 @@ import SwiftUI
 
 struct FramePreviewView: View {
     @EnvironmentObject var globalVars: GlobalVars
-    let frame: FrameWrapper
+    let frame: NSFramePreview
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
@@ -24,8 +24,8 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let s = globalVars.vp.getOptionValue("frame_info_overlay")?.getString() {
-                
+            if let s = globalVars.vp.getOptionValue("frame_info_overlay")?.getString()
+            {
                 VStack(alignment: .trailing) {
                     if (s == "both" || s == "timestamp") {
                         Text(frame.getTimeStampString())
@@ -87,9 +87,3 @@ struct PreviewPaneView: View {
         }
     }
 }
-
-//struct PreviewPane_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PreviewPaneView()
-//    }
-//}

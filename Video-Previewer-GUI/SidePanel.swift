@@ -27,7 +27,7 @@ struct Triangle: Shape {
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - NumbersOnly
-        - See: https://programmingwithswift.com/numbers-only-textfield-with-swiftui/
+        - From: https://programmingwithswift.com/numbers-only-textfield-with-swiftui/
    ----------------------------------------------------------------------------------------------------*/
 
 class NumbersOnly: ObservableObject {
@@ -47,6 +47,7 @@ class NumbersOnly: ObservableObject {
     MARK: - Tooltip
         - From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
    ----------------------------------------------------------------------------------------------------*/
+
 struct Tooltip: NSViewRepresentable {
     let tooltip: String
     
@@ -187,11 +188,11 @@ struct ConfigRowView: View, Identifiable {
     @State var inputString: String = ""
     
     
-    init(id: String, tooltip: String, valueType: String, validStrings: Array<String>) {
-        self.id           = id
-        self.tooltip      = tooltip
-        self.valueType    = valueType
-        self.validStrings = validStrings
+    init(option: NSOptionInformation) {
+        id           = option.getID()
+        tooltip      = option.getDescription()
+        valueType    = option.getValidValues()
+        validStrings = option.getValidStrings()
     }
     
     
@@ -363,7 +364,7 @@ struct ConfigBlockView: View {
             
             if isExpanded {
                 ForEach(globalVars.vp.getOptionInformation(), id: \.self) { option in
-                    ConfigRowView(id: option.getID(), tooltip: option.getDescription(), valueType: option.getValidValues(), validStrings: option.getValidStrings() )
+                    ConfigRowView(option: option)
                     }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 2.0)
@@ -395,22 +396,24 @@ struct SidePanelView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        InfoBlockView(title: "Video Information", info:
-                            [
-                                InfoPair(id: "File path",   value: globalVars.vp.getVideoNameString()),
-                                InfoPair(id: "Encoding",    value: globalVars.vp.getVideoCodecString()),
-                                InfoPair(id: "Frame rate",  value: globalVars.vp.getVideoFPSString()),
-                                InfoPair(id: "Length",      value: globalVars.vp.getVideoLengthString()),
-                                InfoPair(id: "# of frames", value: globalVars.vp.getVideoNumOfFramesString()),
-                                InfoPair(id: "Dimensions",  value: globalVars.vp.getVideoDimensionsString()),
-                            ]
+                        InfoBlockView(title: "Video Information",
+                                      info:
+                                        [
+                                            InfoPair(id: "File path",   value: globalVars.vp.getVideoNameString()),
+                                            InfoPair(id: "Encoding",    value: globalVars.vp.getVideoCodecString()),
+                                            InfoPair(id: "Frame rate",  value: globalVars.vp.getVideoFPSString()),
+                                            InfoPair(id: "Length",      value: globalVars.vp.getVideoLengthString()),
+                                            InfoPair(id: "# of frames", value: globalVars.vp.getVideoNumOfFramesString()),
+                                            InfoPair(id: "Dimensions",  value: globalVars.vp.getVideoDimensionsString()),
+                                        ]
                         )
                         Divider()
-                        InfoBlockView(title: "Frame Information",     info:
-                            [
-                                InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
-                                InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
-                            ],
+                        InfoBlockView(title: "Frame Information",
+                                      info:
+                                        [
+                                            InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
+                                            InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
+                                        ],
                                       displaysFrameInfo: true
                         )
                         Spacer()

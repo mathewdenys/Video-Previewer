@@ -22,20 +22,45 @@ using std::pair;
 namespace fs = std::filesystem;
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigValues
+     When adding support for a new option, ...
+        - Add an entry to `ConfigOption::recognisedOptionInfo` (declaration and definition)
+        - Add the required implementation to the .swift files
 
-        When adding support for a new option data type, update
-            - The set of "using OptionalX" statements
-            - Add a getX() function to BaseConfigValue
-            - Add a new ConfigValueX class
-            - Add a new ConfigOption constructor
-            - Add a new ConfigOption::setValue()
-            - ConfigFile::makeOptionFromStrings
-            - Add a new VideoPreview::setValue() method
-            - Add a new VideoPreviewWrapper::setValue:withX() method
-            - Add a new XVal variable and getX() method to ConfigValueWrapper
-            - Add a new ConfigValueWrapper::initWithX() medthod
-            - Add an inputX and bindX to ConfigRowView (and a corresponding entry in the .onAppear{})
+ 
+     When adding support for an option with a new set of "valid option values", ...
+        - Add an entry to the `ValidOptionValue` enum
+        - Add a case to ConfigOption::determineValidity()
+            - This may involve writing additional functions to call
+        - Add a case to NSVideoPreview::getOptionInformation()
+        - Add an entry to ConfigRowView for displaying the configuration option
+ 
+ 
+     When adding support for an option with a new underlying data type, ...
+        - Add a new "using OptionalX   = std::optional<X>" statement (at start of ConfigValues section)
+ 
+        - Define a corresponding BaseConfigValue::getX() method
+        - Define a corresponding ConfigValueX class
+ 
+        - Define a corresponding ConfigOption constructor
+        - Define a new ConfigOption::setValue() method
+ 
+        - Add an entry to ConfigFile::MakeOptionsFromStrings()
+ 
+        - Define a corresponding VideoPreview::setValue() method
+ 
+        - Add a corresponding NSConfigValue::XVal variable
+        - Define a corresponding NSConfigValue::initWithX() method
+        - Define a corresponding NSConfigValue::getX() method
+ 
+        - Define a corresponding NSVideoPreview::setValue:withX() method
+ 
+        - Add inputX and bindX variables to ConfigRowView
+            - Add corresponding entries in the .onAppear{}
+
+ ----------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigValues
    ----------------------------------------------------------------------------------------------------*/
 
 using OptionalBool   = std::optional<bool>;
@@ -105,15 +130,6 @@ private:
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - ConfigOption
-
-        When adding support for a new option, update
-            - ConfigOption::recognisedOptionInfo (declaration and definition)
-
-        When adding support for an option with a new set of "valid option values", update
-            - ValidOptionValue enum
-            - ConfigOption::determineValidity()
-            - VideoPreviewWrapper::getOptionInformation()
-            - Add a corresponding entry to ConfigRowView for displying the config option
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a ConfigOption may have
@@ -257,7 +273,7 @@ private:
     
 public:
     using OptionInformationMap = std::unordered_map<string,OptionInformation>;    
-    const static OptionInformationMap recognisedOptionInfo; // A map from each optionID that the program recognisesto an associated OptionInformation object
+    const static OptionInformationMap recognisedOptionInfo; // A map from each optionID that the program recognisesto an associated NSOptionInformation object
 };
 
 
@@ -311,7 +327,7 @@ private:
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigFile + derived classes
+    MARK: - ConfigFile
    ----------------------------------------------------------------------------------------------------*/
 
 // Base class corresponding to a single configuration file

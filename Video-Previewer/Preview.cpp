@@ -1,7 +1,7 @@
 #include "Preview.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Functions
+    MARK: - Global functions
    ----------------------------------------------------------------------------------------------------*/
 
 string secondsToTimeStamp(const double seconds)
@@ -24,8 +24,10 @@ string secondsToTimeStamp(const double seconds)
 }
 
 // Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
-// Rounds down to the nearest integer
-double frameNumberToSeconds(const int frameNumber, const int fps) { return static_cast<double>(frameNumber) / fps; }
+double frameNumberToSeconds(const int frameNumber, const int fps)
+{
+    return static_cast<double>(frameNumber) / fps;
+}
 
 
 /*----------------------------------------------------------------------------------------------------
@@ -51,7 +53,6 @@ void Video::exportVideo(const string& exportPath, const int frameBegin, const in
         ++frameNumber;
     }
 }
-
 
 
 /*----------------------------------------------------------------------------------------------------

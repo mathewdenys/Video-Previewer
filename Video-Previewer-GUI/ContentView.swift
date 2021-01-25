@@ -11,16 +11,16 @@ import SwiftUI
     MARK: - Constants
    ----------------------------------------------------------------------------------------------------*/
 
-let almostBlack = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0); // For text and shapes
+let almostBlack            = Color(red: 0.2, green: 0.2, blue: 0.2, opacity: 1.0); // For text and shapes
 
 let frameBorderWidth       = CGFloat(3.0)
-let infoDescriptionWidth   = CGFloat(80)   // Width of the first column in the information blocks
-let configDescriptionWidth = CGFloat(140)  // Width of the first column in the congiuation blocks
+let infoDescriptionWidth   = CGFloat(80)   // The width of the first column in the information blocks
+let configDescriptionWidth = CGFloat(140)  // The width of the first column in the congiuation blocks
 
-let frameWidth        = 200.0 // The width of the individual frames in the video preview
-let previewPadding    = 15.0  // The padding around the frames in the video preview
-let scrollBarWidth    = 15.0  // The width of a scrollbar in a ScrollView
-let sidePanelMinWidth = 300.0 // The miniumum width of the side panel
+let frameWidth             = 200.0         // The width of the individual frames in the video preview
+let previewPadding         = 15.0          // The padding around the frames in the video preview
+let scrollBarWidth         = 15.0          // The width of a scrollbar in a ScrollView
+let sidePanelMinWidth      = 300.0         // The miniumum width of the side panel
 
 
 /*----------------------------------------------------------------------------------------------------
@@ -28,9 +28,9 @@ let sidePanelMinWidth = 300.0 // The miniumum width of the side panel
    ----------------------------------------------------------------------------------------------------*/
 
 class GlobalVars: ObservableObject {    
-    @Published var vp:            VideoPreviewWrapper = VideoPreviewWrapper("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
-    @Published var frames:        [FrameWrapper?]?    = nil
-    @Published var selectedFrame: FrameWrapper?       = nil
+    @Published var vp:            NSVideoPreview = NSVideoPreview("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+    @Published var frames:        [NSFramePreview?]?    = nil
+    @Published var selectedFrame: NSFramePreview?       = nil
     
     // configUpdateCounter is incremented any time configuration options are updated in the GUI
     // It's actual value is not meaningful; all that matters is that it is @Published, so any View with a GlobalVars object will be updated

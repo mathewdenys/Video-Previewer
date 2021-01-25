@@ -4,8 +4,7 @@
     MARK: - ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
-// A map from each optionID that the program recognisesto an associated OptionInformation object
-// The order here determines the order the configuration options are displayed in the GUI
+// A map from each optionID that the program recognisesto an associated NSOptionInformation object
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"maximum_frames",     OptionInformation("The maximum number of frames to show",
                                              ValidOptionValue::ePositiveIntegerOrString,

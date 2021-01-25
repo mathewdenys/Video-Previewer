@@ -76,17 +76,17 @@ public:
             throw FileException("file either could not be opened or is not an accepted format\n", path);
     }
 
-    int      getFrameNumber()    const    { return vc.get(cv::CAP_PROP_POS_FRAMES);  }
-    int      getNumberOfFrames() const    { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
-    int      getCodec()          const    { return vc.get(cv::CAP_PROP_FOURCC); }
-    double   getFPS()            const    { return vc.get(cv::CAP_PROP_FPS);    }
-    cv::Size getDimensions()     const    { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
+    int      getFrameNumber()           const { return vc.get(cv::CAP_PROP_POS_FRAMES);  }
+    int      getNumberOfFrames()        const { return vc.get(cv::CAP_PROP_FRAME_COUNT); }
+    int      getCodec()                 const { return vc.get(cv::CAP_PROP_FOURCC); }
+    double   getFPS()                   const { return vc.get(cv::CAP_PROP_FPS);    }
+    cv::Size getDimensions()            const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
     
-    void setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    void writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); }                       // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
+    void     setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
+    void     writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); }                       // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
     // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
-    void exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
+    void     exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
 
 private:
     cv::VideoCapture vc;

@@ -1,137 +1,19 @@
 //
-//  PreviewWrapper.mm
+//  NSPreview.mm
 //  Video-Previewer
 //
 //  Created by Mathew Denys on 13/01/21.
 //
 
-#import "PreviewWrapperCpp.hpp"
+#import "NSStringCpp.hpp"
+#import "NSConfigCpp.hpp"
+#import "NSPreviewCpp.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - NSString
-        - From: https://stackoverflow.com/a/7424962
+    MARK: - NSFramePreview
    ----------------------------------------------------------------------------------------------------*/
 
-@implementation NSString (cppstring_additions)
-
-#if TARGET_RT_BIG_ENDIAN
-const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32BE);
-#else
-const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE);
-#endif
-
-+(NSString*) fromStdString:(const string&)s
-{
-    NSString* result = [[NSString alloc] initWithUTF8String:s.c_str()];
-    return result;
-}
-
-+(NSString*) fromStdWString:(const wstring&)ws
-{
-    char* data = (char*)ws.data();
-    unsigned long size = ws.size() * sizeof(wchar_t);
-
-    NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:kEncoding_wchar_t];
-    return result;
-}
-
--(string) getStdString
-{
-    return [self UTF8String];
-}
-
--(wstring) getStdWString
-{
-    NSData* asData = [self dataUsingEncoding:kEncoding_wchar_t];
-    return std::wstring((wchar_t*)[asData bytes], [asData length] / sizeof(wchar_t));
-}
-
-@end
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigValueWrapper
-   ----------------------------------------------------------------------------------------------------*/
-
-@implementation ConfigValueWrapper {
-@private
-    NSNumber* boolVal;
-    NSNumber* intVal;
-    NSString* stringVal;
-}
-
-- (ConfigValueWrapper*) initWithBool:  (const bool)    val { boolVal   = [NSNumber numberWithBool: val]; return self; }
-- (ConfigValueWrapper*) initWithInt:   (const int)     val { intVal    = [NSNumber numberWithInt:  val]; return self;  }
-- (ConfigValueWrapper*) initWithString:(const string&) val { stringVal = [NSString fromStdString:  val]; return self;  }
-
-- (NSNumber*) getBool   { return boolVal; }
-- (NSNumber*) getInt    { return intVal; }
-- (NSString*) getString { return stringVal; }
-
-@end
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOptionWrapper
-   ----------------------------------------------------------------------------------------------------*/
-
-@implementation ConfigOptionWrapper {
-@private
-    NSString* ID;
-    ConfigValueWrapper* value;
-}
-
-- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withBoolValue:   (const bool)    val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithBool: val];   return self;}
-- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withIntValue:    (const int)     val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithInt: val];    return self;}
-- (ConfigOptionWrapper*) initWithID: (const string&) IDIn withStringValue: (const string&) val { ID = [NSString fromStdString:IDIn]; value = [[ConfigValueWrapper alloc] initWithString: val]; return self;}
-
-- (ConfigValueWrapper*) getValue { return value; }
-- (NSString*)           getID    { return ID;    }
-
-@end
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - OptionInformation
-   ----------------------------------------------------------------------------------------------------*/
-
-@implementation OptionInformation {
-@private
-    NSString*           ID;
-    NSString*           description;
-    NSString*           validValues;
-    NSArray<NSString*>* validStrings;
-}
-
-- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues
-{
-    self->ID          = ID;
-    self->description = description;
-    self->validValues = validValues;
-    
-    return self;
-}
-
-- (OptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues withValidStrings:(NSArray<NSString*>*)validStrings
-{
-    self = [[OptionInformation alloc] initWithID: ID withDescription: description withValidValues: validValues];
-    self->validStrings = validStrings;
-    
-    return self;
-}
-
-- (NSString*)           getID           { return ID; }
-- (NSString*)           getDescription  { return description; }
-- (NSString*)           getValidValues  { return validValues; }
-- (NSArray<NSString*>*) getValidStrings { return validStrings; }
-
-@end
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - FrameWrapper
-   ----------------------------------------------------------------------------------------------------*/
-
-@implementation FrameWrapper
+@implementation NSFramePreview
 {
     @private
     NSImage*  image;
@@ -145,10 +27,11 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 @end
 
+// MARK: - NSFramePreview (cpp_compatibility)
 
-@implementation FrameWrapper (cpp_compatibility)
+@implementation NSFramePreview (cpp_compatibility)
 
-- (FrameWrapper*) initFromFrame:(const Frame&)frameIn
+- (NSFramePreview*) initFromFrame:(const Frame&)frameIn
 {
     frameNumber = frameIn.getFrameNumberHumanReadable();
     timeStamp   = [NSString fromStdString:frameIn.gettimeStampString()];
@@ -195,16 +78,16 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - VideoPreviewWrapper
+    MARK: - NSVideoPreview
    ----------------------------------------------------------------------------------------------------*/
 
-@implementation VideoPreviewWrapper
+@implementation NSVideoPreview
 {
     @private
     std::shared_ptr<VideoPreview> vp;
 }
 
-- (VideoPreviewWrapper*) init:(NSString*)filePath
+- (NSVideoPreview*) init:(NSString*)filePath
 {
     std::string filePathStdStr = [filePath getStdString];
     vp = std::make_shared<VideoPreview>(filePathStdStr);
@@ -216,9 +99,9 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return self;
 }
 
-- (void)      loadConfig          { vp->loadConfig();    }
-- (void)      loadVideo           { vp->loadVideo();     }
-- (void)      updatePreview       { vp->updatePreview(); }
+- (void)      loadConfig                { vp->loadConfig();    }
+- (void)      loadVideo                 { vp->loadVideo();     }
+- (void)      updatePreview             { vp->updatePreview(); }
 
 - (NSString*) getVideoNameString        { return [NSString fromStdString:  vp->getVideoNameString()       ]; }
 - (NSString*) getVideoFPSString         { return [NSString fromStdString:  vp->getVideoFPSString()        ]; }
@@ -227,16 +110,20 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 - (NSString*) getVideoCodecString       { return [NSString fromStdString:  vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromStdString:  vp->getVideoLengthString()     ]; }
 
-- (NSNumber*) getVideoNumOfFrames { return [NSNumber numberWithInt:vp->getVideoNumOfFrames()]; }
+- (NSNumber*) getVideoNumOfFrames       { return [NSNumber numberWithInt:vp->getVideoNumOfFrames()]; }
 
-- (ConfigValueWrapper*) getOptionValue:(NSString*)optionID
+- (NSConfigValue*) getOptionValue:(NSString*)optionID
 {
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
     ConfigValuePtr  value  = option->getValue();
     
-    if (value->getBool().has_value())   { return [[ConfigValueWrapper alloc] initWithBool:value->getBool().value()]; }
-    if (value->getInt().has_value())    { return [[ConfigValueWrapper alloc] initWithInt: value->getInt().value()];  }
-    return [[ConfigValueWrapper alloc] initWithString:value->getString().value()];
+    if (value->getBool().has_value())
+        return [[NSConfigValue alloc] initWithBool:value->getBool().value()];
+    
+    if (value->getInt().has_value())
+        return [[NSConfigValue alloc] initWithInt: value->getInt().value()];
+    
+    return [[NSConfigValue alloc] initWithString:value->getString().value()];
 }
 
 - (NSString*) getOptionValueString:(NSString*)optionID
@@ -245,7 +132,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
     return option ? [NSString fromStdString:option->getValueAsString()] : @"-";    // If the option isn't specified, display "-"
 }
 
-- (NSArray<OptionInformation*>*) getOptionInformation
+- (NSArray<NSOptionInformation*>*) getOptionInformation
 {
     ConfigOption::OptionInformationMap oim = vp->getRecognisedOptionInformation();
     
@@ -287,7 +174,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
             for (string s : strings_std)
                 [strings_ns addObject: [NSString fromStdString:s]];
         }
-        [options addObject: [[OptionInformation alloc] initWithID: i withDescription: d withValidValues:v_string withValidStrings:strings_ns] ];
+        [options addObject: [[NSOptionInformation alloc] initWithID: i withDescription: d withValidValues:v_string withValidStrings:strings_ns] ];
     }
     
     return options;
@@ -310,17 +197,17 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 }
 
 
-- (NSArray<FrameWrapper*>*) getFrames
+- (NSArray<NSFramePreview*>*) getFrames
 {
     vector<Frame> frames = vp->getFrames();
-    NSMutableArray* frameWrappers = [NSMutableArray new];
+    NSMutableArray* nsFrames = [NSMutableArray new];
     
     for (Frame frame: frames)
     {
-        [frameWrappers addObject: [[FrameWrapper alloc] initFromFrame: frame]];
+        [nsFrames addObject: [[NSFramePreview alloc] initFromFrame: frame]];
     }
     
-    return frameWrappers;
+    return nsFrames;
 }
 
 @end
