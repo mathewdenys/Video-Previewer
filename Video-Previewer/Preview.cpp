@@ -208,11 +208,15 @@ void VideoPreview::makeFrames()
 {
     int    totalFrames   = video.getNumberOfFrames();
     int    NFrames       = optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value();
-    double frameSampling = static_cast<double>(totalFrames)/NFrames;
-
-    frames.clear();
     
+    // The maximum number of frames to show is given by the number of frames in the video
+    if (NFrames > totalFrames)
+        NFrames = totalFrames;
+    
+    double frameSampling = static_cast<double>(totalFrames)/NFrames;
     double frameNumber = 0.0;
+    
+    frames.clear();
     for (int i = 0; i < NFrames; i++)
     {
         Mat currentFrameMat;
