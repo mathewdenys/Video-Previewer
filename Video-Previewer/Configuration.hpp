@@ -140,7 +140,7 @@ public:
     string         getValueAsString()    const { return optionValue->getAsString(); }
     string         getID()               const { return optionID; }
     string         getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
-    void           print()               const { cout << '\t' << getDescription() << ": " << getValueAsString() << '\n'; }
+    void           print()               const { cout << '\t' << getID() << ": " << getValueAsString() << '\n'; }
     
     bool           isValid()             const { return (hasValidID && hasValidValue); }
     
