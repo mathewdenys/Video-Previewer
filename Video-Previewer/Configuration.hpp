@@ -26,10 +26,16 @@ namespace fs = std::filesystem;
 
         When adding support for a new option data type, update
             - The set of "using OptionalX" statements
+            - Add a getX() function to BaseConfigValue
             - Add a new ConfigValueX class
             - Add a new ConfigOption constructor
             - Add a new ConfigOption::setValue()
-            - ConfigOptionsHandler::makeOptionFromStrings()
+            - ConfigFile::makeOptionFromStrings
+            - Add a new VideoPreview::setValue() method
+            - Add a new VideoPreviewWrapper::setValue:withX() method
+            - Add a new XVal variable and getX() method to ConfigValueWrapper
+            - Add a new ConfigValueWrapper::initWithX() medthod
+            - Add an inputX and bindX to ConfigRowView (and a corresponding entry in the .onAppear{})
    ----------------------------------------------------------------------------------------------------*/
 
 using OptionalBool   = std::optional<bool>;
@@ -51,6 +57,9 @@ public:
 
     virtual ~BaseConfigValue() = default;
 };
+
+
+using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
 
 
 // Derived classes of BaseConfigValue
@@ -101,8 +110,9 @@ private:
             - ConfigOption::recognisedOptionInfo (declaration and definition)
 
         When adding support for an option with a new set of "valid option values", update
-            - ValidOptionValue
-            - ConfigOption::hasValidValue()
+            - ValidOptionValue enum
+            - ConfigOption::determineValidity()
+            - VideoPreviewWrapper::getOptionInformation()
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a ConfigOption may have
@@ -110,13 +120,9 @@ enum class ValidOptionValue
 {
     eBoolean,           // A boolean
     ePositiveInteger,   // A positive integer
+    ePercentage,        // A percentage (int between 0 and 100)
     eString,            // A set of predefined strings
 };
-
-
-
-using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
-
 
 
 // Base class for storing a single configuration option. A ConfigOption object is instantiated for
@@ -199,6 +205,12 @@ private:
     {
         OptionalInt ovalue = getValue()->getInt();
         return ovalue.has_value() && ovalue.value() > 0;
+    }
+    
+    bool optionValueIsPercentage() const
+    {
+        OptionalInt ovalue = getValue()->getInt();
+        return ovalue.has_value() && ovalue.value() >= 0 && ovalue.value() <= 100;
     }
 
     bool optionValueIsValidString(vector<string> validStrings) const // Assumes the ID has already been validated

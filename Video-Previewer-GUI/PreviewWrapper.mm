@@ -260,13 +260,19 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
         switch (v)
         {
             case ValidOptionValue::eBoolean:
-                v_string = [NSString fromStdString:string("boolean")];
+                v_string = [[NSString alloc] initWithUTF8String:"boolean"];
                  break;
+                
             case ValidOptionValue::ePositiveInteger:
-                v_string = [NSString fromStdString:string("positiveInteger")];
+                v_string = [[NSString alloc] initWithUTF8String:"positiveInteger"];
                  break;
+                
+            case ValidOptionValue::ePercentage:
+                v_string = [[NSString alloc] initWithUTF8String:"percentage"];
+                break;
+                
             default:
-                v_string = [NSString fromStdString:string("string")];
+                v_string = [[NSString alloc] initWithUTF8String:"string"];
                  break;
         }
         

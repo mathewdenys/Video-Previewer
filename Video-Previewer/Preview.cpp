@@ -64,7 +64,7 @@ void VideoPreview::updatePreview()
     printConfig();
 
     // Update the preview
-    if (configOptionHasBeenChanged("number_of_frames"))
+    if ( configOptionHasBeenChanged("number_of_frames") || configOptionHasBeenChanged("maximum_frames") )
     {
         makeFrames();
 
@@ -206,12 +206,15 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int    totalFrames   = video.getNumberOfFrames();
-    int    NFrames       = optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value();
+    int   totalFrames   = video.getNumberOfFrames();
+    int   NFrames       = optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value(); // The desired number of frames to show
+    int   maxPercentage = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value();   // The maximum percentage of frames to show
+    float maxFrames     = maxPercentage/100.0 * totalFrames;
     
-    // The maximum number of frames to show is given by the number of frames in the video
-    if (NFrames > totalFrames)
-        NFrames = totalFrames;
+    if (NFrames > maxFrames)
+        NFrames = maxFrames;
+    
+    std::cout << "Frames to show: " << NFrames << std::endl;
     
     double frameSampling = static_cast<double>(totalFrames)/NFrames;
     double frameNumber = 0.0;

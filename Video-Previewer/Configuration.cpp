@@ -9,11 +9,13 @@
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"number_of_frames", OptionInformation("Number of frames to show (the maximum frames actually shown is the number of frames in the video)",
                                            ValidOptionValue::ePositiveInteger)},
+    {"maximum_frames",   OptionInformation("The maximum percentage of frames to show in the preview",
+                                           ValidOptionValue::ePercentage)},
     {"show_frame_info",  OptionInformation("Whether to overlay information on each frame in the preview",
                                            ValidOptionValue::eBoolean)},
     {"action_on_hover",  OptionInformation("Behaviour when mouse hovers over a frame",
                                            ValidOptionValue::eString,
-                                           {"none","play"})} // TODO: add "slideshow","scrub" as validStrings when I support them
+                                           {"none","play"})}, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -32,6 +34,9 @@ void ConfigOption::determineValidity()
 
         if (info.getValidValues() == ValidOptionValue::ePositiveInteger)
             hasValidValue = optionValueIsPositiveInteger();
+        
+        if (info.getValidValues() == ValidOptionValue::ePercentage)
+            hasValidValue = optionValueIsPercentage();
 
         if (info.getValidValues() == ValidOptionValue::eString)
             hasValidValue = optionValueIsValidString(info.getValidStrings());

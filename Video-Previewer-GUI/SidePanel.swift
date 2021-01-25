@@ -268,6 +268,23 @@ struct ConfigRowView: View, Identifiable {
                         .labelsHidden()
                 
                 /*------------------------------------------------------------
+                    Percentage (integer) value
+                 ------------------------------------------------------------*/
+                case "percentage":
+                    TextField("\(inputInt)%",            // When not being interacted with, the TextField displays the current value of inputInt
+                              text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
+                              onCommit: {
+                                inputInt = Int(intValidator.value) ?? -1
+                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                globalVars.configUpdateCounter += 1
+                              }
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Stepper("", value: bindInt)
+                        .labelsHidden()
+                    
+                /*------------------------------------------------------------
                     String value
                  ------------------------------------------------------------*/
                 case "string":
