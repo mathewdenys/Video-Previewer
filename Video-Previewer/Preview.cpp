@@ -209,14 +209,26 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int   totalFrames   = video.getNumberOfFrames();
-    int   NFrames       = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value();     // The desired number of frames to show
     int   maxPercentage = optionsHandler.getOptions().getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
     int   minSampling   = optionsHandler.getOptions().getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
-    
+    int   totalFrames   = video.getNumberOfFrames();                                                                 // Number of frames in the video
     float maxFrames     = maxPercentage/100.0 * totalFrames;
-    if (NFrames > maxFrames)
-        NFrames = maxFrames;
+    
+    int NFrames{};
+    if ( optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt() )
+    {
+        NFrames = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value(); // The desired number of frames to show
+        if (NFrames > maxFrames)
+            NFrames = maxFrames;
+    }
+    else // In case that the value of "maximum_frames" is a string
+    {
+        string s = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getString().value();
+        if (s == "maximum")
+            NFrames = maxFrames;
+        if (s == "auto") {}
+            // TODO: implement (max. number of frames that can fit in the window)
+    }
     
     double frameSampling = static_cast<double>(totalFrames)/NFrames;
     if (frameSampling < minSampling)

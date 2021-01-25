@@ -8,17 +8,22 @@
 // The order here determines the order the configuration options are displayed in the GUI
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"maximum_frames",     OptionInformation("The maximum number of frames to show",
-                                             ValidOptionValue::ePositiveInteger)},
+                                             ValidOptionValue::ePositiveIntegerOrString,
+                                             {"maximum"}) }, // TODO: add "auto"
+    
     {"minimum_sampling",   OptionInformation("The minimum sampling between frames",
-                                             ValidOptionValue::ePositiveInteger)},
+                                             ValidOptionValue::ePositiveInteger) },
+    
     {"maximum_percentage", OptionInformation("The maximum percentage of frames to show",
-                                             ValidOptionValue::ePercentage)},
+                                             ValidOptionValue::ePercentage) },
+    
     {"frame_info_overlay", OptionInformation("Whether to overlay information on each frame in the preview",
                                              ValidOptionValue::eString,
-                                             {"none", "number", "timestamp", "both"})},
+                                             {"none", "number", "timestamp", "both"}) },
+    
     {"action_on_hover",    OptionInformation("Behaviour when mouse hovers over a frame",
                                              ValidOptionValue::eString,
-                                             {"none", "play"})}, // TODO: add "slideshow","scrub" as validStrings when I support them
+                                             {"none", "play"}) }, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -37,6 +42,9 @@ void ConfigOption::determineValidity()
 
         if (info.getValidValues() == ValidOptionValue::ePositiveInteger)
             hasValidValue = optionValueIsPositiveInteger();
+        
+        if (info.getValidValues() == ValidOptionValue::ePositiveIntegerOrString)
+            hasValidValue = ( optionValueIsPositiveInteger() || optionValueIsValidString(info.getValidStrings()) );
         
         if (info.getValidValues() == ValidOptionValue::ePercentage)
             hasValidValue = optionValueIsPercentage();

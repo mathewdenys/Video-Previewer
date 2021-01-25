@@ -268,6 +268,29 @@ struct ConfigRowView: View, Identifiable {
                         .labelsHidden()
                 
                 /*------------------------------------------------------------
+                    Positive integer OR string value
+                 ------------------------------------------------------------*/
+                case "positiveIntegerOrString":                    
+                    TextField("\(inputString == "" ? "\(inputInt)" : "")", // When not being interacted with, the TextField displays the current value of inputInt (or blank if the option is set to a string value)
+                              text: $intValidator.value,                   // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
+                              onCommit: {
+                                inputInt = Int(intValidator.value) ?? -1
+                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                globalVars.configUpdateCounter += 1
+                              }
+                    )
+                    .frame(maxWidth: 50, alignment: .leading)
+                    
+                    Stepper("", value: bindInt)
+                        .labelsHidden()
+                    
+                    Picker("",selection: bindString) {
+                        ForEach(validStrings, id: \.self) { string in Text(string) }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .labelsHidden()
+                    
+                /*------------------------------------------------------------
                     Percentage (integer) value
                  ------------------------------------------------------------*/
                 case "percentage":

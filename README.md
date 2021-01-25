@@ -36,11 +36,12 @@ Eventually, this program will provide a GUI for previewing a video. The intended
 
 Currently the supported options that can be set in configuration files are
 
-| Option ID        | Possible values |
-| ---------------- | --------------- |
-| number_of_frames | Any integer >0  |
-| show_frame_info  | true, false     |
-| action_on_hover  | "none", "play"  |
+| Option ID        | Possible values               |
+| ---------------- | ----------------------------- |
+| number_of_frames | Any integer >0                |
+| maximum_frames   | Any integer between 0 and 100 |
+| show_frame_info  | true, false                   |
+| action_on_hover  | "none", "play"                |
 
 #### Unrecognised options
 

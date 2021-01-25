@@ -113,15 +113,17 @@ private:
             - ValidOptionValue enum
             - ConfigOption::determineValidity()
             - VideoPreviewWrapper::getOptionInformation()
+            - Add a corresponding entry to ConfigRowView for displying the config option
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a ConfigOption may have
 enum class ValidOptionValue
 {
-    eBoolean,           // A boolean
-    ePositiveInteger,   // A positive integer
-    ePercentage,        // A percentage (int between 0 and 100)
-    eString,            // A set of predefined strings
+    eBoolean,                 // A boolean
+    ePositiveInteger,         // A positive integer
+    ePositiveIntegerOrString, // Either a positive integer or a string
+    ePercentage,              // A percentage (int between 0 and 100)
+    eString,                  // A set of predefined strings
 };
 
 
@@ -233,7 +235,7 @@ private:
         OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn) :
             OptionInformation ( descriptionIn, validValuesIn )
         {
-            if (validValues == ValidOptionValue::eString)
+            if (validValues == ValidOptionValue::eString || validValues == ValidOptionValue::ePositiveIntegerOrString)
                 validStrings = validStringsIn;
         }
 

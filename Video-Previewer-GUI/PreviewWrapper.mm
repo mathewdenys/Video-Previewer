@@ -267,6 +267,10 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
                 v_string = [[NSString alloc] initWithUTF8String:"positiveInteger"];
                  break;
                 
+            case ValidOptionValue::ePositiveIntegerOrString:
+                v_string = [[NSString alloc] initWithUTF8String:"positiveIntegerOrString"];
+                 break;
+                
             case ValidOptionValue::ePercentage:
                 v_string = [[NSString alloc] initWithUTF8String:"percentage"];
                 break;
@@ -277,7 +281,7 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
         }
         
         NSMutableArray* strings_ns = [NSMutableArray new];
-        if (v == ValidOptionValue::eString)
+        if (v == ValidOptionValue::eString || v == ValidOptionValue::ePositiveIntegerOrString)
         {
             vector<string> strings_std { opt.second.getValidStrings() };
             for (string s : strings_std)
