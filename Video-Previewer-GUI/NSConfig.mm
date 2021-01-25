@@ -101,11 +101,11 @@
 @private
     NSString*           ID;
     NSString*           description;
-    NSString*           validValues;
+    NSValidOptionValue  validValues;
     NSArray<NSString*>* validStrings;
 }
 
-- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues
+- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues
 {
     self->ID          = ID;
     self->description = description;
@@ -113,7 +113,7 @@
     return self;
 }
 
-- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues withValidStrings:(NSArray<NSString*>*)validStrings
+- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues withValidStrings:(NSArray<NSString*>*)validStrings
 {
     self = [[NSOptionInformation alloc] initWithID: ID withDescription: description withValidValues: validValues];
     self->validStrings = validStrings;
@@ -122,7 +122,7 @@
 
 - (NSString*)           getID           { return ID; }
 - (NSString*)           getDescription  { return description; }
-- (NSString*)           getValidValues  { return validValues; }
+- (NSValidOptionValue)  getValidValues  { return validValues; }
 - (NSArray<NSString*>*) getValidStrings { return validStrings; }
 
 @end

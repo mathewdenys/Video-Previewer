@@ -178,7 +178,7 @@ struct ConfigRowView: View, Identifiable {
     // Information relating to the configuration option being displayed
     var id:           String
     var tooltip:      String
-    let valueType:    String
+    let valueType:    NSValidOptionValue
     let validStrings: Array<String>
     
     // Storing the value of the option. Initial values are assigned here; a "proper" value
@@ -244,8 +244,8 @@ struct ConfigRowView: View, Identifiable {
                 /*------------------------------------------------------------
                     Boolean value
                  ------------------------------------------------------------*/
-                case "boolean":
-                    
+                case NSValidOptionValue.eBoolean:
+
                     Toggle("", isOn: bindBool)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .labelsHidden()
@@ -253,8 +253,8 @@ struct ConfigRowView: View, Identifiable {
                 /*------------------------------------------------------------
                     Positive integer value
                  ------------------------------------------------------------*/
-                case "positiveInteger":
-                    
+                case NSValidOptionValue.ePositiveInteger:
+
                     TextField("\(inputInt)",             // When not being interacted with, the TextField displays the current value of inputInt
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
@@ -264,14 +264,14 @@ struct ConfigRowView: View, Identifiable {
                               }
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    
+
                     Stepper("", value: bindInt)
                         .labelsHidden()
-                
+
                 /*------------------------------------------------------------
                     Positive integer OR string value
                  ------------------------------------------------------------*/
-                case "positiveIntegerOrString":                    
+                case NSValidOptionValue.ePositiveIntegerOrString:
                     TextField("\(inputString == "" ? "\(inputInt)" : "")", // When not being interacted with, the TextField displays the current value of inputInt (or blank if the option is set to a string value)
                               text: $intValidator.value,                   // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
@@ -281,20 +281,20 @@ struct ConfigRowView: View, Identifiable {
                               }
                     )
                     .frame(maxWidth: 50, alignment: .leading)
-                    
+
                     Stepper("", value: bindInt)
                         .labelsHidden()
-                    
+
                     Picker("",selection: bindString) {
                         ForEach(validStrings, id: \.self) { string in Text(string) }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
-                    
+
                 /*------------------------------------------------------------
                     Percentage (integer) value
                  ------------------------------------------------------------*/
-                case "percentage":
+                case NSValidOptionValue.ePercentage:
                     TextField("\(inputInt)%",            // When not being interacted with, the TextField displays the current value of inputInt
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
@@ -304,21 +304,21 @@ struct ConfigRowView: View, Identifiable {
                               }
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    
+
                     Stepper("", value: bindInt)
                         .labelsHidden()
-                    
+
                 /*------------------------------------------------------------
                     String value
                  ------------------------------------------------------------*/
-                case "string":
-                    
+                case NSValidOptionValue.eString:
+
                     Picker("",selection: bindString) {
                         ForEach(validStrings, id: \.self) { string in Text(string) }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
-                
+
                 /*------------------------------------------------------------
                     Default value (should never be reached)
                  ------------------------------------------------------------*/

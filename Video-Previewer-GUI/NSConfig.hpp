@@ -9,6 +9,19 @@
 #import <AppKit/AppKit.h>
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - NSValidOptionValue
+   ----------------------------------------------------------------------------------------------------*/
+
+typedef NS_ENUM(NSInteger, NSValidOptionValue){
+    eBoolean,
+    ePositiveInteger,
+    ePositiveIntegerOrString,
+    ePercentage,
+    eString,
+};
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - NSConfigValue
    ----------------------------------------------------------------------------------------------------*/
 
@@ -42,12 +55,12 @@
 
 @interface NSOptionInformation : NSObject
 
-- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues;
-- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSString*)validValues withValidStrings:(NSMutableArray<NSString*>*)validStrings;
+- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues;
+- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues withValidStrings:(NSMutableArray<NSString*>*)validStrings;
 
 - (NSString*)           getID;
 - (NSString*)           getDescription;
-- (NSString*)           getValidValues;
+- (NSValidOptionValue)  getValidValues;
 - (NSArray<NSString*>*) getValidStrings;
 
 @end

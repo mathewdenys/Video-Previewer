@@ -142,29 +142,29 @@
         NSString* i = [NSString fromStdString:opt.first];
         NSString* d = [NSString fromStdString:opt.second.getDescription()];
         
-        ValidOptionValue v = opt.second.getValidValues();
-        NSString* v_string;
+        ValidOptionValue   v = opt.second.getValidValues();
+        NSValidOptionValue nsv;
         switch (v)
         {
             case ValidOptionValue::eBoolean:
-                v_string = [[NSString alloc] initWithUTF8String:"boolean"];
-                 break;
+                nsv = NSValidOptionValue::eBoolean;
+                break;
                 
             case ValidOptionValue::ePositiveInteger:
-                v_string = [[NSString alloc] initWithUTF8String:"positiveInteger"];
-                 break;
+                nsv = NSValidOptionValue::ePositiveInteger;
+                break;
                 
             case ValidOptionValue::ePositiveIntegerOrString:
-                v_string = [[NSString alloc] initWithUTF8String:"positiveIntegerOrString"];
-                 break;
+                nsv = NSValidOptionValue::ePositiveIntegerOrString;
+                break;
                 
             case ValidOptionValue::ePercentage:
-                v_string = [[NSString alloc] initWithUTF8String:"percentage"];
+                nsv = NSValidOptionValue::ePercentage;
                 break;
                 
             default:
-                v_string = [[NSString alloc] initWithUTF8String:"string"];
-                 break;
+                nsv = NSValidOptionValue::eString;
+                break;
         }
         
         NSMutableArray* strings_ns = [NSMutableArray new];
@@ -174,7 +174,7 @@
             for (string s : strings_std)
                 [strings_ns addObject: [NSString fromStdString:s]];
         }
-        [options addObject: [[NSOptionInformation alloc] initWithID: i withDescription: d withValidValues:v_string withValidStrings:strings_ns] ];
+        [options addObject: [[NSOptionInformation alloc] initWithID: i withDescription: d withValidValues:nsv withValidStrings:strings_ns] ];
     }
     
     return options;

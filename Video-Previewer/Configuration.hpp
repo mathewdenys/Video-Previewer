@@ -28,7 +28,8 @@ namespace fs = std::filesystem;
 
  
      When adding support for an option with a new set of "valid option values", ...
-        - Add an entry to the `ValidOptionValue` enum
+        - Add a corresponding entry to the `ValidOptionValue` enum
+        - Add a corresponding entry to the `NSValidOptionValue` enum
         - Add a case to ConfigOption::determineValidity()
             - This may involve writing additional functions to call
         - Add a case to NSVideoPreview::getOptionInformation()
@@ -127,9 +128,8 @@ private:
 };
 
 
-
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigOption
+    MARK: - ValidOptionValue
    ----------------------------------------------------------------------------------------------------*/
 
 // Enumerates the valid values a ConfigOption may have
@@ -142,6 +142,9 @@ enum class ValidOptionValue
     eString,                  // A set of predefined strings
 };
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigOption
+   ----------------------------------------------------------------------------------------------------*/
 
 // Base class for storing a single configuration option. A ConfigOption object is instantiated for
 // each option loaded from the configuration files for a given `VideoPreview` object. The optionValue
