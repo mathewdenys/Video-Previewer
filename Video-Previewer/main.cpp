@@ -18,8 +18,8 @@ int main( int argc, char** argv )
         vidprev.loadVideo();
         vidprev.updatePreview();
         
-        vidprev.setOption("number_of_frames","test (should fail)");
-        //vidprev.saveOption(vidprev.getOption("number_of_frames"), "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
+        vidprev.setOption("maximum_frames","test (should fail)");
+        //vidprev.saveOption(vidprev.getOption("maximum_frames"), "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
         vidprev.saveAllOptions("/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/.videopreviewconfig");
     }
     catch (const std::exception& exception)

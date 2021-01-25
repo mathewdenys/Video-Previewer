@@ -343,7 +343,7 @@ struct ConfigBlockView: View {
                     ConfigRowView(id: option.getID(), tooltip: option.getDescription(), valueType: option.getValidValues(), validStrings: option.getValidStrings() )
                     }
                     .padding(.horizontal, 30.0)
-                    .padding(.vertical, 5.0)
+                    .padding(.vertical, 2.0)
                 
                 HStack(alignment: .center) {
                     Button("Save", action: doNothing)

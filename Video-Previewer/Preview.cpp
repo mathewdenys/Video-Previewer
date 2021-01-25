@@ -64,8 +64,11 @@ void VideoPreview::updatePreview()
     printConfig();
 
     // Update the preview
-    if ( configOptionHasBeenChanged("number_of_frames") || configOptionHasBeenChanged("maximum_frames") )
+    if ( configOptionHasBeenChanged("maximum_frames") ||
+         configOptionHasBeenChanged("maximum_percentage") ||
+         configOptionHasBeenChanged("minimum_sampling"))
     {
+        // TODO: add a test here so I only make the frames (expensive!) if the number of frames has actually changed (or maybe this can be done inside makeFrames()
         makeFrames();
 
         // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
@@ -207,23 +210,28 @@ string& VideoPreview::determineExportPath()
 void VideoPreview::makeFrames()
 {
     int   totalFrames   = video.getNumberOfFrames();
-    int   NFrames       = optionsHandler.getOptions().getOption("number_of_frames")->getValue()->getInt().value(); // The desired number of frames to show
-    int   maxPercentage = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value();   // The maximum percentage of frames to show
-    float maxFrames     = maxPercentage/100.0 * totalFrames;
+    int   NFrames       = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value();     // The desired number of frames to show
+    int   maxPercentage = optionsHandler.getOptions().getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
+    int   minSampling   = optionsHandler.getOptions().getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
     
+    float maxFrames     = maxPercentage/100.0 * totalFrames;
     if (NFrames > maxFrames)
         NFrames = maxFrames;
     
-    std::cout << "Frames to show: " << NFrames << std::endl;
-    
     double frameSampling = static_cast<double>(totalFrames)/NFrames;
-    double frameNumber = 0.0;
+    if (frameSampling < minSampling)
+        frameSampling = static_cast<double>(minSampling);
     
     frames.clear();
+    double frameNumber = 0.0;
     for (int i = 0; i < NFrames; i++)
     {
+        int frameNumberInt = static_cast<int>(round(frameNumber));
+        if (frameNumberInt >= video.getNumberOfFrames())
+            break;
+            
         Mat currentFrameMat;
-        video.setFrameNumber(static_cast<int>(round(frameNumber)));
+        video.setFrameNumber(frameNumberInt);
         video.writeCurrentFrame(currentFrameMat);
         frames.emplace_back(currentFrameMat, static_cast<int>(round(frameNumber)), video.getFPS());
         frameNumber += frameSampling;
