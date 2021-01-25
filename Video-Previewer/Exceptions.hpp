@@ -16,15 +16,4 @@ protected:
     string file;
 };
 
-
-class InvalidOptionException : public std::exception
-{
-public:
-    InvalidOptionException(string errorDescription) : message{ "Invalid option: " + errorDescription } {};
-    const char* what() const noexcept override { return message.c_str(); }
-
-private:
-    string message;
-};
-
 #endif /* Exceptions_hpp */
