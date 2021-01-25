@@ -385,8 +385,8 @@ struct SidePanelView: View {
                         Divider()
                         InfoBlockView(title: "Frame Information",     info:
                             [
-                                InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
                                 InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
+                                InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
                             ],
                                       displaysFrameInfo: true
                         )

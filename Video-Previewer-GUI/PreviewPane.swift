@@ -24,13 +24,24 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let b = globalVars.vp.getOptionValue("show_frame_info")?.getBool() {
-                if (b.boolValue) {
-                    Text("\(frame.getFrameNumber())")
-                        .foregroundColor(Color.white)
-                        .padding(.all, 2.0)
-                        .background(Color(red:0, green:0, blue:0, opacity:0.2))
-                        .padding(.all, frameBorderWidth)
+            if let s = globalVars.vp.getOptionValue("frame_info_overlay")?.getString() {
+                
+                VStack(alignment: .trailing) {
+                    if (s == "both" || s == "timestamp") {
+                        Text(frame.getTimeStampString())
+                            .foregroundColor(Color.white)
+                            .padding(.all, 2.0)
+                            .background(Color(red:0, green:0, blue:0, opacity:0.2))
+                            .padding(.all, frameBorderWidth)
+                    }
+                    
+                    if (s == "both" || s == "number") {
+                        Text("\(frame.getFrameNumber())")
+                            .foregroundColor(Color.white)
+                            .padding(.all, 2.0)
+                            .background(Color(red:0, green:0, blue:0, opacity:0.2))
+                            .padding(.all, frameBorderWidth)
+                    }
                 }
             }
         }
