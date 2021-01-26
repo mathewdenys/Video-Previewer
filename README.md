@@ -1,9 +1,8 @@
 # Video Preview
-Eventually, this program will provide a GUI for previewing a video. The intended use case is when looking for a specific parts of / scrubbing through a long video file.
+A GUI for previewing video files on macOS. The intended use case is when looking for a specific parts of / scrubbing through a long video file.
 
 ## Requirements
 
-- Will be built as a GUI for macOS
 - Video processing is achieved with [OpenCV](https://opencv.org/) dynamic libraries, and [ffmpeg](https://ffmpeg.org/). Both can be installed using `brew`
 
 ## Configuration Files
@@ -36,16 +35,17 @@ Eventually, this program will provide a GUI for previewing a video. The intended
 
 Currently the supported options that can be set in configuration files are
 
-| Option ID        | Possible values               |
-| ---------------- | ----------------------------- |
-| number_of_frames | Any integer >0                |
-| maximum_frames   | Any integer between 0 and 100 |
-| show_frame_info  | true, false                   |
-| action_on_hover  | "none", "play"                |
+| Option ID          | Possible values                       | Default value |
+| ------------------ | ------------------------------------- | ------------- |
+| maximum_frames     | Any integer > 0, or "maximum"         | "maximum"     |
+| minimum_sampling   | Any integer > 0                       | 25            |
+| maximum_percentage | Any integer between 0 and 100         | 20            |
+| frame_info_overlay | "none", "number", "timestamp", "both" | "timestamp"   |
+| action_on_hover    | "none", "play"                        | "None"        |
 
 #### Unrecognised options
 
-For compatibility with future versions, any option parsed from a configuration file with an unrecognised ID (i.e. not one of those listed above) will be stored internally, allowing it to be exported via VideoPreview::exportOptions().
+For compatibility with future versions, any option parsed from a configuration file with an unrecognised ID (i.e. not one of those listed above) will be stored internally, and will be included when configuration options are exported to a file.
 
 #### Invalid values
 
