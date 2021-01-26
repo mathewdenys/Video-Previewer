@@ -114,11 +114,54 @@ public:
     // To be run on start-up and whenever configuration options are changed
     void updatePreview();
 
-    ConfigOptionPtr getOption(const string& optionID)                       { return optionsHandler.getOptions().getOption(optionID); }
-    void            setOption(const string& optionID, const bool val);
-    void            setOption(const string& optionID, const int val);
-    void            setOption(const string& optionID, const string val);
-    void            setOption(const string& optionID, const char* val)      { setOption(optionID, string(val)); }
+    // Return a `ConfigOptionPtr` to the config option corresponding to `optionID`.
+    // If the option isn't currently set, return the default value as given by ConfigOption::recognisedConfigOptions
+    // If `optionID` is invalid (doesn't correspond to a recognised option), return nullptr.
+    // It is up to the caller to check if nullptr has been returned
+    ConfigOptionPtr getOption(const string& optionID)
+    {
+        // Search for optionID in the video previews current set of config options
+        // ConfigOptionVector.getOption() return nullptr if the option doesn't exist
+        ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
+        if (option)
+            return option;
+        
+        // If the optionID wasn't found, search for it inthe recognised configuration options
+        auto temp = ConfigOption::recognisedOptionInfo.find(optionID);
+
+        // If optionID was found in recognisedOptionInfo, return a ConfigOptionPtr with the corresponding default value
+        if (temp != ConfigOption::recognisedOptionInfo.end())
+        {
+            ConfigValuePtr defaultValue = ConfigOption::recognisedOptionInfo.at(optionID).getDefaultValue();
+            return std::make_shared<ConfigOption>(optionID, defaultValue);
+        }
+        
+        // If the optionID wasn't found in the recognised options, return nullptr
+        return nullptr;
+    }
+    
+    void setOption(const string& optionID, const bool val)
+    {
+        optionsHandler.setOption(optionID, val);
+        updatePreview();
+    }
+
+    void setOption(const string& optionID, const int val)
+    {
+        optionsHandler.setOption(optionID, val);
+        updatePreview();
+    }
+
+    void setOption(const string& optionID, const string val)
+    {
+        optionsHandler.setOption(optionID, val);
+        updatePreview();
+    }
+    
+    void setOption(const string& optionID, const char* val)
+    {
+        setOption(optionID, string(val));
+    }
 
     // Save a set of current configuration options to either 1) a preexisiting configuration file, or 2) an arbitrary new file
     // In the case of 1, the formatting of the file is maintained, but any options that have been changed are overwritten
@@ -196,14 +239,23 @@ private:
     // Achieved by comparing the relevant `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
     bool configOptionHasBeenChanged(const string& optionID)
     {
-        // If the option isn't defined in one of the vectors, it can only be unchanged if they are both equal to each other (i.e. nullptr)
+        // When the program runs for the first time the configuration options have always, by definition, been "changed"
+        static bool runningForFirstTime = true;
+        if (runningForFirstTime)
+        {
+            runningForFirstTime = false;
+            return true;
+        }
+        
         ConfigOptionPtr optionInternal{ optionsHandler.getOptions().getOption(optionID) };
         ConfigOptionPtr optionPreview { currentPreviewConfigOptions.getOption(optionID) };
+        
+        // If the option isn't defined in one of the vectors, it can only be unchanged if they are both equal to each other (i.e. nullptr)
         if (!optionInternal || !optionPreview)
             return optionInternal != optionPreview;
 
         // Knowing that neither option is a nullptr, we can safely compare the actual values stored in each option
-        return !( optionInternal->getValueAsString() == optionPreview->getValueAsString() );
+        return optionInternal->getValueAsString() != optionPreview->getValueAsString();
     }
 
 private:

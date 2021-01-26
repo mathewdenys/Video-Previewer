@@ -43,11 +43,12 @@ namespace fs = std::filesystem;
         - Define a corresponding ConfigValueX class
  
         - Define a corresponding ConfigOption constructor
-        - Define a new ConfigOption::setValue() method
+        - Define a corresponding ConfigOption::setValue() method
+        - Define a corresponding ConfigOptionsHandler::setOption() method
  
         - Add an entry to ConfigFile::MakeOptionsFromStrings()
  
-        - Define a corresponding VideoPreview::setValue() method
+        - Define a corresponding VideoPreview::setOption() method
  
         - Add a corresponding NSConfigValue::XVal variable
         - Define a corresponding NSConfigValue::initWithX() method
@@ -246,13 +247,16 @@ private:
     class OptionInformation
     {
     public:
-        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn) :
-            description { descriptionIn },
-            validValues { validValuesIn }
+        // Constructor without validStrings
+        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const ConfigValuePtr& defaultValueIn) :
+            description  { descriptionIn },
+            validValues  { validValuesIn },
+            defaultValue { defaultValueIn }
         {}
 
-        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn) :
-            OptionInformation ( descriptionIn, validValuesIn )
+        // Constructor with validStrings
+        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn, const ConfigValuePtr& defaultValueIn) :
+            OptionInformation ( descriptionIn, validValuesIn, defaultValueIn )
         {
             if (validValues == ValidOptionValue::eString || validValues == ValidOptionValue::ePositiveIntegerOrString)
                 validStrings = validStringsIn;
@@ -261,11 +265,13 @@ private:
         const string&           getDescription()  const { return description; }
         const ValidOptionValue& getValidValues()  const { return validValues; }
         const vector<string>    getValidStrings() const { return validStrings; }
+        const ConfigValuePtr    getDefaultValue() const { return defaultValue; }
 
     private:
         string           description  {}; // Human-readable description
         ValidOptionValue validValues  {}; // The valid values this option may have
         vector<string>   validStrings {}; // List of allowed values when validValues = ValidOptionValue::eString
+        ConfigValuePtr   defaultValue {}; // A default value to supply if needed when the option isn't supplied by a config file
     };
 
 private:
@@ -313,13 +319,18 @@ public:
     long           size() const                      { return options.size(); }
 
     // Return a `ConfigOptionPtr` to the element in `options` corresponding to `optionID`.
-    // In the case that no element in `options` corresponds to `optionID`, returns the null pointer.
-    // It is up to the caller to verify if nullptr has been returned.
+    // In the case that no element in `options` corresponds to `optionID`, returns nullptr.
+    // It is up to the caller to check if nullptr has been returned.
     ConfigOptionPtr getOption(const string& optionID) const
     {
-        for (ConfigOptionPtr option : options)
-            if (option->getID() == optionID)
-                return option;
+        // Search for optionID in the options vector
+        auto IDmatches = [&](ConfigOptionPtr option) { return option->getID() == optionID; };
+        auto optionItr = std::find_if(options.begin(), options.end(), IDmatches);
+        
+        // If optionID was found in options, return the corresponding element
+        if (optionItr != options.end())
+            return *optionItr;
+        
         return nullptr;
     }
 
@@ -406,6 +417,10 @@ public:
     vector<ConfigFilePtr>&     getConfigFiles()                        { return configFiles; }
     const ConfigOptionVector&  getOptions()                            { return configOptions; }
     const ConfigOptionVector&  getInvalidOptions()                     { return invalidConfigOptions; }
+    
+    void                       setOption(const string& optionID, bool val);
+    void                       setOption(const string& optionID, int val);
+    void                       setOption(const string& optionID, string val);
 
     // Save a set of current configuration options to a preexisting configuration file
     // The first time that the given option is found in the file, the up-to-date value is overwritten

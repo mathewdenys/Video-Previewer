@@ -8,21 +8,26 @@
 const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
     {"maximum_frames",     OptionInformation("The maximum number of frames to show",
                                              ValidOptionValue::ePositiveIntegerOrString,
-                                             {"maximum"}) }, // TODO: add "auto"
+                                             {"maximum"},
+                                             std::make_shared<ConfigValueString>("maximum") ) }, // TODO: add "auto"
     
     {"minimum_sampling",   OptionInformation("The minimum sampling between frames",
-                                             ValidOptionValue::ePositiveInteger) },
+                                             ValidOptionValue::ePositiveInteger,
+                                             std::make_shared<ConfigValueInt>(25) ) },
     
     {"maximum_percentage", OptionInformation("The maximum percentage of frames to show",
-                                             ValidOptionValue::ePercentage) },
+                                             ValidOptionValue::ePercentage,
+                                             std::make_shared<ConfigValueInt>(20) ) },
     
     {"frame_info_overlay", OptionInformation("Whether to overlay information on each frame in the preview",
                                              ValidOptionValue::eString,
-                                             {"none", "number", "timestamp", "both"}) },
+                                             {"none", "number", "timestamp", "both"},
+                                             std::make_shared<ConfigValueString>("timestamp") ) },
     
     {"action_on_hover",    OptionInformation("Behaviour when mouse hovers over a frame",
                                              ValidOptionValue::eString,
-                                             {"none", "play"}) }, // TODO: add "slideshow","scrub" as validStrings when I support them
+                                             {"none", "play"},
+                                             std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -160,6 +165,57 @@ ConfigOptionsHandler::ConfigOptionsHandler(const string& videoPath)
 {
     loadOptions(videoPath);
     mergeOptions();
+}
+
+void ConfigOptionsHandler::setOption(const string& optionID, bool val)
+{
+    std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << (val ? "true" : "false") << "\"\n";
+    auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };
+    auto         currentOption = std::find_if(configOptions.begin(), configOptions.end(), IDmatches);
+    
+    // If the optionID isn't found, create a new ConfigOptionPtr
+    if (currentOption == configOptions.end())
+    {
+        configOptions.push_back(std::make_shared<ConfigOption>(optionID, val));
+        return;
+    }
+    
+    // If the optionID already exists in `configOptions`, update its value
+    (*currentOption)->setValue(val);
+}
+
+void ConfigOptionsHandler::setOption(const string& optionID, int val)
+{
+    std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << val << "\"\n";
+    auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };
+    auto         currentOption = std::find_if(configOptions.begin(), configOptions.end(), IDmatches);
+    
+    // If the optionID isn't found, create a new ConfigOptionPtr
+    if (currentOption == configOptions.end())
+    {
+        configOptions.push_back(std::make_shared<ConfigOption>(optionID, val));
+        return;
+    }
+    
+    // If the optionID already exists in `configOptions`, update its value
+    (*currentOption)->setValue(val);
+}
+
+void ConfigOptionsHandler::setOption(const string& optionID, string val)
+{
+    std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << val << "\"\n";
+    auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };
+    auto         currentOption = std::find_if(configOptions.begin(), configOptions.end(), IDmatches);
+    
+    // If the optionID isn't found, create a new ConfigOptionPtr
+    if (currentOption == configOptions.end())
+    {
+        configOptions.push_back(std::make_shared<ConfigOption>(optionID, val));
+        return;
+    }
+    
+    // If the optionID already exists in `configOptions`, update its value
+    (*currentOption)->setValue(val);
 }
 
 void ConfigOptionsHandler::saveOptions(ConfigOptionVector optionsToSave, const ConfigFilePtr file)

@@ -85,54 +85,6 @@ void VideoPreview::updatePreview()
 
 }
 
-void VideoPreview::setOption(const string& optionID, const bool val)
-{
-    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
-    try
-    {
-        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << (val ? "true" : "false") << "\"\n";
-        optionsHandler.getOptions().getOption(optionID)->setValue(val);
-    }
-    catch (const FileException& exception)
-    {
-        std::cerr << exception.what();
-        return;
-    }
-    updatePreview();
-}
-
-void VideoPreview::setOption(const string& optionID, const int val)
-{
-    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
-    try
-    {
-        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << val << "\"\n";
-        optionsHandler.getOptions().getOption(optionID)->setValue(val);
-    }
-    catch (const FileException& exception)
-    {
-        std::cerr << exception.what();
-        return;
-    }
-    updatePreview();
-}
-
-void VideoPreview::setOption(const string& optionID, const string val)
-{
-    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
-    try
-    {
-        cout << "Setting configuration option \"" << option->getID() << "\" to value \"" << val << "\"\n";
-        optionsHandler.getOptions().getOption(optionID)->setValue(val);
-    }
-    catch (const FileException& exception)
-    {
-        std::cerr << exception.what();
-        return;
-    }
-    updatePreview();
-}
-
 void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePath)
 {
     // There are two cases to deal with: either filePath corresponds to a preexisting
@@ -210,21 +162,21 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int   maxPercentage = optionsHandler.getOptions().getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
-    int   minSampling   = optionsHandler.getOptions().getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
-    int   totalFrames   = video.getNumberOfFrames();                                                                 // Number of frames in the video
+    int   maxPercentage = getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
+    int   minSampling   = getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
+    int   totalFrames   = video.getNumberOfFrames();                                     // The number of frames in the video
     float maxFrames     = maxPercentage/100.0 * totalFrames;
     
     int NFrames{};
-    if ( optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt() )
+    if ( getOption("maximum_frames")->getValue()->getInt() )
     {
-        NFrames = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getInt().value(); // The desired number of frames to show
+        NFrames = getOption("maximum_frames")->getValue()->getInt().value(); // The desired number of frames to show
         if (NFrames > maxFrames)
             NFrames = maxFrames;
     }
     else // In case that the value of "maximum_frames" is a string
     {
-        string s = optionsHandler.getOptions().getOption("maximum_frames")->getValue()->getString().value();
+        string s = getOption("maximum_frames")->getValue()->getString().value();
         if (s == "maximum")
             NFrames = maxFrames;
         if (s == "auto") {}
