@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    @IBAction func openDir(_ openMenuItem: NSMenuItem) {
+    @IBAction func openVideoFile(_ openMenuItem: NSMenuItem) {
         let dialog = NSOpenPanel();
 
         dialog.title                   = "Open a video to preview"
