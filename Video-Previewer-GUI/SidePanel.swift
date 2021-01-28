@@ -26,6 +26,16 @@ struct Triangle: Shape {
 
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - String
+   ----------------------------------------------------------------------------------------------------*/
+
+extension String {
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+}
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - NumbersOnly
         - From: https://programmingwithswift.com/numbers-only-textfield-with-swiftui/
    ----------------------------------------------------------------------------------------------------*/
@@ -240,7 +250,7 @@ struct ConfigRowView: View, Identifiable {
         HStack(alignment: .top) {
             
             // Left hand column: option ID
-            Text(id)
+            Text(id.capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
                 .foregroundColor(.gray)
                 .frame(width: configDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
