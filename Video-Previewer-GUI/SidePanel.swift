@@ -189,7 +189,7 @@ struct ConfigRowView: View, Identifiable {
     let validStrings: Array<String>
     
     // Storing the value of the option. Initial values are assigned here; a "proper" value
-    // from globalVars.vp is assigned in the HStack.onAppear{} modifier
+    // from vp is assigned in the HStack.onAppear{} modifier
     @State var inputBool:   Bool   = false
     @State var inputInt:    Int    = 0
     @State var inputString: String = ""
@@ -205,7 +205,7 @@ struct ConfigRowView: View, Identifiable {
     
     var body: some View {
         
-        // The following Bindings allow me to update globalVars.vp when the inputX variables
+        // The following Bindings allow me to update vp when the inputX variables
         // are updated. They are required because the SwiftUI Toggle, Stepper, Picker etc. use
         // double bindings when setting their value, and I need to be able to sneak in an run
         // some additional code, rather than just updating the local variable.
@@ -216,7 +216,7 @@ struct ConfigRowView: View, Identifiable {
         let bindBool = Binding<Bool> (
             get: { self.inputBool },
             set: { self.inputBool = $0
-                   globalVars.vp.setOptionValue(id, with: inputBool)
+                   vp!.setOptionValue(id, with: inputBool)
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -224,7 +224,7 @@ struct ConfigRowView: View, Identifiable {
         let bindInt = Binding<Int>(
             get: { self.inputInt},
             set: { self.inputInt = $0
-                   globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                   vp!.setOptionValue(id, with: Int32(inputInt))
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -232,7 +232,7 @@ struct ConfigRowView: View, Identifiable {
         let bindString = Binding<String>(
             get: { self.inputString},
             set: { self.inputString = $0
-                   globalVars.vp.setOptionValue(id, with: inputString)
+                   vp!.setOptionValue(id, with: inputString)
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -251,11 +251,11 @@ struct ConfigRowView: View, Identifiable {
                     })
                     Button("Copy value", action: {
                         pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp.getOptionValueString(id) as NSString])
+                        pasteBoard.writeObjects([vp!.getOptionValueString(id) as NSString])
                     })
                     Button("Copy configuration string", action: {
                         pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp.getOptionConfigString(id) as NSString])
+                        pasteBoard.writeObjects([vp!.getOptionConfigString(id) as NSString])
                     })
                 }
             
@@ -280,7 +280,7 @@ struct ConfigRowView: View, Identifiable {
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
                                 inputInt = Int(intValidator.value) ?? -1
-                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
                     )
@@ -297,7 +297,7 @@ struct ConfigRowView: View, Identifiable {
                               text: $intValidator.value,                   // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
                                 inputInt = Int(intValidator.value) ?? -1
-                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
                     )
@@ -320,7 +320,7 @@ struct ConfigRowView: View, Identifiable {
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
                                 inputInt = Int(intValidator.value) ?? -1
-                                globalVars.vp.setOptionValue(id, with: Int32(inputInt))
+                                vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
                     )
@@ -349,9 +349,9 @@ struct ConfigRowView: View, Identifiable {
         }
         .foregroundColor(almostBlack)
         .onAppear {
-            if let b = globalVars.vp.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
-            if let i = globalVars.vp.getOptionValue(id)?.getInt()    { inputInt = i.intValue }
-            if let s = globalVars.vp.getOptionValue(id)?.getString() { inputString = s }
+            if let b = vp!.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
+            if let i = vp!.getOptionValue(id)?.getInt()    { inputInt = i.intValue }
+            if let s = vp!.getOptionValue(id)?.getString() { inputString = s }
         }
     }
 }
@@ -384,7 +384,7 @@ struct ConfigBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(globalVars.vp.getOptionInformation(), id: \.self) { option in
+                ForEach(vp!.getOptionInformation(), id: \.self) { option in
                     ConfigRowView(option: option)
                     }
                     .padding(.horizontal, 30.0)
@@ -408,7 +408,7 @@ struct ConfigBlockView: View {
 
                             if (result != nil) {
                                 let path: String = result!.path
-                                globalVars.vp.saveAllOptions(path)
+                                vp!.saveAllOptions(path)
                             }
                         }
                     })
@@ -439,12 +439,12 @@ struct SidePanelView: View {
                         InfoBlockView(title: "Video Information",
                                       info:
                                         [
-                                            InfoPair(id: "File path",   value: globalVars.vp.getVideoNameString()),
-                                            InfoPair(id: "Encoding",    value: globalVars.vp.getVideoCodecString()),
-                                            InfoPair(id: "Frame rate",  value: globalVars.vp.getVideoFPSString()),
-                                            InfoPair(id: "Length",      value: globalVars.vp.getVideoLengthString()),
-                                            InfoPair(id: "# of frames", value: globalVars.vp.getVideoNumOfFramesString()),
-                                            InfoPair(id: "Dimensions",  value: globalVars.vp.getVideoDimensionsString()),
+                                            InfoPair(id: "File path",   value: vp!.getVideoNameString()),
+                                            InfoPair(id: "Encoding",    value: vp!.getVideoCodecString()),
+                                            InfoPair(id: "Frame rate",  value: vp!.getVideoFPSString()),
+                                            InfoPair(id: "Length",      value: vp!.getVideoLengthString()),
+                                            InfoPair(id: "# of frames", value: vp!.getVideoNumOfFramesString()),
+                                            InfoPair(id: "Dimensions",  value: vp!.getVideoDimensionsString()),
                                         ]
                         )
                         Divider()

@@ -8,6 +8,8 @@
 import Cocoa
 import SwiftUI
 
+var vp: NSVideoPreview = NSVideoPreview("/Users/mathew/Projects/Video-Previewer/media/monitor.mp4")
+
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
