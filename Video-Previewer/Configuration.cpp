@@ -167,6 +167,11 @@ ConfigOptionsHandler::ConfigOptionsHandler(const string& videoPath)
     mergeOptions();
 }
 
+void ConfigOptionsHandler::setOption(const ConfigOptionPtr& option)
+{
+    configOptions.push_back(option);
+}
+
 void ConfigOptionsHandler::setOption(const string& optionID, bool val)
 {
     std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << (val ? "true" : "false") << "\"\n";

@@ -115,8 +115,8 @@ public:
     void updatePreview();
 
     // Return a `ConfigOptionPtr` to the config option corresponding to `optionID`.
-    // If the option isn't currently set, return the default value as given by ConfigOption::recognisedConfigOptions
-    // If `optionID` is invalid (doesn't correspond to a recognised option), return nullptr.
+    // If the option isn't currently set, it is set to the default value as given by ConfigOption::recognisedConfigOptions
+    // If `optionID` is invalid (doesn't correspond to a recognised option), nullptr is returned.
     // It is up to the caller to check if nullptr has been returned
     ConfigOptionPtr getOption(const string& optionID)
     {
@@ -132,8 +132,10 @@ public:
         // If optionID was found in recognisedOptionInfo, return a ConfigOptionPtr with the corresponding default value
         if (temp != ConfigOption::recognisedOptionInfo.end())
         {
-            ConfigValuePtr defaultValue = ConfigOption::recognisedOptionInfo.at(optionID).getDefaultValue();
-            return std::make_shared<ConfigOption>(optionID, defaultValue);
+            ConfigValuePtr  defaultValue = ConfigOption::recognisedOptionInfo.at(optionID).getDefaultValue();
+            ConfigOptionPtr newOption    = std::make_shared<ConfigOption>(optionID, defaultValue);
+            optionsHandler.setOption(newOption); // set with a smart pointer
+            return newOption;
         }
         
         // If the optionID wasn't found in the recognised options, return nullptr

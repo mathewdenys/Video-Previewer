@@ -418,6 +418,7 @@ public:
     const ConfigOptionVector&  getOptions()                            { return configOptions; }
     const ConfigOptionVector&  getInvalidOptions()                     { return invalidConfigOptions; }
     
+    void                       setOption(const ConfigOptionPtr& option);
     void                       setOption(const string& optionID, bool val);
     void                       setOption(const string& optionID, int val);
     void                       setOption(const string& optionID, string val);
