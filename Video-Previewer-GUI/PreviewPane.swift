@@ -74,9 +74,9 @@ struct PreviewPaneView: View {
                         HStack(spacing: 0) {
                             ForEach(0..<cols, id: \.self) { j in
                                 let index = i*cols + j
-                                if (index < globalVars.frames!.count)
+                                if (index < frames!.count)
                                 {
-                                    FramePreviewView(frame: globalVars.frames![index]!)
+                                    FramePreviewView(frame: frames![index]!)
                                 }
                             }
                             Spacer()

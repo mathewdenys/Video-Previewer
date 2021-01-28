@@ -29,17 +29,12 @@ let pasteBoard             = NSPasteboard.general      // For copy-and-pasting
    ----------------------------------------------------------------------------------------------------*/
 
 class GlobalVars: ObservableObject {
-    @Published var frames:        [NSFramePreview?]?    = nil
     @Published var selectedFrame: NSFramePreview?       = nil
     
     // configUpdateCounter is incremented any time configuration options are updated in the GUI
     // It's actual value is not meaningful; all that matters is that it is @Published, so any View with a GlobalVars object will be updated
     // Further, arbitrary code can be run in its didSet{}
-    @Published var configUpdateCounter: Int = 0 { didSet{ frames = vp.getFrames() } }
-    
-    init() {
-        frames = vp.getFrames()
-    }
+    @Published var configUpdateCounter: Int = 0 { didSet{ frames = vp!.getFrames() } }
 }
 
 /*----------------------------------------------------------------------------------------------------
@@ -51,33 +46,59 @@ struct ContentView: View {
     
     var body: some View {
         
-        GeometryReader { geometry in
-            // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
-            //  i.e. the width of the side panel + the width of a scrollbar on the side panel and on the preview pane + padding on each side of the preview
-            let minWidthOfNonFrameElements: Double = sidePanelMinWidth + 2.0*scrollBarWidth + 2.0*previewPadding
-            
-            // Determine an upper bound for the width of the frames being previewed
-            let widthOfWindow:     Double = Double(geometry.size.width)
-            let maxWidthOfPreview: Double = widthOfWindow - minWidthOfNonFrameElements
-            
-            // Determine the number of frames per row given the current window size
-            //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
-            let cols: Int = Int(maxWidthOfPreview / frameWidth)
-            
-            // Determine the number of rows required to display the frames
-            let rows: Int = (globalVars.frames!.count / cols) + 1
-            
-            // Determine the actual width of the entire video preview pane
-            // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
-            //  i.e. The width of the actual frames displayed + the scrollbar + padding on each side
-            let previewWidth: Double = frameWidth*Double(cols) + scrollBarWidth + 2.0*previewPadding
-            
-            HStack(spacing:0) {
-                PreviewPaneView(cols: cols, rows: rows)
-                    .frame(width: CGFloat(previewWidth))
-                SidePanelView()
+        if (vp != nil) {
+            GeometryReader { geometry in
+                // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
+                //  i.e. the width of the side panel + the width of a scrollbar on the side panel and on the preview pane + padding on each side of the preview
+                let minWidthOfNonFrameElements: Double = sidePanelMinWidth + 2.0*scrollBarWidth + 2.0*previewPadding
+                
+                // Determine an upper bound for the width of the frames being previewed
+                let widthOfWindow:     Double = Double(geometry.size.width)
+                let maxWidthOfPreview: Double = widthOfWindow - minWidthOfNonFrameElements
+                
+                // Determine the number of frames per row given the current window size
+                //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
+                let cols: Int = Int(maxWidthOfPreview / frameWidth)
+                
+                // Determine the number of rows required to display the frames
+                let rows: Int = (frames!.count / cols) + 1
+                
+                // Determine the actual width of the entire video preview pane
+                // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
+                //  i.e. The width of the actual frames displayed + the scrollbar + padding on each side
+                let previewWidth: Double = frameWidth*Double(cols) + scrollBarWidth + 2.0*previewPadding
+                
+                HStack(spacing:0) {
+                    PreviewPaneView(cols: cols, rows: rows)
+                        .frame(width: CGFloat(previewWidth))
+                    SidePanelView()
+                }
             }
+        } else {
+            Button("Open...", action: {
+                let dialog = NSOpenPanel();
+
+                dialog.title                   = "Open a video to preview"
+                
+                dialog.showsResizeIndicator    = true
+                dialog.showsHiddenFiles        = true
+
+                // User presses "open"
+                if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
+                    let result = dialog.url // Pathname of the file
+
+                    if (result != nil) {
+                        let path: String = result!.path
+                        vp = NSVideoPreview(path)
+                        frames = vp!.getFrames()
+                        globalVars.configUpdateCounter += 1
+                    }
+                }
+            } )
         }
+        
+        
+        
     }
 }
 

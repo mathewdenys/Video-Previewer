@@ -8,7 +8,9 @@
 import Cocoa
 import SwiftUI
 
-var vp: NSVideoPreview = NSVideoPreview("/Users/mathew/Projects/Video-Previewer/media/monitor.mp4")
+
+var vp:     NSVideoPreview?    = nil
+var frames: [NSFramePreview?]? = nil
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -23,7 +25,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSWorkspace.shared.open(url)
         }
     }
+    
+    @IBAction func openDir(_ openMenuItem: NSMenuItem) {
+        let dialog = NSOpenPanel();
 
+        dialog.title                   = "Open a video to preview"
+        
+        dialog.showsResizeIndicator    = true
+        dialog.showsHiddenFiles        = true
+
+        // User presses "open"
+        if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
+            let result = dialog.url // Pathname of the file
+
+            if (result != nil) {
+                let path: String = result!.path
+                vp = NSVideoPreview(path)
+                frames = vp!.getFrames()
+            }
+        }
+    }
+    
 
     /*------------------------------------------------------------
         MARK: - Launching and terminating application
