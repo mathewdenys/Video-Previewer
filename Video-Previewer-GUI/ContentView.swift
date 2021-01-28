@@ -22,6 +22,7 @@ let previewPadding         = 15.0          // The padding around the frames in t
 let scrollBarWidth         = 15.0          // The width of a scrollbar in a ScrollView
 let sidePanelMinWidth      = 300.0         // The miniumum width of the side panel
 
+let pasteBoard             = NSPasteboard.general      // For copy-and-pasting
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - GlobalVars

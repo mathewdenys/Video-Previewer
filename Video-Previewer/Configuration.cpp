@@ -265,7 +265,7 @@ void ConfigOptionsHandler::saveOptions(ConfigOptionVector optionsToSave, const C
         
         // Modify the line with the current value of the option
         std::cout << "\tSaving \"" << (*updatedOptionItr)->getID() << "\"\n";
-        ofs << (*updatedOptionItr)->getConfigFileString() << std::endl;
+        ofs << (*updatedOptionItr)->getConfigString() << std::endl;
         
         // Once an option has been saved, remove the corresponding ConfigOptionPtr from optionsToSave
         // This is because only the first instance of an option is modified in the configuration file
@@ -275,7 +275,7 @@ void ConfigOptionsHandler::saveOptions(ConfigOptionVector optionsToSave, const C
     // Append any options that weren't already defined in the file to the end of the temporary file
     for (ConfigOptionPtr& option : optionsToSave)
     {
-        ofs << option->getConfigFileString() << std::endl;
+        ofs << option->getConfigString() << std::endl;
         std::cout << "\tSaving \"" << option->getID() << "\"\n";
     }
 

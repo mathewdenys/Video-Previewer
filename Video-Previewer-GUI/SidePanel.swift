@@ -111,7 +111,14 @@ struct InfoRowView: View, Identifiable {
             Text(value)
                 .foregroundColor(almostBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contextMenu {
+                    Button("Copy", action: {
+                        pasteBoard.clearContents()
+                        pasteBoard.writeObjects([value as NSString])
+                    })
+                }
         }
+        
     }
     
     init(info: InfoPair) {
@@ -237,6 +244,20 @@ struct ConfigRowView: View, Identifiable {
                 .foregroundColor(.gray)
                 .frame(width: configDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
+                .contextMenu {
+                    Button("Copy id", action: {
+                        pasteBoard.clearContents()
+                        pasteBoard.writeObjects([id as NSString])
+                    })
+                    Button("Copy value", action: {
+                        pasteBoard.clearContents()
+                        pasteBoard.writeObjects([globalVars.vp.getOptionValueString(id) as NSString])
+                    })
+                    Button("Copy configuration string", action: {
+                        pasteBoard.clearContents()
+                        pasteBoard.writeObjects([globalVars.vp.getOptionConfigString(id) as NSString])
+                    })
+                }
             
             // Right hand column: option value (editable)
             switch valueType {

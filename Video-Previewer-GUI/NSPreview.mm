@@ -132,6 +132,12 @@
     return option ? [NSString fromStdString:option->getValueAsString()] : @"-";    // If the option isn't specified, display "-"
 }
 
+- (NSString*) getOptionConfigString:(NSString*)optionID
+{
+    ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
+    return [NSString fromStdString:option->getConfigString()];
+}
+
 - (NSArray<NSOptionInformation*>*) getOptionInformation
 {
     ConfigOption::OptionInformationMap oim = vp->getRecognisedOptionInformation();

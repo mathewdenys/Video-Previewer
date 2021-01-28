@@ -165,13 +165,13 @@ public:
     ConfigOption(const string& id, const int    value) : ConfigOption( id, std::make_shared<ConfigValueInt>(value)    ) {}
     ConfigOption(const string& id, const string value) : ConfigOption( id, std::make_shared<ConfigValueString>(value) ) {}
 
-    ConfigValuePtr getValue()            const { return optionValue; }
-    string         getValueAsString()    const { return optionValue->getAsString(); }
-    string         getID()               const { return optionID; }
-    string         getConfigFileString() const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
-    void           print()               const { cout << '\t' << getID() << ": " << getValueAsString() << '\n'; }
+    ConfigValuePtr getValue()         const { return optionValue; }
+    string         getValueAsString() const { return optionValue->getAsString(); }
+    string         getID()            const { return optionID; }
+    string         getConfigString()  const { return getID() + " = " + getValueAsString(); } // Return a string of the form "id = val", for writing the configuration option to a file
+    void           print()            const { cout << '\t' << getID() << ": " << getValueAsString() << '\n'; }
     
-    bool           isValid()             const { return (hasValidID && hasValidValue); }
+    bool           isValid()          const { return (hasValidID && hasValidValue); }
     
     void setValue(const bool value)
     {

@@ -126,14 +126,14 @@ void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePat
         // Invalid options are exported first, under the assumption that if they are recognised by a more recent version of
         // the program, they should be prioritised (and the parser prioritises options closer to the top of config files)
         for ( ConfigOptionPtr opt : optionsHandler.getInvalidOptions())
-            outf << opt->getConfigFileString() << std::endl;
+            outf << opt->getConfigString() << std::endl;
 
         // Blank line between invalid and valid options
         outf << std::endl;
         
         // Export valid options
         for ( ConfigOptionPtr opt : optionsHandler.getOptions())
-            outf << opt->getConfigFileString() << std::endl;
+            outf << opt->getConfigString() << std::endl;
     }
     catch (const FileException& exception)
     {
