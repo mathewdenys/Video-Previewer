@@ -55,6 +55,9 @@
 - (void)                           setOptionValue:(NSString*)optionID withInt:(int)val;
 - (void)                           setOptionValue:(NSString*)optionID withString:(NSString*)val;
 
+- (void)                           saveAllOptions:(NSString*)filePath;
+
+
 // Getter function for the preview video frames
 - (NSArray<NSFramePreview*>*)      getFrames;                                 // Returns an array consisting of a NSFramePreview for each frame in the preview
 

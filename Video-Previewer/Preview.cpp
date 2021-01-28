@@ -111,12 +111,16 @@ void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePat
         }
         
     // Case 2: filePath does NOT correspond a preexisting configuration file
-    // In this case
+    // In this case we do not need to maintain any formatting and can simply write
+    // the configuration string for each option to the file.
     std::cout << "Exporting configuration options to \"" << filePath << "\"\n";
     try
     {
-        if (fs::exists(filePath))
-            throw FileException("cannot export to a file that already exists\n", filePath);
+        // The following lines disallow the user from exporting a configuration file to a preexisting file
+        // I have commented them out because the GUI save panel asks the user to confirm that they will be
+        // overwriting a file, so the responsibility is on them...
+//        if (fs::exists(filePath))
+//            throw FileException("cannot export to a file that already exists\n", filePath);
 
         std::ofstream outf{ filePath };
 
