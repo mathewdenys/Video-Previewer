@@ -14,7 +14,21 @@ var vp: NSVideoPreview = NSVideoPreview("/Users/mathew/Projects/Video-Previewer/
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
+    
+    /*------------------------------------------------------------
+     MARK: - Menu bar
+     ------------------------------------------------------------*/
+    @IBAction func openGithubReadme(_ sender: NSMenuItem) {
+        if let url = URL(string: "https://github.com/mathewdenys/Video-Previewer/blob/master/README.md") {
+            NSWorkspace.shared.open(url)
+        }
+    }
 
+
+    /*------------------------------------------------------------
+        MARK: - Launching and terminating application
+     ------------------------------------------------------------*/
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view that provides the window contents.
         let contentView = ContentView().environmentObject(GlobalVars())
