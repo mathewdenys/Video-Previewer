@@ -19,10 +19,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     /*------------------------------------------------------------
      MARK: - Menu bar
-     ------------------------------------------------------------*/
+     ------------------------------------------------------------*/    
+    
     @IBAction func openGithubReadme(_ sender: NSMenuItem) {
         if let url = URL(string: "https://github.com/mathewdenys/Video-Previewer/blob/master/README.md") {
             NSWorkspace.shared.open(url)
+        }
+    }
+    
+    @IBAction func saveConfig(_ sender: NSMenuItem) {
+        let dialog = NSSavePanel();
+
+        dialog.title                   = "Save configuration options"
+        dialog.message                 = "Preexisting configuration files associated with this video will be updated while\nmaintaining formatting. Any other file will be overwritten."
+        dialog.nameFieldStringValue    = ".videopreviewconfig"
+        
+        dialog.canCreateDirectories    = true
+        dialog.showsResizeIndicator    = true
+        dialog.showsHiddenFiles        = true
+
+        // User presses "save"
+        if ( vp == nil) {
+            return
+        }
+        if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
+            let result = dialog.url // Pathname of the file
+
+            if (result != nil) {
+                let path: String = result!.path
+                vp!.saveAllOptions(path)
+            }
         }
     }
     

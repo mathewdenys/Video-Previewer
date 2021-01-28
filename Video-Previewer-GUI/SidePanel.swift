@@ -384,36 +384,9 @@ struct ConfigBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(vp!.getOptionInformation(), id: \.self) { option in
-                    ConfigRowView(option: option)
-                    }
+                ForEach(vp!.getOptionInformation(), id: \.self) { option in ConfigRowView(option: option) }
                     .padding(.horizontal, 30.0)
                     .padding(.vertical, 2.0)
-                
-                HStack(alignment: .center) {
-                    Button("Save Options", action: {
-                        let dialog = NSSavePanel();
-
-                        dialog.title                   = "Save configuration options"
-                        dialog.message                 = "Preexisting configuration files associated with this video will be updated while\nmaintaining formatting. Any other file will be overwritten."
-                        dialog.nameFieldStringValue    = ".videopreviewconfig"
-                        
-                        dialog.canCreateDirectories    = true
-                        dialog.showsResizeIndicator    = true
-                        dialog.showsHiddenFiles        = true
-
-                        // User presses "save"
-                        if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
-                            let result = dialog.url // Pathname of the file
-
-                            if (result != nil) {
-                                let path: String = result!.path
-                                vp!.saveAllOptions(path)
-                            }
-                        }
-                    })
-                }
-                .padding(.horizontal)
             }
         }
     }
