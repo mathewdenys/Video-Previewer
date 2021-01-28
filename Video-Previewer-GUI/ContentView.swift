@@ -28,8 +28,8 @@ let pasteBoard             = NSPasteboard.general      // For copy-and-pasting
     MARK: - GlobalVars
    ----------------------------------------------------------------------------------------------------*/
 
-class GlobalVars: ObservableObject {    
-    @Published var vp:            NSVideoPreview = NSVideoPreview("/Users/mathew/Library/Containers/mdenys.Video-Previewer-GUI/Data/sunrise.mov")
+class GlobalVars: ObservableObject {
+    @Published var vp:            NSVideoPreview = NSVideoPreview("/Users/mathew/Projects/Video-Previewer/media/monitor.mp4")
     @Published var frames:        [NSFramePreview?]?    = nil
     @Published var selectedFrame: NSFramePreview?       = nil
     

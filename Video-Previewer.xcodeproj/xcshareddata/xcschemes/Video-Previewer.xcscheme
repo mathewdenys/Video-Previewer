@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/mathew/Projects/Video-Previewer/Video-Previewer/media/sunrise.mov"
+            argument = "/Users/mathew/Projects/Video-Previewer/media/sunrise.mov"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
