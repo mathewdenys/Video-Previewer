@@ -9,12 +9,10 @@ import Cocoa
 import SwiftUI
 
 
-var vp:     NSVideoPreview?    = nil
-var frames: [NSFramePreview?]? = nil
-
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    var globalVars = GlobalVars()
     var window: NSWindow!
     
     /*------------------------------------------------------------
@@ -39,7 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dialog.showsHiddenFiles        = true
 
         // User presses "save"
-        if ( vp == nil) {
+        if ( globalVars.vp == nil) {
             return
         }
         if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
@@ -47,7 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             if (result != nil) {
                 let path: String = result!.path
-                vp!.saveAllOptions(path)
+                globalVars.vp!.saveAllOptions(path)
             }
         }
     }
@@ -66,8 +64,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             if (result != nil) {
                 let path: String = result!.path
-                vp = NSVideoPreview(path)
-                frames = vp!.getFrames()
+                
+                globalVars.vp     = NSVideoPreview(path)
+                globalVars.frames = globalVars.vp!.getFrames()
             }
         }
     }
@@ -79,7 +78,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView().environmentObject(GlobalVars())
+        let contentView = ContentView().environmentObject(globalVars)
             .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
 
         // Create the window and set the content view.

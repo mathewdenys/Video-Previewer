@@ -29,7 +29,9 @@ let pasteBoard             = NSPasteboard.general      // For copy-and-pasting
    ----------------------------------------------------------------------------------------------------*/
 
 class GlobalVars: ObservableObject {
-    @Published var selectedFrame: NSFramePreview?       = nil
+    @Published var vp:            NSVideoPreview?    = nil
+    @Published var frames:        [NSFramePreview?]? = nil
+    @Published var selectedFrame: NSFramePreview?    = nil
     
     // configUpdateCounter is incremented any time configuration options are updated in the GUI
     // It's actual value is not meaningful; all that matters is that it is @Published, so any View with a GlobalVars object will be updated
@@ -46,7 +48,7 @@ struct ContentView: View {
     
     var body: some View {
         
-        if (vp != nil) {
+        if (globalVars.vp != nil) {
             GeometryReader { geometry in
                 // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
                 //  i.e. the width of the side panel (includes its scrollbar) + the width of a scrollbar on the preview pane + padding on each side of the preview
@@ -61,7 +63,7 @@ struct ContentView: View {
                 let cols: Int = Int(widthOfPreview / frameWidth)
                 
                 // Determine the number of rows required to display the frames
-                let rows: Int = (frames!.count / cols) + 1
+                let rows: Int = (globalVars.frames!.count / cols) + 1
                 
                 // Determine the actual width of the entire video preview pane
                 // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
@@ -89,8 +91,8 @@ struct ContentView: View {
 
                     if (result != nil) {
                         let path: String = result!.path
-                        vp = NSVideoPreview(path)
-                        frames = vp!.getFrames()
+                        globalVars.vp = NSVideoPreview(path)
+                        globalVars.frames = globalVars.vp!.getFrames()
                         globalVars.configUpdateCounter += 1
                     }
                 }

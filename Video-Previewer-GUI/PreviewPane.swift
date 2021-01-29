@@ -24,7 +24,7 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let s = vp!.getOptionValue("frame_info_overlay")?.getString()
+            if let s = globalVars.vp!.getOptionValue("frame_info_overlay")?.getString()
             {
                 VStack(alignment: .trailing) {
                     if (s == "both" || s == "timestamp") {
@@ -77,8 +77,8 @@ struct PreviewPaneView: View {
                             HStack(spacing: 0) {
                                 ForEach(0..<cols, id: \.self) { j in
                                     let index = i*cols + j
-                                    if (index < frames!.count) {
-                                        FramePreviewView(frame: frames![index]!)
+                                    if (index < globalVars.frames!.count) {
+                                        FramePreviewView(frame: globalVars.frames![index]!)
                                     } else {
                                         Spacer().frame(width: CGFloat(frameWidth))
                                     }
