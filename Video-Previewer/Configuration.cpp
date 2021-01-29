@@ -4,8 +4,8 @@
     MARK: - ConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
-// A map from each optionID that the program recognisesto an associated NSOptionInformation object
-const std::unordered_map<string,ConfigOption::OptionInformation> ConfigOption::recognisedOptionInfo {
+// A map from each optionID that the program recognises to an associated NSOptionInformation object
+const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOptionInfo {
     {"maximum_frames",     OptionInformation("The maximum number of frames to show",
                                              ValidOptionValue::ePositiveIntegerOrString,
                                              {"maximum"},

@@ -32,7 +32,7 @@ namespace fs = std::filesystem;
         - Add a corresponding entry to the `NSValidOptionValue` enum
         - Add a case to ConfigOption::determineValidity()
             - This may involve writing additional functions to call
-        - Add a case to NSVideoPreview::getOptionInformation()
+        - Add a case to NSOptionInformation initializer
         - Add an entry to ConfigRowView for displaying the configuration option
  
  
@@ -143,6 +143,42 @@ enum class ValidOptionValue
     eString,                  // A set of predefined strings
 };
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - OptionInformation
+   ----------------------------------------------------------------------------------------------------*/
+
+// Class for storing information about configuration options that the program recognises
+class OptionInformation
+{
+public:
+    // Constructor without validStrings
+    OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const ConfigValuePtr& defaultValueIn) :
+        description  { descriptionIn },
+        validValues  { validValuesIn },
+        defaultValue { defaultValueIn }
+    {}
+
+    // Constructor with validStrings
+    OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn, const ConfigValuePtr& defaultValueIn) :
+        OptionInformation ( descriptionIn, validValuesIn, defaultValueIn )
+    {
+        if (validValues == ValidOptionValue::eString || validValues == ValidOptionValue::ePositiveIntegerOrString)
+            validStrings = validStringsIn;
+    }
+
+    const string&           getDescription()  const { return description; }
+    const ValidOptionValue& getValidValues()  const { return validValues; }
+    const vector<string>    getValidStrings() const { return validStrings; }
+    const ConfigValuePtr    getDefaultValue() const { return defaultValue; }
+
+private:
+    string           description  {}; // Human-readable description
+    ValidOptionValue validValues  {}; // The valid values this option may have
+    vector<string>   validStrings {}; // List of allowed values when validValues = ValidOptionValue::eString
+    ConfigValuePtr   defaultValue {}; // A default value to supply if needed when the option isn't supplied by a config file
+};
+
 /*----------------------------------------------------------------------------------------------------
     MARK: - ConfigOption
    ----------------------------------------------------------------------------------------------------*/
@@ -240,39 +276,6 @@ private:
         auto valueExists = [&](const string& s) { return s == optionValue->getString(); };
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
     }
-    
-private:
-    // Class for storing information about configuration options that the program recognises
-    // Used in the static recognisedOptionInfo map
-    class OptionInformation
-    {
-    public:
-        // Constructor without validStrings
-        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const ConfigValuePtr& defaultValueIn) :
-            description  { descriptionIn },
-            validValues  { validValuesIn },
-            defaultValue { defaultValueIn }
-        {}
-
-        // Constructor with validStrings
-        OptionInformation(const string& descriptionIn, const ValidOptionValue& validValuesIn, const vector<string>& validStringsIn, const ConfigValuePtr& defaultValueIn) :
-            OptionInformation ( descriptionIn, validValuesIn, defaultValueIn )
-        {
-            if (validValues == ValidOptionValue::eString || validValues == ValidOptionValue::ePositiveIntegerOrString)
-                validStrings = validStringsIn;
-        }
-
-        const string&           getDescription()  const { return description; }
-        const ValidOptionValue& getValidValues()  const { return validValues; }
-        const vector<string>    getValidStrings() const { return validStrings; }
-        const ConfigValuePtr    getDefaultValue() const { return defaultValue; }
-
-    private:
-        string           description  {}; // Human-readable description
-        ValidOptionValue validValues  {}; // The valid values this option may have
-        vector<string>   validStrings {}; // List of allowed values when validValues = ValidOptionValue::eString
-        ConfigValuePtr   defaultValue {}; // A default value to supply if needed when the option isn't supplied by a config file
-    };
 
 private:
     string         optionID      {};      // The id / name of the option
@@ -281,7 +284,7 @@ private:
     bool           hasValidValue = false; // Default to having an invalid value. Is changed in the contructor if needed
     
 public:
-    using OptionInformationMap = std::unordered_map<string,OptionInformation>;    
+    using OptionInformationMap = std::unordered_map<string, OptionInformation>;    
     const static OptionInformationMap recognisedOptionInfo; // A map from each optionID that the program recognisesto an associated NSOptionInformation object
 };
 

@@ -105,24 +105,58 @@
     NSArray<NSString*>* validStrings;
 }
 
-- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues
-{
-    self->ID          = ID;
-    self->description = description;
-    self->validValues = validValues;
-    return self;
-}
-
-- (NSOptionInformation*) initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues withValidStrings:(NSArray<NSString*>*)validStrings
-{
-    self = [[NSOptionInformation alloc] initWithID: ID withDescription: description withValidValues: validValues];
-    self->validStrings = validStrings;
-    return self;
-}
-
 - (NSString*)           getID           { return ID; }
 - (NSString*)           getDescription  { return description; }
 - (NSValidOptionValue)  getValidValues  { return validValues; }
 - (NSArray<NSString*>*) getValidStrings { return validStrings; }
+
+@end
+
+//    MARK: - NSOptionInformation (cpp_compatibility)
+
+@implementation NSOptionInformation (cpp_compatibility)
+
+- (NSOptionInformation*) fromOptionInformation:(const OptionInformation&)optInfo withID: (const string&)ID
+{
+    self->ID          = [NSString fromStdString:ID];
+    self->description = [NSString fromStdString:optInfo.getDescription()];
+    
+    ValidOptionValue  v = optInfo.getValidValues();
+    switch (v)
+    {
+        case ValidOptionValue::eBoolean:
+            self->validValues = NSValidOptionValue::eBoolean;
+            break;
+            
+        case ValidOptionValue::ePositiveInteger:
+            self->validValues = NSValidOptionValue::ePositiveInteger;
+            break;
+            
+        case ValidOptionValue::ePositiveIntegerOrString:
+            self->validValues = NSValidOptionValue::ePositiveIntegerOrString;
+            break;
+            
+        case ValidOptionValue::ePercentage:
+            self->validValues = NSValidOptionValue::ePercentage;
+            break;
+            
+        default:
+            self->validValues = NSValidOptionValue::eString;
+            break;
+    }
+    
+    NSMutableArray* strings_ns = [NSMutableArray new];
+    if (v == ValidOptionValue::eString || v == ValidOptionValue::ePositiveIntegerOrString)
+    {
+        vector<string> strings_std { optInfo.getValidStrings() };
+        for (string s : strings_std)
+        {
+            [strings_ns addObject: [NSString fromStdString:s]];
+        }
+    }
+    self->validStrings = strings_ns;
+    
+    return self;
+}
 
 @end

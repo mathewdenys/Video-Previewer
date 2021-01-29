@@ -214,7 +214,7 @@ public:
     
     int getVideoNumOfFrames() { return video.getNumberOfFrames(); }
     
-    const static ConfigOption::OptionInformationMap getRecognisedOptionInformation() { return ConfigOption::recognisedOptionInfo; }
+    const static OptionInformation getOptionInformation(const string& optionID) { return ConfigOption::recognisedOptionInfo.at(optionID); } // TODO: make this safe
     
     vector<Frame> getFrames()   { return frames; }
     

@@ -209,7 +209,7 @@ struct ConfigRowView: View, Identifiable {
         id           = option.getID()
         tooltip      = option.getDescription()
         valueType    = option.getValidValues()
-        validStrings = option.getValidStrings()
+        validStrings = option.getValidStrings() ?? [String]()
     }
     
     
@@ -394,9 +394,16 @@ struct ConfigBlockView: View {
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
-                ForEach(vp!.getOptionInformation(), id: \.self) { option in ConfigRowView(option: option) }
-                    .padding(.horizontal, 30.0)
-                    .padding(.vertical, 2.0)
+                Group {
+                    ConfigRowView(option: vp!.getOptionInformation("maximum_frames")!)
+                    ConfigRowView(option: vp!.getOptionInformation("maximum_percentage")!)
+                    ConfigRowView(option: vp!.getOptionInformation("minimum_sampling")!)
+                    Divider()
+                    ConfigRowView(option: vp!.getOptionInformation("frame_info_overlay")!)
+                    ConfigRowView(option: vp!.getOptionInformation("action_on_hover")!)
+                }
+                .padding(.horizontal, 3.0)
+                .padding(.vertical,   2.0)
             }
         }
     }

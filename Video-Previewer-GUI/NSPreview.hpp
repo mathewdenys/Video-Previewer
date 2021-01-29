@@ -49,7 +49,7 @@
 - (NSConfigValue*)                 getOptionValue:(NSString*)optionID;        // Returns a NSConfigValue containing the value of the configuration option
 - (NSString*)                      getOptionValueString:(NSString*)optionID;  // Returns a string corresponding to the value of the option corresponding to optionID
 - (NSString*)                      getOptionConfigString:(NSString*)optionID; // Returns a string of the form "id = val" corresponding to optionID
-- (NSArray<NSOptionInformation*>*) getOptionInformation;                      // Returns an array consisting of an NSOptionInformation instance for each recognised option
+- (NSOptionInformation*)           getOptionInformation:(NSString*)optionID;  // Returns an NSOptionInformation instance corresponding to optionID
 
 - (void)                           setOptionValue:(NSString*)optionID withBool:(bool)val;
 - (void)                           setOptionValue:(NSString*)optionID withInt:(int)val;

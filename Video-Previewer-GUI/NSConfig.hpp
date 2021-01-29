@@ -55,9 +55,6 @@ typedef NS_ENUM(NSInteger, NSValidOptionValue){
 
 @interface NSOptionInformation : NSObject
 
-- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues;
-- (instancetype)        initWithID:(NSString*)ID withDescription:(NSString*)description withValidValues:(NSValidOptionValue)validValues withValidStrings:(NSMutableArray<NSString*>*)validStrings;
-
 - (NSString*)           getID;
 - (NSString*)           getDescription;
 - (NSValidOptionValue)  getValidValues;

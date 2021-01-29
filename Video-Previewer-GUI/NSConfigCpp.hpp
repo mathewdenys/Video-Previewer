@@ -32,3 +32,13 @@
 - (NSConfigOption*) initWithID: (const string&) IDIn withStringValue: (const string&) val;
 
 @end
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - NSOptionInformation
+   ----------------------------------------------------------------------------------------------------*/
+
+@interface NSOptionInformation (cpp_compatibility)
+
+- (instancetype) fromOptionInformation:(const OptionInformation&)optInfo withID: (const string&)id;
+
+@end

@@ -138,52 +138,9 @@
     return [NSString fromStdString:option->getConfigString()];
 }
 
-- (NSArray<NSOptionInformation*>*) getOptionInformation
+- (NSOptionInformation*) getOptionInformation:(NSString*)optionID
 {
-    ConfigOption::OptionInformationMap oim = vp->getRecognisedOptionInformation();
-    
-    NSMutableArray* options = [NSMutableArray new];
-    for (auto opt: oim)
-    {
-        NSString* i = [NSString fromStdString:opt.first];
-        NSString* d = [NSString fromStdString:opt.second.getDescription()];
-        
-        ValidOptionValue   v = opt.second.getValidValues();
-        NSValidOptionValue nsv;
-        switch (v)
-        {
-            case ValidOptionValue::eBoolean:
-                nsv = NSValidOptionValue::eBoolean;
-                break;
-                
-            case ValidOptionValue::ePositiveInteger:
-                nsv = NSValidOptionValue::ePositiveInteger;
-                break;
-                
-            case ValidOptionValue::ePositiveIntegerOrString:
-                nsv = NSValidOptionValue::ePositiveIntegerOrString;
-                break;
-                
-            case ValidOptionValue::ePercentage:
-                nsv = NSValidOptionValue::ePercentage;
-                break;
-                
-            default:
-                nsv = NSValidOptionValue::eString;
-                break;
-        }
-        
-        NSMutableArray* strings_ns = [NSMutableArray new];
-        if (v == ValidOptionValue::eString || v == ValidOptionValue::ePositiveIntegerOrString)
-        {
-            vector<string> strings_std { opt.second.getValidStrings() };
-            for (string s : strings_std)
-                [strings_ns addObject: [NSString fromStdString:s]];
-        }
-        [options addObject: [[NSOptionInformation alloc] initWithID: i withDescription: d withValidValues:nsv withValidStrings:strings_ns] ];
-    }
-    
-    return options;
+    return [[NSOptionInformation alloc] fromOptionInformation:vp->getOptionInformation([optionID getStdString]) withID: [optionID getStdString]];
 }
 
 
