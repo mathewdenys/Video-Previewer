@@ -289,7 +289,11 @@ struct ConfigRowView: View, Identifiable {
                     TextField("\(inputInt)",             // When not being interacted with, the TextField displays the current value of inputInt
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
-                                inputInt = Int(intValidator.value) ?? -1
+                                let stringVal = intValidator.value
+                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
+                                    return;
+                                }
+                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
                                 globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
@@ -306,7 +310,11 @@ struct ConfigRowView: View, Identifiable {
                     TextField("\(inputString == "" ? "\(inputInt)" : "")", // When not being interacted with, the TextField displays the current value of inputInt (or blank if the option is set to a string value)
                               text: $intValidator.value,                   // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
-                                inputInt = Int(intValidator.value) ?? -1
+                                let stringVal = intValidator.value
+                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
+                                    return;
+                                }
+                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
                                 globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
@@ -329,7 +337,11 @@ struct ConfigRowView: View, Identifiable {
                     TextField("\(inputInt)%",            // When not being interacted with, the TextField displays the current value of inputInt
                               text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
                               onCommit: {
-                                inputInt = Int(intValidator.value) ?? -1
+                                let stringVal = intValidator.value
+                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
+                                    return;
+                                }
+                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
                                 globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
                                 globalVars.configUpdateCounter += 1
                               }
