@@ -60,10 +60,11 @@ struct ContentView: View {
                 
                 // Determine the number of frames per row given the current window size
                 //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
-                let cols: Int = Int(widthOfPreview / frameWidth)
+                let Nframes: Int = globalVars.frames!.count
+                let cols:    Int = min(Int(widthOfPreview / frameWidth), Nframes)
                 
                 // Determine the number of rows required to display the frames
-                let rows: Int = (globalVars.frames!.count / cols) + 1
+                let rows: Int = (Nframes / cols) + 1
                 
                 // Determine the actual width of the entire video preview pane
                 // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
@@ -98,6 +99,7 @@ struct ContentView: View {
                 }
             } )
         }
+        
         
         
         
