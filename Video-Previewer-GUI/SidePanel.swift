@@ -79,13 +79,13 @@ public extension View {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - InfoPair
+    MARK: - InfoRowView
    ----------------------------------------------------------------------------------------------------*/
 
-struct InfoPair: Identifiable {
-    var id:      String;
-    var value:   String;
-    var tooltip: String;
+struct InfoRowView: View, Identifiable {
+    var id:      String
+    var value:   String
+    var tooltip: String
     
     // Default initializer
     init(id: String, value: String, tooltip: String) {
@@ -94,23 +94,12 @@ struct InfoPair: Identifiable {
         self.tooltip = tooltip;
     }
     
-    // Initializer for InfoPair without a tooltip
+    // Initializer without a tooltip
     init(id: String, value: String) {
         self.id = id;
         self.value = value;
         self.tooltip = "";
     }
-}
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - InfoRowView
-   ----------------------------------------------------------------------------------------------------*/
-
-struct InfoRowView: View, Identifiable {
-    var id:      String
-    var value:   String
-    var tooltip: String
     
     var body: some View {
         HStack(alignment: .top) {
@@ -129,12 +118,6 @@ struct InfoRowView: View, Identifiable {
                 }
         }
         
-    }
-    
-    init(info: InfoPair) {
-        id      = info.id;
-        value   = info.value;
-        tooltip = info.tooltip;
     }
 }
 
@@ -394,12 +377,12 @@ struct SidePanelView: View {
                     VStack(alignment: .leading) {
                         CollapsibleBlockView(title: "Video Information") {
                             Group {
-                                InfoRowView(info: InfoPair(id: "File path",   value: globalVars.vp!.getVideoNameString()))
-                                InfoRowView(info: InfoPair(id: "Encoding",    value: globalVars.vp!.getVideoCodecString()))
-                                InfoRowView(info: InfoPair(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString()))
-                                InfoRowView(info: InfoPair(id: "Length",      value: globalVars.vp!.getVideoLengthString()))
-                                InfoRowView(info: InfoPair(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString()))
-                                InfoRowView(info: InfoPair(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString()))
+                                InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                                InfoRowView(id: "Encoding",    value: globalVars.vp!.getVideoCodecString())
+                                InfoRowView(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString())
+                                InfoRowView(id: "Length",      value: globalVars.vp!.getVideoLengthString())
+                                InfoRowView(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString())
+                                InfoRowView(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString())
                             }
                             .padding(.all, 5.0)
                         }
@@ -412,8 +395,8 @@ struct SidePanelView: View {
                                     .foregroundColor(colorFaded)
                             } else {
                                 Group {
-                                    InfoRowView(info: InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ))
-                                    InfoRowView(info: InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ))
+                                    InfoRowView(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
+                                    InfoRowView(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
                                 }
                                 .padding(.all, 5.0)
                             }
