@@ -98,6 +98,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 preferencesWindow.setFrameAutosaveName("Preferences")
                 preferencesWindow.isReleasedWhenClosed = false
                 preferencesWindow.contentView = NSHostingView(rootView: preferencesView)
+                preferencesWindow.title = "Configuration options"
             }
             preferencesWindow.makeKeyAndOrderFront(nil)
         }

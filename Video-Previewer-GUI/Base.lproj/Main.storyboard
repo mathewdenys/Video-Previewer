@@ -22,7 +22,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                                        <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
+                                        <menuItem title="Configuration Options" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
                                                 <action selector="openPreferencesWindow:" target="Ady-hI-5gd" id="5yU-Aq-zht"/>
                                             </connections>
