@@ -21,13 +21,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
      MARK: - Menu bar
      ------------------------------------------------------------*/    
     
-    @IBAction func openGithubReadme(_ sender: NSMenuItem) {
+    @IBAction func openGithubReadme(_ sender: Any?) {
         if let url = URL(string: "https://github.com/mathewdenys/Video-Previewer/blob/master/README.md") {
             NSWorkspace.shared.open(url)
         }
     }
     
-    @IBAction func saveConfig(_ sender: NSMenuItem) {
+    @IBAction func saveConfig(_ sender: Any?) {
         let dialog = NSSavePanel();
 
         dialog.title                   = "Save configuration options"
@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    @IBAction func openVideoFile(_ openMenuItem: NSMenuItem) {
+    @IBAction func openVideoFile(_ sender: Any?) {
         let dialog = NSOpenPanel();
 
         dialog.title                   = "Open a video to preview"
@@ -74,7 +74,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Adapted from https://stackoverflow.com/a/62780829
-    @IBAction func openPreferencesWindow(_ openMenuItem: NSMenuItem) {
+    @IBAction func openPreferencesWindow(_ sender: Any?) {
             if nil == preferencesWindow {      // Only create once
                 let preferencesView = PreferencesView().environmentObject(globalVars)
                 // Create the preferences window and set content
@@ -97,11 +97,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
      ------------------------------------------------------------*/
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Create the SwiftUI view that provides the window contents.
+        
+        // Show an "open" panel on launch to choose the video to preview
+        openVideoFile(nil)
+        
+        // Create the SwiftUI view that provides the window contents
         let contentView = ContentView().environmentObject(globalVars)
             .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
 
-        // Create the window and set the content view.
+        // Create the window and set the content view
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],

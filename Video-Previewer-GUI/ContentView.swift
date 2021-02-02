@@ -54,61 +54,29 @@ struct ContentView: View {
     
     var body: some View {
         
-        if (globalVars.vp != nil) {
-            GeometryReader { geometry in
-                // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
-                //  i.e. the width of the side panel (includes its scrollbar) + the width of a scrollbar on the preview pane + padding on each side of the preview
-                let widthOfNonPreviewElements: Double = sidePanelWidth + scrollBarWidth + 2.0*previewPadding
-                
-                // Determine an upper bound for the width of the frames being previewed
-                let widthOfWindow:  Double = Double(geometry.size.width)
-                let widthOfPreview: Double = widthOfWindow - widthOfNonPreviewElements
-                
-                // Determine the number of frames per row given the current window size
-                //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
-                let Nframes: Int = globalVars.frames!.count
-                let cols:    Int = min(Int(widthOfPreview / frameWidth), Nframes)
-                
-                // Determine the number of rows required to display the frames
-                let rows: Int = (Nframes / cols) + 1
-                
-                // Determine the actual width of the entire video preview pane
-                // The width of the side panel will adjust to fill the remaining space, with a minimum width given by `sidePanelMinWidth`
-                //  i.e. The width of the actual frames displayed + the scrollbar + padding on each side
-//                let previewWidth: Double = frameWidth*Double(cols) + scrollBarWidth + 2.0*previewPadding
-                
-                HStack(spacing:0) {
-                    PreviewPaneView(cols: cols, rows: rows)
-                    SidePanelView()
-                        .frame(width: CGFloat(sidePanelWidth))
-                }
+        GeometryReader { geometry in
+            // Determine a lower bound for the width of all the on-screen elements *except* the actual frames that are being previewed
+            //  i.e. the width of the side panel (includes its scrollbar) + the width of a scrollbar on the preview pane + padding on each side of the preview
+            let widthOfNonPreviewElements: Double = sidePanelWidth + scrollBarWidth + 2.0*previewPadding
+            
+            // Determine an upper bound for the width of the frames being previewed
+            let widthOfWindow:  Double = Double(geometry.size.width)
+            let widthOfPreview: Double = widthOfWindow - widthOfNonPreviewElements
+            
+            // Determine the number of frames per row given the current window size
+            //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
+            let Nframes: Int = globalVars.frames!.count
+            let cols:    Int = min(Int(widthOfPreview / frameWidth), Nframes)
+            
+            // Determine the number of rows required to display the frames
+            let rows: Int = (Nframes / cols) + 1
+            
+            HStack(spacing:0) {
+                PreviewPaneView(cols: cols, rows: rows)
+                SidePanelView()
+                    .frame(width: CGFloat(sidePanelWidth))
             }
-        } else {
-            Button("Open...", action: {
-                let dialog = NSOpenPanel();
-
-                dialog.title                   = "Open a video to preview"
-                
-                dialog.showsResizeIndicator    = true
-                dialog.showsHiddenFiles        = true
-
-                // User presses "open"
-                if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
-                    let result = dialog.url // Pathname of the file
-
-                    if (result != nil) {
-                        let path: String = result!.path
-                        globalVars.vp = NSVideoPreview(path)
-                        globalVars.frames = globalVars.vp!.getFrames()
-                        globalVars.configUpdateCounter += 1
-                    }
-                }
-            } )
         }
-        
-        
-        
-        
     }
 }
 
