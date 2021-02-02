@@ -28,6 +28,9 @@ let previewPadding         = 15.0          // The padding around the frames in t
 let scrollBarWidth         = 15.0          // The width of a scrollbar in a ScrollView
 let sidePanelWidth         = 400.0         // The miniumum width of the side panel
 
+let infoRowVPadding        = CGFloat(5.0)  // The vertical padding around the content of an InfoRowView
+let configRowVPadding      = CGFloat(0.0)  // The vertical padding around the content of an ConfigRowView
+
 let pasteBoard             = NSPasteboard.general      // For copy-and-pasting
 
 /*----------------------------------------------------------------------------------------------------

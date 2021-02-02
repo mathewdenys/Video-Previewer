@@ -19,22 +19,14 @@ struct PreferencesView: View {
             VStack {
                 
                 CollapsibleBlockView(title: "Basic options") {
-                    Group {
-                        ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
-                        ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                    }
-                    .padding(.horizontal, 5.0)
-                    .padding(.vertical,   2.0)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                 }
                 
                 CollapsibleBlockView(title: "Advanced options") {
-                    Group {
-                        ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
-                        ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
-                        ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
-                    }
-                    .padding(.horizontal, 5.0)
-                    .padding(.vertical,   2.0)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
                 }
                 
                 CollapsibleBlockView(title: "Edit configuration files directly") {
@@ -48,12 +40,12 @@ struct PreferencesView: View {
                             Button("Edit", action: {
                                 NSWorkspace.shared.openFile(configFilePath, withApplication: "Finder")
                             })
-                        }
+                        }.padding(.leading, 20.0)
                     }
                 }
             }
             .frame(width: 400)
-            .padding(.all, 10)
+            .padding(.vertical)
         }
     }
 }

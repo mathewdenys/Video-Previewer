@@ -116,7 +116,7 @@ struct InfoRowView: View, Identifiable {
                         pasteBoard.writeObjects([value as NSString])
                     })
                 }
-        }
+        }.padding(.vertical, infoRowVPadding)
         
     }
 }
@@ -309,6 +309,7 @@ struct ConfigRowView: View, Identifiable {
                     Spacer()
             }
         }
+        .padding(.vertical, configRowVPadding)
         .foregroundColor(colorBold)
         .onAppear {
             if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
@@ -351,12 +352,12 @@ struct CollapsibleBlockView<Content: View>: View {
                     .fill(colorBold)
                     .frame(width: 9, height: 6)
             }
-            .padding(.horizontal)
             .background(colorInvisible) // Hackey way of making the whole HStack clickable
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded { collapsibleContent }
         }
+        .padding(.horizontal)
     }
 }
 
@@ -376,15 +377,12 @@ struct SidePanelView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         CollapsibleBlockView(title: "Video Information") {
-                            Group {
-                                InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
-                                InfoRowView(id: "Encoding",    value: globalVars.vp!.getVideoCodecString())
-                                InfoRowView(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString())
-                                InfoRowView(id: "Length",      value: globalVars.vp!.getVideoLengthString())
-                                InfoRowView(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString())
-                                InfoRowView(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString())
-                            }
-                            .padding(.all, 5.0)
+                            InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                            InfoRowView(id: "Encoding",    value: globalVars.vp!.getVideoCodecString())
+                            InfoRowView(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString())
+                            InfoRowView(id: "Length",      value: globalVars.vp!.getVideoLengthString())
+                            InfoRowView(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString())
+                            InfoRowView(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString())
                         }
                         
                         Divider()
@@ -394,11 +392,8 @@ struct SidePanelView: View {
                                 Text("No frame selected")
                                     .foregroundColor(colorFaded)
                             } else {
-                                Group {
-                                    InfoRowView(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
-                                    InfoRowView(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
-                                }
-                                .padding(.all, 5.0)
+                                InfoRowView(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
+                                InfoRowView(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
                             }
                         }
                         
@@ -407,15 +402,11 @@ struct SidePanelView: View {
                         Divider()
                         
                         CollapsibleBlockView(title: "Configuration Options") {
-                            Group {
-                                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
-                                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
-                                ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
-                                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
-                                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                            }
-                            .padding(.horizontal, 5.0)
-                            .padding(.vertical,   2.0)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                         }
                     }
                     .padding(.vertical, 10.0)
