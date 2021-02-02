@@ -140,49 +140,6 @@ struct InfoRowView: View, Identifiable {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - InfoBlockView
-   ----------------------------------------------------------------------------------------------------*/
-
-struct InfoBlockView: View {
-    @EnvironmentObject var globalVars: GlobalVars
-    var title: String;
-    var info:  [InfoPair];
-    var displaysFrameInfo = false
-    
-    @State private var isExpanded = true;
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text(title)
-                    .fontWeight(.bold)
-                    .foregroundColor(colorBold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Triangle()
-                    .rotation(Angle(degrees: isExpanded ? 180 : 90))
-                    .fill(colorBold)
-                    .frame(width: 9, height: 6)
-            }
-            .padding(.horizontal)
-            .background(colorInvisible) // Hackey way of making the whole HStack clickable
-            .onTapGesture { isExpanded = !isExpanded; }
-            
-            if isExpanded {
-                if (displaysFrameInfo && globalVars.selectedFrame == nil) {
-                    Text("No frame selected")
-                        .foregroundColor(colorFaded)
-                } else {
-                ForEach(info) { i in InfoRowView(info: i) }
-                    .padding(.horizontal, 30.0)
-                    .padding(.vertical, 5.0)
-                }
-            }
-        }
-    }
-}
-
-
-/*----------------------------------------------------------------------------------------------------
     MARK: - ConfigRowView
         A ConfigRowView is displayed for each recognised configuration option
         A different display is defined for each possible value of OptionInformation.getValidValues()
@@ -380,14 +337,24 @@ struct ConfigRowView: View, Identifiable {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigBlockView
+    MARK: - CollapsibleBlockView
    ----------------------------------------------------------------------------------------------------*/
 
-struct ConfigBlockView: View {
-    @EnvironmentObject var globalVars: GlobalVars
-    var title: String;
+struct CollapsibleBlockView<Content: View>: View {
     
-    @State private var isExpanded = true;
+    @EnvironmentObject
+    var globalVars: GlobalVars
+    
+    @State
+    private var isExpanded = true
+    
+    private let title:              String
+    private let collapsibleContent: Content
+
+    init(title: String, @ViewBuilder content: @escaping () -> Content) {
+        self.title = title
+        self.collapsibleContent = content()
+    }
     
     var body: some View {
         VStack {
@@ -402,26 +369,13 @@ struct ConfigBlockView: View {
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
-            .background(colorInvisible) // Hackey way of making the whole HStack clickable (FIX)
+            .background(colorInvisible) // Hackey way of making the whole HStack clickable
             .onTapGesture { isExpanded = !isExpanded; }
             
-            if isExpanded {
-                Group {
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
-                    Divider()
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                }
-                .padding(.horizontal, 3.0)
-                .padding(.vertical,   2.0)
-            }
+            if isExpanded { collapsibleContent }
         }
     }
 }
-
-func doNothing() { }
 
 
 /*----------------------------------------------------------------------------------------------------
@@ -438,32 +392,53 @@ struct SidePanelView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        InfoBlockView(title: "Video Information",
-                                      info:
-                                        [
-                                            InfoPair(id: "File path",   value: globalVars.vp!.getVideoNameString()),
-                                            InfoPair(id: "Encoding",    value: globalVars.vp!.getVideoCodecString()),
-                                            InfoPair(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString()),
-                                            InfoPair(id: "Length",      value: globalVars.vp!.getVideoLengthString()),
-                                            InfoPair(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString()),
-                                            InfoPair(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString()),
-                                        ]
-                        )
+                        CollapsibleBlockView(title: "Video Information") {
+                            Group {
+                                InfoRowView(info: InfoPair(id: "File path",   value: globalVars.vp!.getVideoNameString()))
+                                InfoRowView(info: InfoPair(id: "Encoding",    value: globalVars.vp!.getVideoCodecString()))
+                                InfoRowView(info: InfoPair(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString()))
+                                InfoRowView(info: InfoPair(id: "Length",      value: globalVars.vp!.getVideoLengthString()))
+                                InfoRowView(info: InfoPair(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString()))
+                                InfoRowView(info: InfoPair(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString()))
+                            }
+                            .padding(.all, 5.0)
+                        }
+                        
                         Divider()
-                        InfoBlockView(title: "Frame Information",
-                                      info:
-                                        [
-                                            InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ),
-                                            InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ),
-                                        ],
-                                      displaysFrameInfo: true
-                        )
+                        
+                        CollapsibleBlockView(title: "Frame Information") {
+                            if (globalVars.selectedFrame == nil) {
+                                Text("No frame selected")
+                                    .foregroundColor(colorFaded)
+                            } else {
+                                Group {
+                                    InfoRowView(info: InfoPair(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ))
+                                    InfoRowView(info: InfoPair(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ))
+                                }
+                                .padding(.all, 5.0)
+                            }
+                        }
+                        
                         Spacer()
+                        
                         Divider()
-                        ConfigBlockView(title: "Configuration Options")
+                        
+                        CollapsibleBlockView(title: "Configuration Options") {
+                            Group {
+                                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
+                                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
+                                ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
+                                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
+                                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+                            }
+                            .padding(.horizontal, 5.0)
+                            .padding(.vertical,   2.0)
+                        }
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
+                    
+                    
                 }
             }
         }

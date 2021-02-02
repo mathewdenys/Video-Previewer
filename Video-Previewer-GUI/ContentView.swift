@@ -20,7 +20,7 @@ let colorFaded             = Color(NSColor(named: NSColor.Name("colorFaded"))!)
 let colorInvisible         = Color(NSColor(named: NSColor.Name("colorInvisible"))!)
 
 let frameBorderWidth       = CGFloat(3.0)
-let infoDescriptionWidth   = CGFloat(80)   // The width of the first column in the information blocks
+let infoDescriptionWidth   = CGFloat(100)  // The width of the first column in the information blocks
 let configDescriptionWidth = CGFloat(140)  // The width of the first column in the congiuation blocks
 
 let frameWidth             = 200.0         // The width of the individual frames in the video preview
