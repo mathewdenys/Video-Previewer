@@ -76,7 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Adapted from https://stackoverflow.com/a/62780829
     @IBAction func openPreferencesWindow(_ openMenuItem: NSMenuItem) {
             if nil == preferencesWindow {      // Only create once
-                let preferencesView = PreferencesView()
+                let preferencesView = PreferencesView().environmentObject(globalVars)
                 // Create the preferences window and set content
                 preferencesWindow = NSWindow(
                     contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),

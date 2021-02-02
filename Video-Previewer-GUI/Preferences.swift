@@ -7,41 +7,40 @@
 
 import SwiftUI
 
-struct PreferencesGeneralView: View {
-    var body: some View {
-        Text("one")
-    }
-}
-
-struct PreferencesConfigView: View {
-    var body: some View {
-        Text("two")
-    }
-}
 
 struct PreferencesView: View {
+    @EnvironmentObject var globalVars: GlobalVars
+    
     var body: some View {
         
-        HStack {
-            TabView {
-                PreferencesGeneralView()
-                    .tabItem {
-//                        Image(systemName: "1.square.fill")
-                        Text("First")
-                    }
-                PreferencesConfigView()
-                    .tabItem {
-//                        Image(systemName: "2.square.fill")
-                        Text("Second")
-                    }
-                Text("The Last Tab")
-                    .tabItem {
-//                        Image(systemName: "3.square.fill")
-                        Text("Third")
-                    }
+        if (globalVars.vp == nil) {
+            Text("No video is being previewed")
+        } else {
+            Group {
+                Text("Basic")
+                    .fontWeight(.bold)
+                    .foregroundColor(colorBold)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
+                Divider()
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+                
+                Text("Advanced")
+                    .fontWeight(.bold)
+                    .foregroundColor(colorBold)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
+                
             }
-        }.frame(width: 200, height: 300)
-        
+            .padding(.horizontal, 3.0)
+            .padding(.vertical,   2.0)
+            
+        }
     }
 }
 
