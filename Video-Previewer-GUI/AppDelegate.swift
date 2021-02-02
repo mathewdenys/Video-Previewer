@@ -69,8 +69,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 globalVars.vp     = NSVideoPreview(path)
                 globalVars.frames = globalVars.vp!.getFrames()
+                
+                NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
             }
         }
+    }
+    
+    // Called when the user selects an item from the "Open Recent" menu
+    // Return true  to keep the item in the menu, and false otherwise
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        print(filename)
+        globalVars.vp     = NSVideoPreview(filename)
+        globalVars.frames = globalVars.vp!.getFrames()
+        return true
     }
     
     // Adapted from https://stackoverflow.com/a/62780829
