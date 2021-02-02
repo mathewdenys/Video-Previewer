@@ -51,6 +51,8 @@
 - (NSString*)                      getOptionConfigString:(NSString*)optionID; // Returns a string of the form "id = val" corresponding to optionID
 - (NSOptionInformation*)           getOptionInformation:(NSString*)optionID;  // Returns an NSOptionInformation instance corresponding to optionID
 
+- (NSArray<NSString*>*)            getConfigFilePaths;
+
 - (void)                           setOptionValue:(NSString*)optionID withBool:(bool)val;
 - (void)                           setOptionValue:(NSString*)optionID withInt:(int)val;
 - (void)                           setOptionValue:(NSString*)optionID withString:(NSString*)val;

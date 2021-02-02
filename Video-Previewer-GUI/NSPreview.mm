@@ -144,6 +144,16 @@
 }
 
 
+- (NSArray<NSString*>*) getConfigFilePaths
+{
+    vector<string> pathsIn { vp->getConfigFilePaths() };
+    NSMutableArray* pathsOut = [NSMutableArray new];
+    for (string path : pathsIn)
+        [pathsOut addObject: [NSString fromStdString:path]];
+    return pathsOut;
+}
+
+
 - (void) setOptionValue:(NSString*)optionID withBool:(bool)val         { vp->setOption([optionID getStdString], val); }
 - (void) setOptionValue:(NSString*)optionID withInt:(int)val           { vp->setOption([optionID getStdString], val); }
 - (void) setOptionValue:(NSString*)optionID withString:(NSString *)val { vp->setOption([optionID getStdString], [val getStdString]); }
@@ -165,5 +175,3 @@
 }
 
 @end
-
-

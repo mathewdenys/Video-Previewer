@@ -216,6 +216,16 @@ public:
     
     const static OptionInformation getOptionInformation(const string& optionID) { return ConfigOption::recognisedOptionInfo.at(optionID); } // TODO: make this safe
     
+    vector<string> getConfigFilePaths()
+    {
+        vector<ConfigFilePtr> files = optionsHandler.getConfigFiles();
+        vector<string> filePaths;
+        filePaths.reserve(files.size());
+        for (ConfigFilePtr file : files)
+            filePaths.push_back(file->getFilePath());
+        return filePaths;
+    }
+    
     vector<Frame> getFrames()   { return frames; }
     
     ~VideoPreview()
