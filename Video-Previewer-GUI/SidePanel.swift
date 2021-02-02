@@ -115,11 +115,11 @@ struct InfoRowView: View, Identifiable {
     var body: some View {
         HStack(alignment: .top) {
             Text(id)
-                .foregroundColor(.gray)
+                .foregroundColor(colorFaded)
                 .frame(width: infoDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
-                .foregroundColor(almostBlack)
+                .foregroundColor(colorBold)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contextMenu {
                     Button("Copy", action: {
@@ -156,21 +156,21 @@ struct InfoBlockView: View {
             HStack {
                 Text(title)
                     .fontWeight(.bold)
-                    .foregroundColor(almostBlack)
+                    .foregroundColor(colorBold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
                     .rotation(Angle(degrees: isExpanded ? 180 : 90))
-                    .fill(almostBlack)
+                    .fill(colorBold)
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
-            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable
+            .background(colorInvisible) // Hackey way of making the whole HStack clickable
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {
                 if (displaysFrameInfo && globalVars.selectedFrame == nil) {
                     Text("No frame selected")
-                        .foregroundColor(.gray)
+                        .foregroundColor(colorFaded)
                 } else {
                 ForEach(info) { i in InfoRowView(info: i) }
                     .padding(.horizontal, 30.0)
@@ -251,7 +251,7 @@ struct ConfigRowView: View, Identifiable {
             
             // Left hand column: option ID
             Text(id.capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
-                .foregroundColor(.gray)
+                .foregroundColor(colorFaded)
                 .frame(width: configDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
                 .contextMenu {
@@ -369,7 +369,7 @@ struct ConfigRowView: View, Identifiable {
                     Spacer()
             }
         }
-        .foregroundColor(almostBlack)
+        .foregroundColor(colorBold)
         .onAppear {
             if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
             if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt = i.intValue }
@@ -394,15 +394,15 @@ struct ConfigBlockView: View {
             HStack {
                 Text(title)
                     .fontWeight(.bold)
-                    .foregroundColor(almostBlack)
+                    .foregroundColor(colorBold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
                     .rotation(Angle(degrees: isExpanded ? 180 : 90))
-                    .fill(almostBlack)
+                    .fill(colorBold)
                     .frame(width: 9, height: 6)
             }
             .padding(.horizontal)
-            .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.01)) // Hackey way of making the whole HStack clickable (FIX)
+            .background(colorInvisible) // Hackey way of making the whole HStack clickable (FIX)
             .onTapGesture { isExpanded = !isExpanded; }
             
             if isExpanded {

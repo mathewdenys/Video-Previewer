@@ -29,17 +29,17 @@ struct FramePreviewView: View {
                 VStack(alignment: .trailing) {
                     if (s == "both" || s == "timestamp") {
                         Text(frame.getTimeStampString())
-                            .foregroundColor(Color.white)
+                            .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
-                            .background(Color(red:0, green:0, blue:0, opacity:0.2))
+                            .background(colorOverlayBackground)
                             .padding(.all, frameBorderWidth)
                     }
                     
                     if (s == "both" || s == "number") {
                         Text("\(frame.getFrameNumber())")
-                            .foregroundColor(Color.white)
+                            .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
-                            .background(Color(red:0, green:0, blue:0, opacity:0.2))
+                            .background(colorOverlayBackground)
                             .padding(.all, frameBorderWidth)
                     }
                 }
@@ -67,7 +67,7 @@ struct PreviewPaneView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 0.98, green: 0.98, blue: 0.98, opacity: 1.0).edgesIgnoringSafeArea(.all)
+            Color(colorBackground).edgesIgnoringSafeArea(.all)
             
             ScrollView {
                 HStack(alignment: .center) {
