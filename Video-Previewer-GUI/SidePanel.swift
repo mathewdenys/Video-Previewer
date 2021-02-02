@@ -35,23 +35,6 @@ extension String {
     }
 }
 
-/*----------------------------------------------------------------------------------------------------
-    MARK: - NumbersOnly
-        - From: https://programmingwithswift.com/numbers-only-textfield-with-swiftui/
-   ----------------------------------------------------------------------------------------------------*/
-
-class NumbersOnly: ObservableObject {
-    @Published var value = "" {
-        didSet {
-            let filtered = value.filter { $0.isNumber }
-            
-            if value != filtered {
-                value = filtered
-            }
-        }
-    }
-}
-
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - Tooltip
@@ -130,7 +113,6 @@ struct InfoRowView: View, Identifiable {
 
 struct ConfigRowView: View, Identifiable {
     @EnvironmentObject var globalVars: GlobalVars
-    @ObservedObject    var intValidator = NumbersOnly()
     
     // Information relating to the configuration option being displayed
     var id:           String
@@ -172,7 +154,7 @@ struct ConfigRowView: View, Identifiable {
         )
 
         let bindInt = Binding<Int>(
-            get: { self.inputInt},
+            get: { self.inputInt },
             set: { self.inputInt = $0
                    globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
                    globalVars.configUpdateCounter += 1
@@ -180,7 +162,7 @@ struct ConfigRowView: View, Identifiable {
         )
 
         let bindString = Binding<String>(
-            get: { self.inputString},
+            get: { self.inputString },
             set: { self.inputString = $0
                    globalVars.vp!.setOptionValue(id, with: inputString)
                    globalVars.configUpdateCounter += 1
@@ -226,19 +208,8 @@ struct ConfigRowView: View, Identifiable {
                  ------------------------------------------------------------*/
                 case NSValidOptionValue.ePositiveInteger:
 
-                    TextField("\(inputInt)",             // When not being interacted with, the TextField displays the current value of inputInt
-                              text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
-                              onCommit: {
-                                let stringVal = intValidator.value
-                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
-                                    return;
-                                }
-                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
-                                globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
-                                globalVars.configUpdateCounter += 1
-                              }
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    TextField("", value: bindInt, formatter: NumberFormatter())
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Stepper("", value: bindInt)
                         .labelsHidden()
@@ -247,19 +218,9 @@ struct ConfigRowView: View, Identifiable {
                     Positive integer OR string value
                  ------------------------------------------------------------*/
                 case NSValidOptionValue.ePositiveIntegerOrString:
-                    TextField("\(inputString == "" ? "\(inputInt)" : "")", // When not being interacted with, the TextField displays the current value of inputInt (or blank if the option is set to a string value)
-                              text: $intValidator.value,                   // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
-                              onCommit: {
-                                let stringVal = intValidator.value
-                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
-                                    return;
-                                }
-                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
-                                globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
-                                globalVars.configUpdateCounter += 1
-                              }
-                    )
-                    .frame(maxWidth: 50, alignment: .leading)
+
+                    TextField("", value: bindInt, formatter: NumberFormatter())
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Stepper("", value: bindInt)
                         .labelsHidden()
@@ -274,20 +235,10 @@ struct ConfigRowView: View, Identifiable {
                     Percentage (integer) value
                  ------------------------------------------------------------*/
                 case NSValidOptionValue.ePercentage:
-                    TextField("\(inputInt)%",            // When not being interacted with, the TextField displays the current value of inputInt
-                              text: $intValidator.value, // The typed text is a double binding to intValidator.value, which only allows numbers to be typed
-                              onCommit: {
-                                let stringVal = intValidator.value
-                                if (stringVal == "") {                     // Don't do anything if user hasn't entered any text
-                                    return;
-                                }
-                                inputInt = Int(stringVal)!                 // Can safely unwrap after checking that stringVal != ""
-                                globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
-                                globalVars.configUpdateCounter += 1
-                              }
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
 
+                    TextField("", value: bindInt, formatter: NumberFormatter())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
                     Stepper("", value: bindInt)
                         .labelsHidden()
 
