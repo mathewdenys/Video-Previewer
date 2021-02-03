@@ -16,20 +16,20 @@
 
 @interface NSConfigValue (cpp_compatibility)
 
+- (instancetype) initWithBool:  (bool )         val;
+- (instancetype) initWithInt:   (int )          val;
 - (instancetype) initWithString:(const string&) val;
 
 @end
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - NSConfigValue
+    MARK: - NSConfigOption
    ----------------------------------------------------------------------------------------------------*/
 
 @interface NSConfigOption (cpp_compatibility)
 
-- (NSConfigOption*) initWithID: (const string&) IDIn withBoolValue:   (const bool)    val;
-- (NSConfigOption*) initWithID: (const string&) IDIn withIntValue:    (const int)     val;
-- (NSConfigOption*) initWithID: (const string&) IDIn withStringValue: (const string&) val;
+- (instancetype) init:(const ConfigOption&)option;
 
 @end
 

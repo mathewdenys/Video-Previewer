@@ -27,9 +27,6 @@ typedef NS_ENUM(NSInteger, NSValidOptionValue){
 
 @interface NSConfigValue : NSObject
 
-- (instancetype) initWithBool:  (bool )    val;
-- (instancetype) initWithInt:   (int )     val;
-
 - (NSNumber*) getBool;
 - (NSNumber*) getInt;
 - (NSString*) getString;

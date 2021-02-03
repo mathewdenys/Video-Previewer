@@ -19,6 +19,16 @@
     NSString* stringVal;
 }
 
+- (NSNumber*) getBool   { return boolVal; }
+- (NSNumber*) getInt    { return intVal; }
+- (NSString*) getString { return stringVal; }
+
+@end
+
+// MARK: - NSConfigValue (cpp_compatibility)
+
+@implementation NSConfigValue (cpp_compatibility)
+
 - (NSConfigValue*) initWithBool:(const bool)val
 {
     boolVal = [NSNumber numberWithBool: val];
@@ -30,16 +40,6 @@
     intVal = [NSNumber numberWithInt:  val];
     return self;
 }
-
-- (NSNumber*) getBool   { return boolVal; }
-- (NSNumber*) getInt    { return intVal; }
-- (NSString*) getString { return stringVal; }
-
-@end
-
-// MARK: - NSConfigValue (cpp_compatibility)
-
-@implementation NSConfigValue (cpp_compatibility)
 
 - (NSConfigValue*) initWithString:(const string&)val
 {
@@ -69,24 +69,19 @@
 
 @implementation NSConfigOption (cpp_compatibility)
 
-- (NSConfigOption*) initWithID: (const string&) IDIn withBoolValue:(const bool)val
+- (NSConfigOption*) init:(const ConfigOption&)option
 {
-    ID = [NSString fromStdString:IDIn];
-    value = [[NSConfigValue alloc] initWithBool: val];
-    return self;
-}
-
-- (NSConfigOption*) initWithID: (const string&) IDIn withIntValue:(const int)val
-{
-    ID = [NSString fromStdString:IDIn];
-    value = [[NSConfigValue alloc] initWithInt: val];
-    return self;
-}
-
-- (NSConfigOption*) initWithID: (const string&) IDIn withStringValue:(const string&)val
-{
-    ID = [NSString fromStdString:IDIn];
-    value = [[NSConfigValue alloc] initWithString: val];
+    ID = [NSString fromStdString:option.getID()];
+    ConfigValuePtr valueIn = option.getValue();
+    if (valueIn->getBool().has_value())
+        value = [[NSConfigValue alloc] initWithBool:valueIn->getBool().value()];
+    
+    if (valueIn->getInt().has_value())
+        value = [[NSConfigValue alloc] initWithInt:valueIn->getInt().value()];
+    
+    if (valueIn->getString().has_value())
+        value = [[NSConfigValue alloc] initWithString:valueIn->getString().value()];
+    
     return self;
 }
 

@@ -54,6 +54,8 @@ namespace fs = std::filesystem;
         - Define a corresponding NSConfigValue::initWithX() method
         - Define a corresponding NSConfigValue::getX() method
  
+        - Add an entry to the NSConfigOption initializer
+ 
         - Define a corresponding NSVideoPreview::setValue:withX() method
  
         - Add inputX and bindX variables to ConfigRowView
