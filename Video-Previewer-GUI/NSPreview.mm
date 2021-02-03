@@ -115,15 +115,7 @@
 - (NSConfigValue*) getOptionValue:(NSString*)optionID
 {
     ConfigOptionPtr option = vp->getOption(std::string([optionID UTF8String]));
-    ConfigValuePtr  value  = option->getValue();
-    
-    if (value->getBool().has_value())
-        return [[NSConfigValue alloc] initWithBool:value->getBool().value()];
-    
-    if (value->getInt().has_value())
-        return [[NSConfigValue alloc] initWithInt: value->getInt().value()];
-    
-    return [[NSConfigValue alloc] initWithString:value->getString().value()];
+    return [[NSConfigValue alloc] init: option->getValue()];
 }
 
 - (NSString*) getOptionValueString:(NSString*)optionID

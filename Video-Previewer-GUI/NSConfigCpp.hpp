@@ -16,9 +16,7 @@
 
 @interface NSConfigValue (cpp_compatibility)
 
-- (instancetype) initWithBool:  (bool )         val;
-- (instancetype) initWithInt:   (int )          val;
-- (instancetype) initWithString:(const string&) val;
+- (instancetype) init:(const ConfigValuePtr&)valuePtr;
 
 @end
 

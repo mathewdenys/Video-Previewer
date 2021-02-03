@@ -29,21 +29,17 @@
 
 @implementation NSConfigValue (cpp_compatibility)
 
-- (NSConfigValue*) initWithBool:(const bool)val
+- (NSConfigValue*) init:(const ConfigValuePtr&)valuePtr
 {
-    boolVal = [NSNumber numberWithBool: val];
-    return self;
-}
-
-- (NSConfigValue*) initWithInt:(const int)val
-{
-    intVal = [NSNumber numberWithInt:  val];
-    return self;
-}
-
-- (NSConfigValue*) initWithString:(const string&)val
-{
-    stringVal = [NSString fromStdString:  val];
+    if (valuePtr->getBool().has_value())
+        boolVal = [NSNumber numberWithBool: valuePtr->getBool().value()];
+    
+    if (valuePtr->getInt().has_value())
+        intVal = [NSNumber numberWithInt:  valuePtr->getInt().value()];
+    
+    if (valuePtr->getString().has_value())
+        stringVal = [NSString fromStdString:  valuePtr->getString().value()];
+    
     return self;
 }
 
@@ -73,15 +69,7 @@
 {
     ID = [NSString fromStdString:option.getID()];
     ConfigValuePtr valueIn = option.getValue();
-    if (valueIn->getBool().has_value())
-        value = [[NSConfigValue alloc] initWithBool:valueIn->getBool().value()];
-    
-    if (valueIn->getInt().has_value())
-        value = [[NSConfigValue alloc] initWithInt:valueIn->getInt().value()];
-    
-    if (valueIn->getString().has_value())
-        value = [[NSConfigValue alloc] initWithString:valueIn->getString().value()];
-    
+    value = [[NSConfigValue alloc] init: valueIn];
     return self;
 }
 
