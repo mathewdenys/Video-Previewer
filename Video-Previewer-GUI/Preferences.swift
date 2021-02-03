@@ -19,7 +19,7 @@ struct PreferencesView: View {
             Text("No video is being previewed")
         } else {
             VStack {
-                CollapsibleBlockView(title: "Basic options") {
+                CollapsibleBlockView(title: "Basic options", expandedByDefault: false) {
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                 }
@@ -34,7 +34,7 @@ struct PreferencesView: View {
                 
                 Divider()
                 
-                CollapsibleBlockView(title: "Configuration Files") {
+                CollapsibleBlockView(title: "Configuration Files", expandedByDefault: false) {
                     Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
                         .font(.caption)                               // small font
                         .fixedSize(horizontal: false, vertical: true) // for multi-line text

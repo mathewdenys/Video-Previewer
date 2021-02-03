@@ -277,17 +277,28 @@ struct ConfigRowView: View, Identifiable {
 
 struct CollapsibleBlockView<Content: View>: View {
     
-    @EnvironmentObject
-    var globalVars: GlobalVars
+    @EnvironmentObject var globalVars: GlobalVars
     
-    @State
-    private var isExpanded = true
+    @State private var isExpanded = true
+    
+    private var expandedByDefault = true
     
     private let title:              String
     private let collapsibleContent: Content
 
+    // Initialise with a title and content
     init(title: String, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
+        self.collapsibleContent = content()
+    }
+    
+    // Initialise with a title, content, and an expandedByDefault bool. expandedByDefault determines the
+    // value of isExapnded when the view appears. Unfortunately, because collpsibleContent is shown
+    // conditionally on the valyeof isExpanded, the value of isExapnded cannot be set directly in the
+    // initialiser, but mustbe set in an .onAppear() instead.
+    init(title: String, expandedByDefault: Bool, @ViewBuilder content: @escaping () -> Content) {
+        self.title = title
+        self.expandedByDefault = expandedByDefault
         self.collapsibleContent = content()
     }
     
@@ -309,6 +320,7 @@ struct CollapsibleBlockView<Content: View>: View {
             if isExpanded { collapsibleContent }
         }
         .padding(.horizontal)
+        .onAppear(perform: {isExpanded = expandedByDefault})
     }
 }
 
