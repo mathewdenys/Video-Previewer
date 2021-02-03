@@ -34,20 +34,22 @@ struct PreferencesView: View {
                 
                 Divider()
                 
-                CollapsibleBlockView(title: "Edit configuration files directly") {
+                CollapsibleBlockView(title: "Configuration Files") {
+                    Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
+                        .font(.caption)                               // small font
+                        .fixedSize(horizontal: false, vertical: true) // for multi-line text
+                        .multilineTextAlignment(.leading)
+                        
                     ForEach(globalVars.vp!.getConfigFilePaths(), id: \.self) { configFilePath in
                         HStack {
-                            ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath) })
+                            ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).foregroundColor(colorFaded) })
                             Spacer()
-                            Button("Edit", action: { NSWorkspace.shared.openFile(configFilePath, withApplication: "Finder") })
-                        }.padding(.leading, 20.0)
+                            Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
+                                Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
+                            }.buttonStyle(BorderlessButtonStyle())
+                            
+                        }.padding(.leading)
                     }
-                    
-                    Button("Refresh preview", action: {
-                        globalVars.vp!.loadConfig()
-                        globalVars.vp!.update()
-                        globalVars.configUpdateCounter += 1
-                    })
                 }
             }
             .frame(width: 400)
