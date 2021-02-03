@@ -13,8 +13,13 @@ import SwiftUI
    ----------------------------------------------------------------------------------------------------*/
 
 struct FramePreviewView: View {
-    @EnvironmentObject var globalVars: GlobalVars
-    let frame: NSFramePreview
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    private let frame: NSFramePreview
+    
+    init(frame: NSFramePreview) { self.frame = frame }
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
@@ -24,8 +29,7 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let s = globalVars.vp!.getOptionValue("frame_info_overlay")?.getString()
-            {
+            if let s = globalVars.vp!.getOptionValue("frame_info_overlay")?.getString() {
                 VStack(alignment: .trailing) {
                     if (s == "both" || s == "timestamp") {
                         Text(frame.getTimeStampString())
@@ -61,9 +65,17 @@ struct FramePreviewView: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct PreviewPaneView: View {
-    @EnvironmentObject var globalVars: GlobalVars
-    let cols: Int
-    let rows: Int
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    private let cols: Int
+    private let rows: Int
+    
+    init(cols: Int, rows: Int) {
+        self.cols = cols
+        self.rows = rows
+    }
     
     var body: some View {
         ZStack {

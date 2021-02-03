@@ -1,5 +1,5 @@
 //
-//  Preferences.swift
+//  ConfigurationView.swift
 //  Video-Previewer-GUI
 //
 //  Created by Mathew Denys on 2/02/21.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-struct PreferencesView: View {
+struct ConfigurationView: View {
     
     @EnvironmentObject
     var globalVars: GlobalVars
@@ -53,13 +53,13 @@ struct PreferencesView: View {
                 }
             }
             .frame(width: 400)
-            .padding(.vertical)
+            .padding(.vertical, 10)
         }
     }
 }
 
 struct Preferences_Previews: PreviewProvider {
     static var previews: some View {
-        PreferencesView()
+        ConfigurationView()
     }
 }

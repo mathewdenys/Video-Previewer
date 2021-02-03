@@ -26,7 +26,7 @@ struct Triangle: Shape {
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - String
+    MARK: - String extension
    ----------------------------------------------------------------------------------------------------*/
 
 extension String {
@@ -65,10 +65,11 @@ public extension View {
     MARK: - InfoRowView
    ----------------------------------------------------------------------------------------------------*/
 
-struct InfoRowView: View, Identifiable {
-    var id:      String
-    var value:   String
-    var tooltip: String
+struct InfoRowView: View {
+    
+    private var id:      String
+    private var value:   String
+    private var tooltip: String
     
     // Default initializer
     init(id: String, value: String, tooltip: String) {
@@ -111,21 +112,22 @@ struct InfoRowView: View, Identifiable {
         A different display is defined for each possible value of OptionInformation.getValidValues()
    ----------------------------------------------------------------------------------------------------*/
 
-struct ConfigRowView: View, Identifiable {
-    @EnvironmentObject var globalVars: GlobalVars
+struct ConfigRowView: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
     
     // Information relating to the configuration option being displayed
-    var id:           String
-    var tooltip:      String
-    let valueType:    NSValidOptionValue
-    let validStrings: Array<String>
+    private var id:           String
+    private var tooltip:      String
+    private let valueType:    NSValidOptionValue
+    private let validStrings: Array<String>
     
     // Storing the value of the option. Initial values are assigned here; a "proper" value
     // from vp is assigned in the HStack.onAppear{} modifier
-    @State var inputBool:   Bool   = false
-    @State var inputInt:    Int    = 0
-    @State var inputString: String = ""
-    
+    @State private var inputBool:   Bool   = false
+    @State private var inputInt:    Int    = 0
+    @State private var inputString: String = ""
     
     init(option: NSOptionInformation) {
         id           = option.getID()
@@ -134,12 +136,11 @@ struct ConfigRowView: View, Identifiable {
         validStrings = option.getValidStrings() ?? [String]()
     }
     
-    
     var body: some View {
         
         // The following Bindings allow me to update vp when the inputX variables
         // are updated. They are required because the SwiftUI Toggle, Stepper, Picker etc. use
-        // double bindings when setting their value, and I need to be able to sneak in an run
+        // two-way bindings when setting their value, and I need to be able to sneak in an run
         // some additional code, rather than just updating the local variable.
         // Another approach would be to use a didSet{} method on the inputX variables, but this
         // has the rather significant downside of being called when the inputX variables are
@@ -263,8 +264,8 @@ struct ConfigRowView: View, Identifiable {
         .padding(.vertical, configRowVPadding)
         .foregroundColor(colorBold)
         .onAppear {
-            if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool = b.boolValue }
-            if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt = i.intValue }
+            if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool   = b.boolValue }
+            if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt    = i.intValue }
             if let s = globalVars.vp!.getOptionValue(id)?.getString() { inputString = s }
         }
     }
@@ -277,9 +278,11 @@ struct ConfigRowView: View, Identifiable {
 
 struct CollapsibleBlockView<Content: View>: View {
     
-    @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject
+    private var globalVars: GlobalVars
     
-    @State private var isExpanded = true
+    @State
+    private var isExpanded = true
     
     private var expandedByDefault = true
     
@@ -330,10 +333,13 @@ struct CollapsibleBlockView<Content: View>: View {
    ----------------------------------------------------------------------------------------------------*/
 
 struct SidePanelView: View {
-    @EnvironmentObject var globalVars: GlobalVars
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
     
     var body: some View {
         HStack(spacing:0) {
+            
             Divider()
             
             GeometryReader { geometry in
@@ -368,14 +374,12 @@ struct SidePanelView: View {
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                             Button("Advanced Options", action: {
-                                NSApp.sendAction(#selector(AppDelegate.openPreferencesWindow), to: nil, from:nil)
+                                NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
                             })
                         }
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
-                    
-                    
                 }
             }
         }

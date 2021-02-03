@@ -14,8 +14,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var globalVars = GlobalVars()
     
-    var window: NSWindow!
-    var preferencesWindow: NSWindow!
+    var window:              NSWindow!
+    var configurationWindow: NSWindow!
     
     /*------------------------------------------------------------
      MARK: - Menu bar
@@ -33,7 +33,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dialog.title                   = "Save configuration options"
         dialog.message                 = "Preexisting configuration files associated with this video will be updated while\nmaintaining formatting. Any other file will be overwritten."
         dialog.nameFieldStringValue    = ".videopreviewconfig"
-        
         dialog.canCreateDirectories    = true
         dialog.showsResizeIndicator    = true
         dialog.showsHiddenFiles        = true
@@ -54,9 +53,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBAction func openVideoFile(_ sender: Any?) {
         let dialog = NSOpenPanel();
-
-        dialog.title                   = "Open a video to preview"
         
+        dialog.title                   = "Open a video to preview"
         dialog.showsResizeIndicator    = true
         dialog.showsHiddenFiles        = true
 
@@ -85,22 +83,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Adapted from https://stackoverflow.com/a/62780829
-    @IBAction func openPreferencesWindow(_ sender: Any?) {
-            if nil == preferencesWindow {      // Only create once
-                let preferencesView = PreferencesView().environmentObject(globalVars)
+    @IBAction func openConfigurationWindow(_ sender: Any?) {
+            if nil == configurationWindow {      // Only create once
+                let configurationView = ConfigurationView().environmentObject(globalVars)
                 // Create the preferences window and set content
-                preferencesWindow = NSWindow(
+                configurationWindow = NSWindow(
                     contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),
                     styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                     backing: .buffered,
                     defer: false)
-                preferencesWindow.center()
-                preferencesWindow.setFrameAutosaveName("Preferences")
-                preferencesWindow.isReleasedWhenClosed = false
-                preferencesWindow.contentView = NSHostingView(rootView: preferencesView)
-                preferencesWindow.title = "Configuration options"
+                configurationWindow.center()
+                configurationWindow.setFrameAutosaveName("Preferences")
+                configurationWindow.isReleasedWhenClosed = false
+                configurationWindow.contentView = NSHostingView(rootView: configurationView)
+                configurationWindow.title = "Configuration options"
             }
-            preferencesWindow.makeKeyAndOrderFront(nil)
+            configurationWindow.makeKeyAndOrderFront(nil)
         }
     
 
