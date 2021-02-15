@@ -107,7 +107,15 @@ class VideoPreview
 public:
     VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath();}
     
-    void loadVideo()  { video = Video(videoPath); }
+    // Attempts to initialize video with the file at videoPath
+    void loadVideo() {
+        try {
+            video = Video(videoPath);
+        } catch (const FileException& exception) {
+            std::cerr<< exception.what();
+        }
+    }
+    
     void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath }; }
 
     // Everything that needs to be run in order to update the actual video preview that the user sees

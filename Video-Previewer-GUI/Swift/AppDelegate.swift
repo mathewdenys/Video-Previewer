@@ -68,6 +68,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 globalVars.vp     = NSVideoPreview(path)
                 globalVars.frames = globalVars.vp!.getFrames()
                 
+                // If no frames were loaded (probably because the file loaded was not a video)
+                if (globalVars.frames!.count == 0)
+                {
+                    globalVars.vp = nil
+                    
+                    let alert = NSAlert.init()
+                    alert.messageText = "Could not load frames from file"
+                    alert.informativeText = "Please open a valid video file. Note that image files cannot be previewed."
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                    
+                    return;
+                }
+                
                 NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
             }
         }
@@ -109,7 +123,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         
         // Show an "open" panel on launch to choose the video to preview
-        openVideoFile(nil)
+        // Keep showing the panel until a valid video is loaded
+        while (globalVars.vp == nil) {
+            openVideoFile(nil)
+        }
         
         // Create the SwiftUI view that provides the window contents
         let contentView = ContentView().environmentObject(globalVars)
