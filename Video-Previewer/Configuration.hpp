@@ -125,7 +125,13 @@ public:
     ConfigValueDouble(const double& valIn) : value{ valIn } {}
     
     OptionalDouble getDouble()   const override { return value; }
-    string         getAsString() const override { return std::to_string(value); }
+    string         getAsString() const override
+    {
+        std::stringstream ss;
+        ss.precision(2);            // Limit precision when writing as a string to 2sf
+        ss << std::fixed << value;
+        return ss.str();
+    }
     
 private:
     double value {};
