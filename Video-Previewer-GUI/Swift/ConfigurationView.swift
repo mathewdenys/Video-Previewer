@@ -19,12 +19,7 @@ struct ConfigurationView: View {
             Text("No video is being previewed")
         } else {
             VStack {
-                CollapsibleBlockView(title: "Basic options", expandedByDefault: false) {
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                }
+                BasicConfigBlockView(title: "Basic options", expandedByDefault: false)
                 
                 Divider()
                 

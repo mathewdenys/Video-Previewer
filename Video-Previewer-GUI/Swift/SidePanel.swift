@@ -346,6 +346,35 @@ struct CollapsibleBlockView<Content: View>: View {
 
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - BasicConfigBlockView
+        This view displays just the "basic" configuration options. It is displayed in the side panel
+        and in the configuration options window.
+   ----------------------------------------------------------------------------------------------------*/
+
+struct BasicConfigBlockView: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    let title:              String
+    let expandedByDefault:  Bool
+    
+    var body: some View {
+    
+        CollapsibleBlockView(title: self.title, expandedByDefault: self.expandedByDefault) {
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+            Button("Advanced Options", action: {
+                NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
+            })
+        }
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - SidePanelView
    ----------------------------------------------------------------------------------------------------*/
 
@@ -387,15 +416,8 @@ struct SidePanelView: View {
                         
                         Divider()
                         
-                        CollapsibleBlockView(title: "Configuration Options") {
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                            Button("Advanced Options", action: {
-                                NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
-                            })
-                        }
+                        BasicConfigBlockView(title: "Configuration Options", expandedByDefault: true)
+                        
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
