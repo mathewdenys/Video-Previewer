@@ -26,7 +26,7 @@ struct FramePreviewView: View {
             Image(nsImage: frame.getImage() ?? NSImage())
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: CGFloat(frameWidth))
+                .frame(width: CGFloat(truncating: globalVars.vp!.getOptionValue("frame_width")!.getInt()))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
             VStack(alignment: .trailing) {
@@ -94,7 +94,7 @@ struct PreviewPaneView: View {
                                     if (index < globalVars.frames!.count) {
                                         FramePreviewView(frame: globalVars.frames![index]!)
                                     } else {
-                                        Spacer().frame(width: CGFloat(frameWidth))
+                                        Spacer().frame(width: CGFloat(truncating: globalVars.vp!.getOptionValue("frame_width")!.getInt()))
                                     }
                                 }
                             }

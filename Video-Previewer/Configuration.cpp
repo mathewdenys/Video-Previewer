@@ -19,6 +19,10 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
                                                   ValidOptionValue::ePercentage,
                                                   std::make_shared<ConfigValueInt>(20) ) },
     
+    {"frame_width",             OptionInformation("The width of each frame in the preview",
+                                                  ValidOptionValue::ePositiveInteger,
+                                                  std::make_shared<ConfigValueInt>(200) ) },
+    
     {"overlay_frame_timestamp", OptionInformation("Whether to overlay the timestamp of each frame in the preview",
                                                   ValidOptionValue::eBoolean,
                                                   std::make_shared<ConfigValueBool>(true) ) },
