@@ -21,7 +21,7 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
     
     {"frame_size",             OptionInformation("Size of the frames in the preview. Value between 0 (smallest) and 1 (largest).",
                                                   ValidOptionValue::eDecimal,
-                                                  std::make_shared<ConfigValueFloat>(0.25) ) },
+                                                  std::make_shared<ConfigValueDouble>(0.25) ) },
     
     {"overlay_frame_timestamp", OptionInformation("Whether to overlay the timestamp of each frame in the preview",
                                                   ValidOptionValue::eBoolean,
@@ -161,8 +161,8 @@ ConfigOptionPtr ConfigFile::makeOptionFromStrings(const idValPair& inputPair)
     if (isInt(val))
         return std::make_shared<ConfigOption>(id, stringToInt(val));
     
-    if (isFloat(val)) // Must check ifFloat() after isInt() because isFloat() will return true even for integers
-        return std::make_shared<ConfigOption>(id, stringToFloat(val));
+    if (isDouble(val)) // Must check isDouble() after isInt() because isDouble() will return true even for integers
+        return std::make_shared<ConfigOption>(id, stringToDouble(val));
 
     return std::make_shared<ConfigOption>(id, val);
 }
@@ -218,7 +218,7 @@ void ConfigOptionsHandler::setOption(const string& optionID, int val)
     (*currentOption)->setValue(val);
 }
 
-void ConfigOptionsHandler::setOption(const string& optionID, float val)
+void ConfigOptionsHandler::setOption(const string& optionID, double val)
 {
     std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << val << "\"\n";
     auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };

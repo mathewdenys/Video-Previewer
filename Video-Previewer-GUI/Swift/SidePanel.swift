@@ -127,7 +127,7 @@ struct ConfigRowView: View {
     // from vp is assigned in the HStack.onAppear{} modifier
     @State private var inputBool:   Bool   = false
     @State private var inputInt:    Int    = 0
-    @State private var inputFloat:  Float  = 0.0
+    @State private var inputDouble: Double = 0.0
     @State private var inputString: String = ""
     
     init(option: NSOptionInformation) {
@@ -163,10 +163,10 @@ struct ConfigRowView: View {
                  }
         )
         
-        let bindFloat = Binding<Float>(
-            get: { self.inputFloat },
-            set: { self.inputFloat = $0
-                   globalVars.vp!.setOptionValue(id, with: Float(inputFloat))
+        let bindDouble = Binding<Double>(
+            get: { self.inputDouble },
+            set: { self.inputDouble = $0
+                   globalVars.vp!.setOptionValue(id, with: Double(inputDouble))
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -253,11 +253,11 @@ struct ConfigRowView: View {
                         .labelsHidden()
                     
                 /*------------------------------------------------------------
-                    Decimal (float between 0 and 1) value
+                    Decimal (number between 0 and 1) value
                  ------------------------------------------------------------*/
                 case NSValidOptionValue.eDecimal:
 
-                    Slider(value: bindFloat, in: 0...1)
+                    Slider(value: bindDouble, in: 0...1)
 
                 /*------------------------------------------------------------
                     String value
@@ -282,7 +282,7 @@ struct ConfigRowView: View {
         .onAppear {
             if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool   = b.boolValue }
             if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt    = i.intValue }
-            if let f = globalVars.vp!.getOptionValue(id)?.getFloat()  { inputFloat  = f.floatValue }
+            if let d = globalVars.vp!.getOptionValue(id)?.getDouble() { inputDouble = d.doubleValue }
             if let s = globalVars.vp!.getOptionValue(id)?.getString() { inputString = s }
         }
     }
@@ -390,7 +390,6 @@ struct SidePanelView: View {
                         CollapsibleBlockView(title: "Configuration Options") {
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_timestamp")!)
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_number")!)
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_width")!)
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                             Button("Advanced Options", action: {

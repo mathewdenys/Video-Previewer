@@ -55,7 +55,7 @@
 
 - (void)                           setOptionValue:(NSString*)optionID withBool:(bool)val;
 - (void)                           setOptionValue:(NSString*)optionID withInt:(int)val;
-- (void)                           setOptionValue:(NSString*)optionID withFloat:(float)val;
+- (void)                           setOptionValue:(NSString*)optionID withDouble:(double)val;
 - (void)                           setOptionValue:(NSString*)optionID withString:(NSString*)val;
 
 - (void)                           saveAllOptions:(NSString*)filePath;

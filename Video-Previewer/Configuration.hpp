@@ -68,7 +68,7 @@ namespace fs = std::filesystem;
 
 using OptionalBool   = std::optional<bool>;
 using OptionalInt    = std::optional<int>;
-using OptionalFloat  = std::optional<float>;
+using OptionalDouble  = std::optional<double>;
 using OptionalString = std::optional<string>;
 
 
@@ -79,10 +79,10 @@ using OptionalString = std::optional<string>;
 class BaseConfigValue
 {
 public:
-    virtual OptionalBool   getBool()     const { return std::optional<bool>{};   }
-    virtual OptionalInt    getInt()      const { return std::optional<int>{};    }
-    virtual OptionalFloat  getFloat()    const { return std::optional<float>{};  }
-    virtual OptionalString getString()   const { return std::optional<string>{}; }
+    virtual OptionalBool   getBool()     const { return OptionalBool{};   }
+    virtual OptionalInt    getInt()      const { return OptionalInt{};    }
+    virtual OptionalDouble getDouble()   const { return OptionalDouble{}; }
+    virtual OptionalString getString()   const { return OptionalString{}; }
     virtual string         getAsString() const = 0;
 
     virtual ~BaseConfigValue() = default;
@@ -119,16 +119,16 @@ private:
 };
 
 
-class ConfigValueFloat : public BaseConfigValue
+class ConfigValueDouble : public BaseConfigValue
 {
 public:
-    ConfigValueFloat(const float& valIn) : value{ valIn } {}
+    ConfigValueDouble(const double& valIn) : value{ valIn } {}
     
-    OptionalFloat getFloat()      const override { return value; }
-    string      getAsString() const override { return std::to_string(value); }
+    OptionalDouble getDouble()   const override { return value; }
+    string         getAsString() const override { return std::to_string(value); }
     
 private:
-    float value {};
+    double value {};
 };
 
 
@@ -156,7 +156,7 @@ enum class ValidOptionValue
     ePositiveInteger,         // A positive integer
     ePositiveIntegerOrString, // Either a positive integer or a string
     ePercentage,              // A percentage (int between 0 and 100)
-    eDecimal,                 // A "float" between 0 and 1 (inclusive)
+    eDecimal,                 // A number between 0 and 1 (inclusive)
     eString,                  // A set of predefined strings
 };
 
@@ -216,7 +216,7 @@ public:
     // Constructors that accept option values of specific data types
     ConfigOption(const string& id, const bool   value) : ConfigOption( id, std::make_shared<ConfigValueBool>(value)   ) {}
     ConfigOption(const string& id, const int    value) : ConfigOption( id, std::make_shared<ConfigValueInt>(value)    ) {}
-    ConfigOption(const string& id, const float  value) : ConfigOption( id, std::make_shared<ConfigValueFloat>(value)  ) {}
+    ConfigOption(const string& id, const double value) : ConfigOption( id, std::make_shared<ConfigValueDouble>(value) ) {}
     ConfigOption(const string& id, const string value) : ConfigOption( id, std::make_shared<ConfigValueString>(value) ) {}
 
     ConfigValuePtr getValue()         const { return optionValue; }
@@ -245,10 +245,10 @@ public:
             optionValue = oldValue;
     }
     
-    void setValue(const float value)
+    void setValue(const double value)
     {
         ConfigValuePtr oldValue { optionValue };
-        optionValue = std::make_shared<ConfigValueFloat>(value);
+        optionValue = std::make_shared<ConfigValueDouble>(value);
         determineValidity();
         if (!hasValidValue)
             optionValue = oldValue;
@@ -300,7 +300,7 @@ private:
     
     bool optionValueIsBetweenZeroAndOne() const
     {
-        OptionalFloat ovalue = getValue()->getFloat();
+        OptionalDouble ovalue = getValue()->getDouble();
         return ovalue.has_value() && ovalue.value() >= 0.0 && ovalue.value() <= 1.0;
     }
 
@@ -417,19 +417,20 @@ protected:
         return myInt;
     }
     
-    float stringToFloat(const string& str) const
+    double stringToDouble(const string& str) const
     {
-        float myFloat;
+        double myDouble;
         stringstream ss{ str };
-        ss >> myFloat;
-        return myFloat;
+        ss >> myDouble;
+        return myDouble;
     }
 
     bool isInt(const string& str) const
     {
-        // Return false if str contains any characters that identify it as a float
-        // This is necessary because stringstream extraction will cast floats to ints,
-        // but we explicitly want to check if str corresponds to an int but NOT a float
+        // Return false if str contains any characters that identify it as a floating point
+        // number. This is necessary because stringstream extraction will cast floating point
+        // numbers to ints, but we explicitly want to check if str corresponds to an int but
+        // NOT a floating point number.
         std::size_t floatIdentifierIndex = str.find_first_of(".eEpPfFlL");
         if (floatIdentifierIndex != std::string::npos)
             return false;
@@ -440,11 +441,11 @@ protected:
 
     }
     
-    bool isFloat(const string& str) const
+    bool isDouble(const string& str) const
     {
-        float myFloat;
+        double myDouble;
         stringstream ss{ str };
-        return static_cast<bool>(ss >> myFloat);     // stringstream extraction operator performs casts if it can returns false otherwise
+        return static_cast<bool>(ss >> myDouble);     // stringstream extraction operator performs casts if it can returns false otherwise
 
     }
 
@@ -480,7 +481,7 @@ public:
     void                       setOption(const ConfigOptionPtr& option);
     void                       setOption(const string& optionID, bool val);
     void                       setOption(const string& optionID, int val);
-    void                       setOption(const string& optionID, float val);
+    void                       setOption(const string& optionID, double val);
     void                       setOption(const string& optionID, string val);
 
     // Save a set of current configuration options to a preexisting configuration file

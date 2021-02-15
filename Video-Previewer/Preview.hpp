@@ -162,7 +162,7 @@ public:
         updatePreview();
     }
     
-    void setOption(const string& optionID, const float val)
+    void setOption(const string& optionID, const double val)
     {
         optionsHandler.setOption(optionID, val);
         updatePreview();

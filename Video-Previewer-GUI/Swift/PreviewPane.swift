@@ -23,10 +23,8 @@ struct FramePreviewView: View {
     
     var body: some View {
         
-//        let desiredFrameWidth: Int = globalVars.vp!.getOptionValue("frame_width")!.getInt()!.intValue
-//        let frameWidth:        Int = max(minFrameWidth, min(desiredFrameWidth, maxFrameWidth))
-        let frameSize: Float = globalVars.vp!.getOptionValue("frame_size")!.getFloat()!.floatValue
-        let frameWidth: Float = Float(maxFrameWidth)*frameSize + Float(minFrameWidth)*(1.0-frameSize)
+        let frameSize:  Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
+        let frameWidth: Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
         
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
             Image(nsImage: frame.getImage() ?? NSImage())
@@ -91,8 +89,8 @@ struct PreviewPaneView: View {
             
             ScrollView {
                 
-                let frameSize: Float = globalVars.vp!.getOptionValue("frame_size")!.getFloat()!.floatValue
-                let frameWidth: Float = Float(maxFrameWidth)*frameSize + Float(minFrameWidth)*(1.0-frameSize)
+                let frameSize:  Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
+                let frameWidth: Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
                 
                 HStack(alignment: .center) {
                     Spacer()
