@@ -128,6 +128,10 @@
             self->validValues = NSValidOptionValue::ePercentage;
             break;
             
+        case ValidOptionValue::eDecimal:
+            self->validValues = NSValidOptionValue::eDecimal;
+            break;
+            
         default:
             self->validValues = NSValidOptionValue::eString;
             break;

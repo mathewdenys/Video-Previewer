@@ -19,6 +19,9 @@ let frameBorderWidth       = CGFloat(3.0)          // The width of the border di
 let infoDescriptionWidth   = CGFloat(100)          // The width of the first column in the information blocks
 let configDescriptionWidth = CGFloat(160)          // The width of the first column in the congiuation blocks
 
+let minFrameWidth          = 100.0                 // The minimum width of a frame in the preview
+let maxFrameWidth          = 500.0                 // The maximum width of a frame in the preview
+
 let previewPadding         = 15.0                  // The padding around the frames in the video preview
 let scrollBarWidth         = 15.0                  // The width of a scrollbar in a ScrollView
 let sidePanelWidth         = 350.0                 // The miniumum width of the side panel

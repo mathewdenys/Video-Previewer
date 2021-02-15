@@ -32,8 +32,6 @@ struct ConfigurationView: View {
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_frame_width")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frame_width")!)
                 }
                 
                 Divider()

@@ -19,17 +19,9 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
                                                   ValidOptionValue::ePercentage,
                                                   std::make_shared<ConfigValueInt>(20) ) },
     
-    {"frame_width",             OptionInformation("The width of each frame in the preview. Allowed values are bounded by the \"Minimum frame width\" and \"Maximum frame width\" options",
-                                                  ValidOptionValue::ePositiveInteger,
-                                                  std::make_shared<ConfigValueInt>(200) ) },
-    
-    {"minimum_frame_width",     OptionInformation("The minimum allowed width of each frame in the preview",
-                                                  ValidOptionValue::ePositiveInteger,
-                                                  std::make_shared<ConfigValueInt>(100) ) },
-    
-    {"maximum_frame_width",     OptionInformation("The maximum allowed width of each frame in the preview",
-                                                  ValidOptionValue::ePositiveInteger,
-                                                  std::make_shared<ConfigValueInt>(500) ) },
+    {"frame_size",             OptionInformation("Size of the frames in the preview. Value between 0 (smallest) and 1 (largest).",
+                                                  ValidOptionValue::eDecimal,
+                                                  std::make_shared<ConfigValueFloat>(0.25) ) },
     
     {"overlay_frame_timestamp", OptionInformation("Whether to overlay the timestamp of each frame in the preview",
                                                   ValidOptionValue::eBoolean,
@@ -66,6 +58,9 @@ void ConfigOption::determineValidity()
         
         if (info.getValidValues() == ValidOptionValue::ePercentage)
             hasValidValue = optionValueIsPercentage();
+        
+        if (info.getValidValues() == ValidOptionValue::eDecimal)
+            hasValidValue = optionValueIsBetweenZeroAndOne();
 
         if (info.getValidValues() == ValidOptionValue::eString)
             hasValidValue = optionValueIsValidString(info.getValidStrings());

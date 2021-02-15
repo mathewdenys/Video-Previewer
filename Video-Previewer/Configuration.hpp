@@ -156,6 +156,7 @@ enum class ValidOptionValue
     ePositiveInteger,         // A positive integer
     ePositiveIntegerOrString, // Either a positive integer or a string
     ePercentage,              // A percentage (int between 0 and 100)
+    eDecimal,                 // A "float" between 0 and 1 (inclusive)
     eString,                  // A set of predefined strings
 };
 
@@ -295,6 +296,12 @@ private:
     {
         OptionalInt ovalue = getValue()->getInt();
         return ovalue.has_value() && ovalue.value() >= 0 && ovalue.value() <= 100;
+    }
+    
+    bool optionValueIsBetweenZeroAndOne() const
+    {
+        OptionalFloat ovalue = getValue()->getFloat();
+        return ovalue.has_value() && ovalue.value() >= 0.0 && ovalue.value() <= 1.0;
     }
 
     bool optionValueIsValidString(vector<string> validStrings) const // Assumes the ID has already been validated
