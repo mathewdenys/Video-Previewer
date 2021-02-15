@@ -104,42 +104,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Setup and then display a window containing a ConfigurationView
     // Adapted from https://stackoverflow.com/a/62780829
     @IBAction func openConfigurationWindow(_ sender: Any?) {
-            if nil == configurationWindow {      // Only create once
-                // Create an instance of the ConfigurationView
-                let configurationView = ConfigurationView()
-                    .environmentObject(globalVars)
-                
-                // Create the window and set the content
-                configurationWindow = NSWindow(
-                    contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),
-                    styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-                    backing: .buffered,
-                    defer: false)
-                configurationWindow.center()
-                configurationWindow.setFrameAutosaveName("Preferences")
-                configurationWindow.isReleasedWhenClosed = false
-                configurationWindow.contentView = NSHostingView(rootView: configurationView)
-                configurationWindow.title = "Configuration options"
-            }
-            configurationWindow.makeKeyAndOrderFront(nil)
+        // Only create once
+        if configurationWindow == nil
+        {
+            // Create an instance of the ConfigurationView
+            let configurationView = ConfigurationView()
+                .environmentObject(globalVars)
+            
+            // Create the window and set the content
+            configurationWindow = NSWindow(
+                contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered,
+                defer: false)
+            configurationWindow.center()
+            configurationWindow.setFrameAutosaveName("Preferences")
+            configurationWindow.isReleasedWhenClosed = false
+            configurationWindow.contentView = NSHostingView(rootView: configurationView)
+            configurationWindow.title = "Configuration options"
         }
+        configurationWindow.makeKeyAndOrderFront(nil)
+    }
     
     // Setup and then display a window containing a ContentView
     func openPreviewWindow() {
-        // Create an instance of the ContentView
-        let contentView = ContentView()
-            .environmentObject(globalVars)
-            .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+        // Only create once
+        if window == nil
+        {
+            // Create an instance of the ContentView
+            let contentView = ContentView()
+                .environmentObject(globalVars)
+                .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
 
-        // Create the window and set the content
-        window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered, defer: false)
-        window.isReleasedWhenClosed = false
-        window.center()
-        window.setFrameAutosaveName("Main Window")
-        window.contentView = NSHostingView(rootView: contentView)
+            // Create the window and set the content
+            window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false)
+            window.isReleasedWhenClosed = false
+            window.center()
+            window.setFrameAutosaveName("Main Window")
+            window.contentView = NSHostingView(rootView: contentView)
+        }
         window.makeKeyAndOrderFront(nil)
     }
     
