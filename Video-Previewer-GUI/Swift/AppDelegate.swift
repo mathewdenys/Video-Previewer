@@ -57,11 +57,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dialog.title                   = "Open a video to preview"
         dialog.showsResizeIndicator    = true
         dialog.showsHiddenFiles        = true
+        dialog.allowedFileTypes        = ["public.movie"] // Only allow user to open files conforming to public.movie UTI
         
         // The following loop runs indefinitely until the "break" condition inside is reached (or
         // the user presses the "Cancel" button. In practice the loop only runs once unless the
-        // user opens an invalid file. Note that dialog.runModal() displays an open dialogue, and
-        // returns NSApplication.ModalResponse.OK when the user selects a file
+        // user opens an invalid file, whch is (very) unlikely because dialog.allowedFileTypes
+        // has been set. Note that dialog.runModal() displays an open dialogue, and returns
+        // NSApplication.ModalResponse.OK when the user selects a file
         while (dialog.runModal() ==  NSApplication.ModalResponse.OK)
         {
             if let result = dialog.url // Pathname of the file
