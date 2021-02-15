@@ -127,6 +127,7 @@ struct ConfigRowView: View {
     // from vp is assigned in the HStack.onAppear{} modifier
     @State private var inputBool:   Bool   = false
     @State private var inputInt:    Int    = 0
+    @State private var inputFloat:  Float  = 0.0
     @State private var inputString: String = ""
     
     init(option: NSOptionInformation) {
@@ -158,6 +159,14 @@ struct ConfigRowView: View {
             get: { self.inputInt },
             set: { self.inputInt = $0
                    globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        let bindFloat = Binding<Float>(
+            get: { self.inputFloat },
+            set: { self.inputFloat = $0
+                   globalVars.vp!.setOptionValue(id, with: Float(inputFloat))
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -266,6 +275,7 @@ struct ConfigRowView: View {
         .onAppear {
             if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool   = b.boolValue }
             if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt    = i.intValue }
+            if let f = globalVars.vp!.getOptionValue(id)?.getFloat()  { inputFloat  = f.floatValue }
             if let s = globalVars.vp!.getOptionValue(id)?.getString() { inputString = s }
         }
     }

@@ -161,6 +161,12 @@ public:
         optionsHandler.setOption(optionID, val);
         updatePreview();
     }
+    
+    void setOption(const string& optionID, const float val)
+    {
+        optionsHandler.setOption(optionID, val);
+        updatePreview();
+    }
 
     void setOption(const string& optionID, const string val)
     {

@@ -165,6 +165,9 @@ ConfigOptionPtr ConfigFile::makeOptionFromStrings(const idValPair& inputPair)
 
     if (isInt(val))
         return std::make_shared<ConfigOption>(id, stringToInt(val));
+    
+    if (isFloat(val)) // Must check ifFloat() after isInt() because isFloat() will return true even for integers
+        return std::make_shared<ConfigOption>(id, stringToFloat(val));
 
     return std::make_shared<ConfigOption>(id, val);
 }
@@ -204,6 +207,23 @@ void ConfigOptionsHandler::setOption(const string& optionID, bool val)
 }
 
 void ConfigOptionsHandler::setOption(const string& optionID, int val)
+{
+    std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << val << "\"\n";
+    auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };
+    auto         currentOption = std::find_if(configOptions.begin(), configOptions.end(), IDmatches);
+    
+    // If the optionID isn't found, create a new ConfigOptionPtr
+    if (currentOption == configOptions.end())
+    {
+        configOptions.push_back(std::make_shared<ConfigOption>(optionID, val));
+        return;
+    }
+    
+    // If the optionID already exists in `configOptions`, update its value
+    (*currentOption)->setValue(val);
+}
+
+void ConfigOptionsHandler::setOption(const string& optionID, float val)
 {
     std::cout << "Setting configuration option \"" << optionID << "\" to value \"" << val << "\"\n";
     auto         IDmatches     = [&](ConfigOptionPtr option) { return option->getID() == optionID; };

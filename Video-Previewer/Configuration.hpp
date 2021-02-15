@@ -52,12 +52,10 @@ namespace fs = std::filesystem;
         - Define a corresponding VideoPreview::setOption() method
  
         - Add a corresponding NSConfigValue::XVal variable
-        - Define a corresponding NSConfigValue::initWithX() method
+        - Add an entry to NSConfigValue::init() method
         - Define a corresponding NSConfigValue::getX() method
  
-        - Add an entry to the NSConfigOption initializer
- 
-        - Define a corresponding NSVideoPreview::setValue:withX() method
+        - Define a corresponding NSVideoPreview::setOptionValue:withX() method
  
         - Add inputX and bindX variables to ConfigRowView
             - Add corresponding entries in the .onAppear{}
@@ -70,6 +68,7 @@ namespace fs = std::filesystem;
 
 using OptionalBool   = std::optional<bool>;
 using OptionalInt    = std::optional<int>;
+using OptionalFloat  = std::optional<float>;
 using OptionalString = std::optional<string>;
 
 
@@ -80,8 +79,9 @@ using OptionalString = std::optional<string>;
 class BaseConfigValue
 {
 public:
-    virtual OptionalBool   getBool()     const { return std::optional<bool>{}; }
-    virtual OptionalInt    getInt()      const { return std::optional<int>{}; }
+    virtual OptionalBool   getBool()     const { return std::optional<bool>{};   }
+    virtual OptionalInt    getInt()      const { return std::optional<int>{};    }
+    virtual OptionalFloat  getFloat()    const { return std::optional<float>{};  }
     virtual OptionalString getString()   const { return std::optional<string>{}; }
     virtual string         getAsString() const = 0;
 
@@ -116,6 +116,19 @@ public:
     
 private:
     int value {};
+};
+
+
+class ConfigValueFloat : public BaseConfigValue
+{
+public:
+    ConfigValueFloat(const float& valIn) : value{ valIn } {}
+    
+    OptionalFloat getFloat()      const override { return value; }
+    string      getAsString() const override { return std::to_string(value); }
+    
+private:
+    float value {};
 };
 
 
@@ -202,6 +215,7 @@ public:
     // Constructors that accept option values of specific data types
     ConfigOption(const string& id, const bool   value) : ConfigOption( id, std::make_shared<ConfigValueBool>(value)   ) {}
     ConfigOption(const string& id, const int    value) : ConfigOption( id, std::make_shared<ConfigValueInt>(value)    ) {}
+    ConfigOption(const string& id, const float  value) : ConfigOption( id, std::make_shared<ConfigValueFloat>(value)  ) {}
     ConfigOption(const string& id, const string value) : ConfigOption( id, std::make_shared<ConfigValueString>(value) ) {}
 
     ConfigValuePtr getValue()         const { return optionValue; }
@@ -225,6 +239,15 @@ public:
     {
         ConfigValuePtr oldValue { optionValue };
         optionValue = std::make_shared<ConfigValueInt>(value);
+        determineValidity();
+        if (!hasValidValue)
+            optionValue = oldValue;
+    }
+    
+    void setValue(const float value)
+    {
+        ConfigValuePtr oldValue { optionValue };
+        optionValue = std::make_shared<ConfigValueFloat>(value);
         determineValidity();
         if (!hasValidValue)
             optionValue = oldValue;
@@ -386,12 +409,35 @@ protected:
         ss >> myInt;
         return myInt;
     }
+    
+    float stringToFloat(const string& str) const
+    {
+        float myFloat;
+        stringstream ss{ str };
+        ss >> myFloat;
+        return myFloat;
+    }
 
     bool isInt(const string& str) const
     {
+        // Return false if str contains any characters that identify it as a float
+        // This is necessary because stringstream extraction will cast floats to ints,
+        // but we explicitly want to check if str corresponds to an int but NOT a float
+        std::size_t floatIdentifierIndex = str.find_first_of(".eEpPfFlL");
+        if (floatIdentifierIndex != std::string::npos)
+            return false;
+            
         int myInt;
         stringstream ss{ str };
         return static_cast<bool>(ss >> myInt);     // stringstream extraction operator performs casts if it can returns false otherwise
+
+    }
+    
+    bool isFloat(const string& str) const
+    {
+        float myFloat;
+        stringstream ss{ str };
+        return static_cast<bool>(ss >> myFloat);     // stringstream extraction operator performs casts if it can returns false otherwise
 
     }
 
@@ -427,6 +473,7 @@ public:
     void                       setOption(const ConfigOptionPtr& option);
     void                       setOption(const string& optionID, bool val);
     void                       setOption(const string& optionID, int val);
+    void                       setOption(const string& optionID, float val);
     void                       setOption(const string& optionID, string val);
 
     // Save a set of current configuration options to a preexisting configuration file

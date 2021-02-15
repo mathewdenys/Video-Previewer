@@ -148,6 +148,7 @@
 
 - (void) setOptionValue:(NSString*)optionID withBool:(bool)val         { vp->setOption([optionID getStdString], val); }
 - (void) setOptionValue:(NSString*)optionID withInt:(int)val           { vp->setOption([optionID getStdString], val); }
+- (void) setOptionValue:(NSString*)optionID withFloat:(float)val       { vp->setOption([optionID getStdString], val); }
 - (void) setOptionValue:(NSString*)optionID withString:(NSString *)val { vp->setOption([optionID getStdString], [val getStdString]); }
 
 - (void) saveAllOptions:(NSString*)filePath                            { vp->saveAllOptions([filePath getStdString]); }

@@ -29,6 +29,7 @@ typedef NS_ENUM(NSInteger, NSValidOptionValue){
 
 - (NSNumber*) getBool;
 - (NSNumber*) getInt;
+- (NSNumber*) getFloat;
 - (NSString*) getString;
 
 @end

@@ -16,11 +16,13 @@
 @private
     NSNumber* boolVal;
     NSNumber* intVal;
+    NSNumber* floatVal;
     NSString* stringVal;
 }
 
-- (NSNumber*) getBool   { return boolVal; }
-- (NSNumber*) getInt    { return intVal; }
+- (NSNumber*) getBool   { return boolVal;   }
+- (NSNumber*) getInt    { return intVal;    }
+- (NSNumber*) getFloat  { return floatVal;  }
 - (NSString*) getString { return stringVal; }
 
 @end
@@ -36,6 +38,9 @@
     
     if (valuePtr->getInt().has_value())
         intVal = [NSNumber numberWithInt:  valuePtr->getInt().value()];
+    
+    if (valuePtr->getFloat().has_value())
+        floatVal = [NSNumber numberWithFloat:  valuePtr->getFloat().value()];
     
     if (valuePtr->getString().has_value())
         stringVal = [NSString fromStdString:  valuePtr->getString().value()];
