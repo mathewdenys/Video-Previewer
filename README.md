@@ -42,7 +42,12 @@ Currently the supported options that can be set in configuration files are
 | maximum_percentage      | Any integer between 0 and 100 | 20            |
 | overlay_frame_timestamp | "true", "false"               | "true"        |
 | overlay_frame_number    | "true", "false"               | "false"       |
-| action_on_hover         | "none", "play"                | "None"        |
+| frame_width             | Any integer >0                | 200           |
+| minimum_frame_width     | Any integer > 0               | 100           |
+| maximum_frame_width     | Any integer > 0               | 500           |
+| action_on_hover         | "none", "play"                | "none"        |
+
+- Note: frame_width is considered as the "desired" frame width, but will be overwritten by minimum_frame_width and maximum_frame_width if it is too small or too large respectively. If minimum_frame_width > maximum_frame_width, the actual width of the displayed frame will be set to minimum_frame_width
 
 #### Unrecognised options
 

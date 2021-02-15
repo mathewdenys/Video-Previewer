@@ -22,11 +22,17 @@ struct FramePreviewView: View {
     init(frame: NSFramePreview) { self.frame = frame }
     
     var body: some View {
+        
+        let desiredFrameWidth: Int = globalVars.vp!.getOptionValue("frame_width")!.getInt()!.intValue
+        let minFrameWidth:     Int = globalVars.vp!.getOptionValue("minimum_frame_width")!.getInt()!.intValue
+        let maxFrameWidth:     Int = globalVars.vp!.getOptionValue("maximum_frame_width")!.getInt()!.intValue
+        let frameWidth:        Int = max(minFrameWidth, min(desiredFrameWidth, maxFrameWidth))
+        
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
             Image(nsImage: frame.getImage() ?? NSImage())
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: CGFloat(truncating: globalVars.vp!.getOptionValue("frame_width")!.getInt()))
+                .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
             VStack(alignment: .trailing) {
@@ -84,6 +90,12 @@ struct PreviewPaneView: View {
             Color(colorBackground).edgesIgnoringSafeArea(.all)
             
             ScrollView {
+                
+                let desiredFrameWidth: Int = globalVars.vp!.getOptionValue("frame_width")!.getInt()!.intValue
+                let minFrameWidth:     Int = globalVars.vp!.getOptionValue("minimum_frame_width")!.getInt()!.intValue
+                let maxFrameWidth:     Int = globalVars.vp!.getOptionValue("maximum_frame_width")!.getInt()!.intValue
+                let frameWidth:        Int = max(minFrameWidth, min(desiredFrameWidth, maxFrameWidth))
+                
                 HStack(alignment: .center) {
                     Spacer()
                     VStack(alignment:.center){
@@ -94,7 +106,7 @@ struct PreviewPaneView: View {
                                     if (index < globalVars.frames!.count) {
                                         FramePreviewView(frame: globalVars.frames![index]!)
                                     } else {
-                                        Spacer().frame(width: CGFloat(truncating: globalVars.vp!.getOptionValue("frame_width")!.getInt()))
+                                        Spacer().frame(width: CGFloat(frameWidth))
                                     }
                                 }
                             }

@@ -26,9 +26,12 @@ struct ContentView: View {
             
             // Determine the number of frames per row given the current window size
             //  i.e. the maximum number of images of width `frameWidth` that can fit into an area with the width of the screen minus the width of all the non-frame elements
-            let Nframes:    Int = globalVars.frames!.count
-            let frameWidth: Int = globalVars.vp!.getOptionValue("frame_width")!.getInt()!.intValue
-            let cols:       Int = min(Int(widthOfPreview / Double(frameWidth)), Nframes)
+            let Nframes:           Int = globalVars.frames!.count
+            let desiredFrameWidth: Int = globalVars.vp!.getOptionValue("frame_width")!.getInt()!.intValue
+            let minFrameWidth:     Int = globalVars.vp!.getOptionValue("minimum_frame_width")!.getInt()!.intValue
+            let maxFrameWidth:     Int = globalVars.vp!.getOptionValue("maximum_frame_width")!.getInt()!.intValue
+            let frameWidth:        Int = max(minFrameWidth, min(desiredFrameWidth, maxFrameWidth))
+            let cols:              Int = min(Int(widthOfPreview / Double(frameWidth)), Nframes)
             
             // Determine the number of rows required to display the frames
             let rows: Int = (Nframes / cols) + 1
