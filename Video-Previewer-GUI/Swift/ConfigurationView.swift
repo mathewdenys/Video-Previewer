@@ -20,8 +20,8 @@ struct ConfigurationView: View {
         } else {
             VStack {
                 CollapsibleBlockView(title: "Basic options", expandedByDefault: false) {
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_timestamp")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_number")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                 }

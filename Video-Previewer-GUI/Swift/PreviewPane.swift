@@ -34,7 +34,7 @@ struct FramePreviewView: View {
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
             VStack(alignment: .trailing) {
-                if let showNumber = globalVars.vp!.getOptionValue("overlay_frame_timestamp")?.getBool() {
+                if let showNumber = globalVars.vp!.getOptionValue("overlay_timestamp")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getTimeStampString())")
                                                     .foregroundColor(colorOverlayForeground)
@@ -44,7 +44,7 @@ struct FramePreviewView: View {
                     }
                 }
                 
-                if let showNumber = globalVars.vp!.getOptionValue("overlay_frame_number")?.getBool() {
+                if let showNumber = globalVars.vp!.getOptionValue("overlay_number")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getFrameNumber())")
                                                     .foregroundColor(colorOverlayForeground)

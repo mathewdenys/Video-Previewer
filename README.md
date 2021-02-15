@@ -35,15 +35,15 @@ A GUI for previewing video files on macOS. The intended use case is when looking
 
 Currently the supported options that can be set in configuration files are
 
-| Option ID               | Possible values               | Default value |
-| ----------------------- | ----------------------------- | ------------- |
-| maximum_frames          | Any integer > 0, or "maximum" | "maximum"     |
-| minimum_sampling        | Any integer > 0               | 25            |
-| maximum_percentage      | Any integer between 0 and 100 | 20            |
-| overlay_frame_timestamp | "true", "false"               | "true"        |
-| overlay_frame_number    | "true", "false"               | "false"       |
-| frame_size              | Any number between 0 and 1    | 0.25          |
-| action_on_hover         | "none", "play"                | "none"        |
+| Option ID          | Possible values               | Default value |
+| ------------------ | ----------------------------- | ------------- |
+| maximum_frames     | Any integer > 0, or "maximum" | "maximum"     |
+| minimum_sampling   | Any integer > 0               | 25            |
+| maximum_percentage | Any integer between 0 and 100 | 20            |
+| overlay_timestamp  | "true", "false"               | "true"        |
+| overlay_number     | "true", "false"               | "false"       |
+| frame_size         | Any number between 0 and 1    | 0.25          |
+| action_on_hover    | "none", "play"                | "none"        |
 
 #### Unrecognised options
 
