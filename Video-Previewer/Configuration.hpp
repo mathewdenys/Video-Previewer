@@ -24,7 +24,8 @@ namespace fs = std::filesystem;
 /*----------------------------------------------------------------------------------------------------
      When adding support for a new option, ...
         - Add an entry to `ConfigOption::recognisedOptionInfo` (declaration and definition)
-        - Add the required implementation to the .swift files
+        - Add the required implementation to the C++ files
+        - Add the required implementation to the Swift files
 
  
      When adding support for an option with a new set of "valid option values", ...

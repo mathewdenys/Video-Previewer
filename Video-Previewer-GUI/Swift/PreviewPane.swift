@@ -29,22 +29,24 @@ struct FramePreviewView: View {
                 .frame(width: CGFloat(frameWidth))
                 .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
             
-            if let s = globalVars.vp!.getOptionValue("frame_info_overlay")?.getString() {
-                VStack(alignment: .trailing) {
-                    if (s == "both" || s == "timestamp") {
-                        Text(frame.getTimeStampString())
-                            .foregroundColor(colorOverlayForeground)
-                            .padding(.all, 2.0)
-                            .background(colorOverlayBackground)
-                            .padding(.all, frameBorderWidth)
+            VStack(alignment: .trailing) {
+                if let showNumber = globalVars.vp!.getOptionValue("overlay_frame_timestamp")?.getBool() {
+                    if (showNumber.boolValue) {
+                        Text("\(frame.getTimeStampString())")
+                                                    .foregroundColor(colorOverlayForeground)
+                                                    .padding(.all, 2.0)
+                                                    .background(colorOverlayBackground)
+                                                    .padding(.all, frameBorderWidth)
                     }
-                    
-                    if (s == "both" || s == "number") {
+                }
+                
+                if let showNumber = globalVars.vp!.getOptionValue("overlay_frame_number")?.getBool() {
+                    if (showNumber.boolValue) {
                         Text("\(frame.getFrameNumber())")
-                            .foregroundColor(colorOverlayForeground)
-                            .padding(.all, 2.0)
-                            .background(colorOverlayBackground)
-                            .padding(.all, frameBorderWidth)
+                                                    .foregroundColor(colorOverlayForeground)
+                                                    .padding(.all, 2.0)
+                                                    .background(colorOverlayBackground)
+                                                    .padding(.all, frameBorderWidth)
                     }
                 }
             }

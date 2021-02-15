@@ -6,28 +6,31 @@
 
 // A map from each optionID that the program recognises to an associated NSOptionInformation object
 const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOptionInfo {
-    {"maximum_frames",     OptionInformation("The maximum number of frames to show",
-                                             ValidOptionValue::ePositiveIntegerOrString,
-                                             {"maximum"},
-                                             std::make_shared<ConfigValueString>("maximum") ) }, // TODO: add "auto"
+    {"maximum_frames",          OptionInformation("The maximum number of frames to show",
+                                                  ValidOptionValue::ePositiveIntegerOrString,
+                                                  {"maximum"},
+                                                  std::make_shared<ConfigValueString>("maximum") ) }, // TODO: add "auto"
     
-    {"minimum_sampling",   OptionInformation("The minimum sampling between frames",
-                                             ValidOptionValue::ePositiveInteger,
-                                             std::make_shared<ConfigValueInt>(25) ) },
+    {"minimum_sampling",        OptionInformation("The minimum sampling between frames",
+                                                  ValidOptionValue::ePositiveInteger,
+                                                  std::make_shared<ConfigValueInt>(25) ) },
     
-    {"maximum_percentage", OptionInformation("The maximum percentage of frames to show",
-                                             ValidOptionValue::ePercentage,
-                                             std::make_shared<ConfigValueInt>(20) ) },
+    {"maximum_percentage",      OptionInformation("The maximum percentage of frames to show",
+                                                  ValidOptionValue::ePercentage,
+                                                  std::make_shared<ConfigValueInt>(20) ) },
     
-    {"frame_info_overlay", OptionInformation("Whether to overlay information on each frame in the preview",
-                                             ValidOptionValue::eString,
-                                             {"none", "number", "timestamp", "both"},
-                                             std::make_shared<ConfigValueString>("timestamp") ) },
+    {"overlay_frame_timestamp", OptionInformation("Whether to overlay the timestamp of each frame in the preview",
+                                                  ValidOptionValue::eBoolean,
+                                                  std::make_shared<ConfigValueBool>(true) ) },
     
-    {"action_on_hover",    OptionInformation("Behaviour when mouse hovers over a frame",
-                                             ValidOptionValue::eString,
-                                             {"none", "play"},
-                                             std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
+    {"overlay_frame_number",    OptionInformation("Whether to overlay the frame number of each frame in the preview",
+                                                  ValidOptionValue::eBoolean,
+                                                  std::make_shared<ConfigValueBool>(false) ) },
+    
+    {"action_on_hover",         OptionInformation("Behaviour when mouse hovers over a frame",
+                                                  ValidOptionValue::eString,
+                                                  {"none", "play"},
+                                                  std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 

@@ -371,7 +371,8 @@ struct SidePanelView: View {
                         Divider()
                         
                         CollapsibleBlockView(title: "Configuration Options") {
-                            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_info_overlay")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_timestamp")!)
+                            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_frame_number")!)
                             ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
                             Button("Advanced Options", action: {
                                 NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
