@@ -57,33 +57,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dialog.title                   = "Open a video to preview"
         dialog.showsResizeIndicator    = true
         dialog.showsHiddenFiles        = true
-
-        // User presses "open"
-        if (dialog.runModal() ==  NSApplication.ModalResponse.OK) {
-            let result = dialog.url // Pathname of the file
-
-            if (result != nil) {
-                let path: String = result!.path
+        
+        // The following loop runs indefinitely until the "break" condition inside is reached (or
+        // the user presses the "Cancel" button. In practice the loop only runs once unless the
+        // user opens an invalid file. Note that dialog.runModal() displays an open dialogue, and
+        // returns NSApplication.ModalResponse.OK when the user selects a file
+        while (dialog.runModal() ==  NSApplication.ModalResponse.OK)
+        {
+            if let result = dialog.url // Pathname of the file
+            {
+                let path   = result.path
+                let vp     = NSVideoPreview(path)
+                let frames = vp!.getFrames()
                 
-                globalVars.vp     = NSVideoPreview(path)
-                globalVars.frames = globalVars.vp!.getFrames()
-                
-                // If no frames were loaded (probably because the file loaded was not a video)
-                if (globalVars.frames!.count == 0)
+                // The following code runs if an array of frames was successfully imported
+                if (frames!.count != 0)
                 {
-                    globalVars.vp = nil
+                    globalVars.vp = vp
+                    globalVars.frames = frames
                     
-                    let alert = NSAlert.init()
-                    alert.messageText = "Could not load frames from file"
-                    alert.informativeText = "Please open a valid video file. Note that image files cannot be previewed."
-                    alert.addButton(withTitle: "OK")
-                    alert.runModal()
-                    
-                    return;
+                    NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
+                    openPreviewWindow()
+                    break
                 }
                 
-                NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
-                openPreviewWindow()
+                // The following code only runs if no frames were loaded (probably because the file loaded was not a video)
+                let alert = NSAlert.init()
+                alert.messageText = "Could not load frames from file"
+                alert.informativeText = "Please open a valid video file. Note that image files cannot be previewed."
+                alert.addButton(withTitle: "OK")
+                alert.runModal()
             }
         }
     }
@@ -148,11 +151,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         
         // Show an "open" panel on launch to choose the video to preview
-        // Keep showing the panel until a valid video is loaded
         // Note that loadVideoFile() is responsible for then opening the window with the preview
-        while (globalVars.vp == nil) {
-            loadVideoFile(nil)
-        }
+        loadVideoFile(nil)
+        
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
