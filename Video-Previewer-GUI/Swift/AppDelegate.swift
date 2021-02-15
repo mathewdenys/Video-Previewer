@@ -51,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    @IBAction func openVideoFile(_ sender: Any?) {
+    @IBAction func loadVideoFile(_ sender: Any?) {
         let dialog = NSOpenPanel();
         
         dialog.title                   = "Open a video to preview"
@@ -83,6 +83,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 
                 NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
+                openPreviewWindow()
             }
         }
     }
@@ -93,14 +94,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print(filename)
         globalVars.vp     = NSVideoPreview(filename)
         globalVars.frames = globalVars.vp!.getFrames()
+        openPreviewWindow()
         return true
     }
     
+    // Setup and then display a window containing a ConfigurationView
     // Adapted from https://stackoverflow.com/a/62780829
     @IBAction func openConfigurationWindow(_ sender: Any?) {
             if nil == configurationWindow {      // Only create once
-                let configurationView = ConfigurationView().environmentObject(globalVars)
-                // Create the preferences window and set content
+                // Create an instance of the ConfigurationView
+                let configurationView = ConfigurationView()
+                    .environmentObject(globalVars)
+                
+                // Create the window and set the content
                 configurationWindow = NSWindow(
                     contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),
                     styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
@@ -115,24 +121,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             configurationWindow.makeKeyAndOrderFront(nil)
         }
     
-
-    /*------------------------------------------------------------
-        MARK: - Launching and terminating application
-     ------------------------------------------------------------*/
-    
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
-        // Show an "open" panel on launch to choose the video to preview
-        // Keep showing the panel until a valid video is loaded
-        while (globalVars.vp == nil) {
-            openVideoFile(nil)
-        }
-        
-        // Create the SwiftUI view that provides the window contents
-        let contentView = ContentView().environmentObject(globalVars)
+    // Setup and then display a window containing a ContentView
+    func openPreviewWindow() {
+        // Create an instance of the ContentView
+        let contentView = ContentView()
+            .environmentObject(globalVars)
             .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
 
-        // Create the window and set the content view
+        // Create the window and set the content
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
@@ -142,6 +138,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
+    }
+    
+
+    /*------------------------------------------------------------
+        MARK: - Launching and terminating application
+     ------------------------------------------------------------*/
+    
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        
+        // Show an "open" panel on launch to choose the video to preview
+        // Keep showing the panel until a valid video is loaded
+        // Note that loadVideoFile() is responsible for then opening the window with the preview
+        while (globalVars.vp == nil) {
+            loadVideoFile(nil)
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

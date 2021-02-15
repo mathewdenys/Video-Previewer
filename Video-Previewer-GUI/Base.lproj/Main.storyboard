@@ -64,7 +64,7 @@
                                     <items>
                                         <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                             <connections>
-                                                <action selector="openVideoFile:" target="Ady-hI-5gd" id="ibu-Ut-Ld9"/>
+                                                <action selector="loadVideoFile:" target="Ady-hI-5gd" id="ibu-Ut-Ld9"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Open Recent" id="tXI-mr-wws">
