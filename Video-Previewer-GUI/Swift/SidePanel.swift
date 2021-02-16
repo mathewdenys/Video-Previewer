@@ -123,13 +123,6 @@ struct ConfigRowView: View {
     private let valueType:    NSValidOptionValue
     private let validStrings: Array<String>
     
-    // Storing the value of the option. Initial values are assigned here; a "proper" value
-    // from vp is assigned in the HStack.onAppear{} modifier
-    @State private var inputBool:   Bool   = false
-    @State private var inputInt:    Int    = 0
-    @State private var inputDouble: Double = 0.0
-    @State private var inputString: String = ""
-    
     init(option: NSOptionInformation) {
         id           = option.getID()
         tooltip      = option.getDescription()
@@ -139,24 +132,18 @@ struct ConfigRowView: View {
     
     var body: some View {
         
-        // The following Bindings allow me to update vp when the inputX variables
-        // are updated. They are required because the SwiftUI Toggle, Stepper, Picker etc. use
-        // two-way bindings when setting their value, and I need to be able to sneak in an run
-        // some additional code, rather than just updating the local variable.
-        // Another approach would be to use a didSet{} method on the inputX variables, but this
-        // has the rather significant downside of being called when the inputX variables are
-        // initialised in the .onAppear{}.
+        // The following Bindings allow me to directly interface the config option values stored
+        // on the backend with the values input into / displayed on the GUI.
         
         let bindBool = Binding<Bool> (
-            get: { self.inputBool },
-            set: { self.inputBool = $0
-                   globalVars.vp!.setOptionValue(id, with: inputBool)
+            get: { globalVars.vp!.getOptionValue(id)!.getBool()?.boolValue ?? false },
+            set: { globalVars.vp!.setOptionValue(id, with: $0)
                    globalVars.configUpdateCounter += 1
                  }
         )
 
         let bindInt = Binding<Int>(
-            get: { self.inputInt },
+            get: { globalVars.vp!.getOptionValue(id)!.getInt()?.intValue ?? 0 },
             set: {
                 var newValue = $0
                 if (valueType == NSValidOptionValue.ePositiveInteger && $0 < 1)         { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
@@ -164,24 +151,21 @@ struct ConfigRowView: View {
                 if (valueType == NSValidOptionValue.ePercentage && $0 < 1)              { newValue = 1 }   // An ePercentage can't have a value less than 1
                 if (valueType == NSValidOptionValue.ePercentage && $0 > 100)            { newValue = 100 } // An ePercentage can't have a value greater than 100
 
-                self.inputInt = newValue
-                globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
+                globalVars.vp!.setOptionValue(id, with: Int32(newValue))
                 globalVars.configUpdateCounter += 1
             }
         )
         
         let bindDouble = Binding<Double>(
-            get: { self.inputDouble },
-            set: { self.inputDouble = $0
-                   globalVars.vp!.setOptionValue(id, with: Double(inputDouble))
+            get: { globalVars.vp!.getOptionValue(id)!.getDouble()?.doubleValue ?? 0.0 },
+            set: { globalVars.vp!.setOptionValue(id, with: Double($0))
                    globalVars.configUpdateCounter += 1
                  }
         )
 
         let bindString = Binding<String>(
-            get: { self.inputString },
-            set: { self.inputString = $0
-                   globalVars.vp!.setOptionValue(id, with: inputString)
+            get: { globalVars.vp!.getOptionValue(id)!.getString() ?? "" },
+            set: { globalVars.vp!.setOptionValue(id, with: $0)
                    globalVars.configUpdateCounter += 1
                  }
         )
@@ -288,12 +272,6 @@ struct ConfigRowView: View {
         }
         .padding(.vertical, configRowVPadding)
         .foregroundColor(colorBold)
-        .onAppear {
-            if let b = globalVars.vp!.getOptionValue(id)?.getBool()   { inputBool   = b.boolValue }
-            if let i = globalVars.vp!.getOptionValue(id)?.getInt()    { inputInt    = i.intValue }
-            if let d = globalVars.vp!.getOptionValue(id)?.getDouble() { inputDouble = d.doubleValue }
-            if let s = globalVars.vp!.getOptionValue(id)?.getString() { inputString = s }
-        }
     }
 }
 
