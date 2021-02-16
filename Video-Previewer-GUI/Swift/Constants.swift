@@ -16,7 +16,7 @@ let colorFaded             = Color(NSColor(named: NSColor.Name("colorFaded"))!)
 let colorInvisible         = Color(NSColor(named: NSColor.Name("colorInvisible"))!)
 
 let frameBorderWidth       = CGFloat(3.0)          // The width of the border displayed around a selected frame
-let infoDescriptionWidth   = CGFloat(100)          // The width of the first column in the information blocks
+let infoDescriptionWidth   = CGFloat(80)           // The width of the first column in the information blocks
 let configDescriptionWidth = CGFloat(140)          // The width of the first column in the configuration blocks
 
 let minFrameWidth          = 100.0                 // The minimum width of a frame in the preview

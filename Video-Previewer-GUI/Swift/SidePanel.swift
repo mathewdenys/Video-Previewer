@@ -377,7 +377,12 @@ struct SidePanelView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         CollapsibleBlockView(title: "Video Information") {
-                            InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                            HStack{
+                                InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                                Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
+                                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
+                                }.buttonStyle(BorderlessButtonStyle())
+                            }
                             InfoRowView(id: "Encoding",    value: globalVars.vp!.getVideoCodecString())
                             InfoRowView(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString())
                             InfoRowView(id: "Length",      value: globalVars.vp!.getVideoLengthString())
