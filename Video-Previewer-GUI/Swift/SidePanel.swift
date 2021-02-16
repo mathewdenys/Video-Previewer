@@ -362,6 +362,7 @@ struct BasicConfigBlockView: View {
     var body: some View {
     
         CollapsibleBlockView(title: self.title, expandedByDefault: self.expandedByDefault) {
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)

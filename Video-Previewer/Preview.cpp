@@ -67,7 +67,8 @@ void VideoPreview::updatePreview()
     // Update the preview
     if ( configOptionHasBeenChanged("maximum_frames") ||
          configOptionHasBeenChanged("maximum_percentage") ||
-         configOptionHasBeenChanged("minimum_sampling"))
+         configOptionHasBeenChanged("minimum_sampling") ||
+         configOptionHasBeenChanged("frames_to_show") )
     {
         // TODO: add a test here so I only make the frames (expensive!) if the number of frames has actually changed (or maybe this can be done inside makeFrames()
         makeFrames();
@@ -166,15 +167,16 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int   maxPercentage = getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
-    int   minSampling   = getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
-    int   totalFrames   = video.getNumberOfFrames();                                     // The number of frames in the video
-    float maxFrames     = maxPercentage/100.0 * totalFrames;
+    int    maxPercentage = getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
+    int    minSampling   = getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
+    int    totalFrames   = video.getNumberOfFrames();                                     // The number of frames in the video
+    double maxFrames     = maxPercentage/100.0 * totalFrames;
+    double framesToShow  = getOption("frames_to_show")->getValue()->getDouble().value();
     
     int NFrames{};
     if ( getOption("maximum_frames")->getValue()->getInt() )
     {
-        NFrames = getOption("maximum_frames")->getValue()->getInt().value(); // The desired number of frames to show
+        NFrames = std::max(1.0, framesToShow*getOption("maximum_frames")->getValue()->getInt().value()); // The desired number of frames to show. Minimum value of one frame
         if (NFrames > maxFrames)
             NFrames = maxFrames;
     }

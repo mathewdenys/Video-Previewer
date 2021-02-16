@@ -19,6 +19,10 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
                                                   ValidOptionValue::ePercentage,
                                                   std::make_shared<ConfigValueInt>(20) ) },
     
+    {"frames_to_show",     OptionInformation("Number of frames to show in the prevew. Value between 0 (smallest) and 1 (largest).",
+                                                  ValidOptionValue::eDecimal,
+                                                  std::make_shared<ConfigValueDouble>(0.5) ) },
+    
     {"frame_size",         OptionInformation("Size of the frames in the preview. Value between 0 (smallest) and 1 (largest).",
                                                   ValidOptionValue::eDecimal,
                                                   std::make_shared<ConfigValueDouble>(0.25) ) },
