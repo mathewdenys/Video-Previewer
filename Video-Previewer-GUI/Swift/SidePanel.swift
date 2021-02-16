@@ -157,10 +157,17 @@ struct ConfigRowView: View {
 
         let bindInt = Binding<Int>(
             get: { self.inputInt },
-            set: { self.inputInt = $0
-                   globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
-                   globalVars.configUpdateCounter += 1
-                 }
+            set: {
+                var newValue = $0
+                if (valueType == NSValidOptionValue.ePositiveInteger && $0 < 1)         { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
+                if (valueType == NSValidOptionValue.ePositiveIntegerOrString && $0 < 1) { newValue = 1 }   // An ePositiveIntegerOrString can't have a value less than 1
+                if (valueType == NSValidOptionValue.ePercentage && $0 < 1)              { newValue = 1 }   // An ePercentage can't have a value less than 1
+                if (valueType == NSValidOptionValue.ePercentage && $0 > 100)            { newValue = 100 } // An ePercentage can't have a value greater than 100
+
+                self.inputInt = newValue
+                globalVars.vp!.setOptionValue(id, with: Int32(inputInt))
+                globalVars.configUpdateCounter += 1
+            }
         )
         
         let bindDouble = Binding<Double>(

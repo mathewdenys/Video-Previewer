@@ -161,7 +161,7 @@ enum class ValidOptionValue
     eBoolean,                 // A boolean
     ePositiveInteger,         // A positive integer
     ePositiveIntegerOrString, // Either a positive integer or a string
-    ePercentage,              // A percentage (int between 0 and 100)
+    ePercentage,              // A percentage (integer between 1 and 100)
     eDecimal,                 // A number between 0 and 1 (inclusive)
     eString,                  // A set of predefined strings
 };
