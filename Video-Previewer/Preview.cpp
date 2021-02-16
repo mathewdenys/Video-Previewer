@@ -70,7 +70,6 @@ void VideoPreview::updatePreview()
          configOptionHasBeenChanged("minimum_sampling") ||
          configOptionHasBeenChanged("frames_to_show") )
     {
-        // TODO: add a test here so I only make the frames (expensive!) if the number of frames has actually changed (or maybe this can be done inside makeFrames()
         makeFrames();
 
         // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
@@ -167,35 +166,49 @@ string& VideoPreview::determineExportPath()
 
 void VideoPreview::makeFrames()
 {
-    int    maxPercentage = getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
-    int    minSampling   = getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
-    int    totalFrames   = video.getNumberOfFrames();                                     // The number of frames in the video
-    double maxFrames     = maxPercentage/100.0 * totalFrames;
-    double framesToShow  = getOption("frames_to_show")->getValue()->getDouble().value();
+    // 1. Determine the maximum number of frames allowed to be displayed
+    int totalFrames   = video.getNumberOfFrames();                                     // The number of frames in the video
     
-    int NFrames{};
+    int maxPercentage = getOption("maximum_percentage")->getValue()->getInt().value(); // The maximum percentage of frames to show
+    int maxFramesFromPercentage = static_cast<int>(maxPercentage/100.0 * totalFrames);
+    
+    int minSampling   = getOption("minimum_sampling")->getValue()->getInt().value();   // The minimum sampling between frames
+    int maxFramesFromSampling   = totalFrames / minSampling;
+    
+ 
+    int maximumFramesToShow {};
+    
     if ( getOption("maximum_frames")->getValue()->getInt() )
     {
-        NFrames = std::max(1.0, framesToShow*getOption("maximum_frames")->getValue()->getInt().value()); // The desired number of frames to show. Minimum value of one frame
-        if (NFrames > maxFrames)
-            NFrames = maxFrames;
+        int maxFramesExplicit = getOption("maximum_frames")->getValue()->getInt().value();     // The maximum number of frames to show
+        maximumFramesToShow   = std::min(maxFramesExplicit, maxFramesFromPercentage);
+        maximumFramesToShow   = std::min(maximumFramesToShow, maxFramesFromSampling);
     }
-    else // In case that the value of "maximum_frames" is a string
+    else
     {
         string s = getOption("maximum_frames")->getValue()->getString().value();
+        
         if (s == "maximum")
-            NFrames = maxFrames;
-        if (s == "auto") {}
-            // TODO: implement (max. number of frames that can fit in the window)
+            maximumFramesToShow = std::min(maxFramesFromPercentage, maxFramesFromSampling);
+        // TODO: implement case s == "auto"
     }
     
-    double frameSampling = static_cast<double>(totalFrames)/NFrames;
-    if (frameSampling < minSampling)
-        frameSampling = static_cast<double>(minSampling);
+    // 2. Determine the actual number of frames to display
+    double framesToShow  = getOption("frames_to_show")->getValue()->getDouble().value();
+    int    NFrames       = maximumFramesToShow * framesToShow;
+    
+    if (NFrames == 0)
+        NFrames = 1;
+    
+    // 3. Make the new frames (only if the number of frames has changed)
+    if (frames.size() == NFrames)
+        return;
     
     frames.clear();
-    double frameNumber = 0.0;
-    for (int i = 0; i < NFrames; i++)
+    
+    double frameSampling = static_cast<double>(totalFrames)/NFrames;
+    double frameNumber   = 0.0;
+    while (frameNumber < totalFrames)
     {
         int frameNumberInt = static_cast<int>(round(frameNumber));
         if (frameNumberInt >= video.getNumberOfFrames())
