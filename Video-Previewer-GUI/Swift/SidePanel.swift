@@ -179,7 +179,7 @@ struct ConfigRowView: View {
                  }
         )
         
-        HStack(alignment: .top) {
+        HStack(alignment: .center) {
             
             // Left hand column: option ID
             Text(id.capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
@@ -258,6 +258,8 @@ struct ConfigRowView: View {
                 case NSValidOptionValue.eDecimal:
 
                     Slider(value: bindDouble, in: 0...1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, -10)
 
                 /*------------------------------------------------------------
                     String value
@@ -363,10 +365,10 @@ struct BasicConfigBlockView: View {
     
         CollapsibleBlockView(title: self.title, expandedByDefault: self.expandedByDefault) {
             ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
+            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
             Button("Advanced Options", action: {
                 NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
             })
