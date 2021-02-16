@@ -354,9 +354,6 @@ struct BasicConfigBlockView: View {
             ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
             ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
-            Button("Advanced Options", action: {
-                NSApp.sendAction(#selector(AppDelegate.openConfigurationWindow), to: nil, from:nil)
-            })
         }
     }
 }
