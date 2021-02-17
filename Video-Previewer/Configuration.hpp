@@ -57,8 +57,7 @@ namespace fs = std::filesystem;
  
         - Define a corresponding NSVideoPreview::setOptionValue:withX() method
  
-        - Add inputX and bindX variables to ConfigRowView
-            - Add corresponding entries in the .onAppear{}
+        - Define a corresponding ConfigEditorX
 
  ----------------------------------------------------------------------------------------------------*/
 
@@ -160,9 +159,11 @@ enum class ValidOptionValue
 {
     eBoolean,                 // A boolean
     ePositiveInteger,         // A positive integer
+    ePositiveIntegerOrAuto,   // Either a positive integer or the string "auto"
     ePositiveIntegerOrString, // Either a positive integer or a string
     ePercentage,              // A percentage (integer between 1 and 100)
     eDecimal,                 // A number between 0 and 1 (inclusive)
+    eDecimalOrAuto,           // A number between 0 and 1 (inclusive) or the string "auto"
     eString,                  // A set of predefined strings
 };
 
@@ -314,6 +315,12 @@ private:
     {
         auto valueExists = [&](const string& s) { return s == optionValue->getString(); };
         return std::find_if(validStrings.begin(), validStrings.end(), valueExists) != validStrings.end();
+    }
+    
+    bool optionValueIsAuto() const // Assumes the ID has already been validated
+    {
+        OptionalString ovalue = getValue()->getString();
+        return ovalue.has_value() && ovalue.value() == "auto";
     }
 
 private:

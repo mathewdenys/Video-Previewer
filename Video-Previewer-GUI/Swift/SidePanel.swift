@@ -107,6 +107,310 @@ struct InfoRowView: View {
 
 
 /*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorBoolean
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorBoolean: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindBool = Binding<Bool> (
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getBool()?.boolValue ?? false },
+            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
+                           globalVars.configUpdateCounter += 1
+                         }
+                )
+        
+        Toggle("", isOn: bindBool)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .labelsHidden()
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorPositiveInteger
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorPositiveInteger: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindInt = Binding<Int>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            set: { var newValue = $0
+                   if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
+                globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        TextField("", value: bindInt, formatter: NumberFormatter())
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+        Stepper("", value: bindInt)
+            .labelsHidden()
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorPositiveIntegerOrAuto
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorPositiveIntegerOrAuto: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    @State private var intValue: Int = 1
+    
+    var body: some View {
+        
+        let bindInt = Binding<Int>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? intValue },
+            set: { var newValue = Int32($0)
+                   if (newValue < 1) { newValue = 1 } // An ePositiveInteger can't have a value less than 1
+                   globalVars.vp!.setOptionValue(option.getID(), with: newValue)
+                   globalVars.configUpdateCounter += 1
+            }
+        )
+        
+        let bindBool = Binding<Bool> (
+            get: { return (globalVars.vp!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
+            set: {
+                if ( $0 == true)  {                                                      // If "auto" is turned on
+                    intValue = bindInt.wrappedValue                                      // Save the Int value (so that value is not lost when "auto" is turned off)
+                    globalVars.vp!.setOptionValue(option.getID(), with: "auto")          // Set the option value to be "auto" in vp
+                    
+                }
+                
+                if ( $0 == false) {                                                      // If "auto" is turned off
+                    globalVars.vp!.setOptionValue(option.getID(), with: Int32(intValue)) // Recover the Int value
+                    
+                }
+                globalVars.configUpdateCounter += 1
+            }
+        )
+        
+        VStack {
+            
+            if !bindBool.wrappedValue
+            {
+                HStack {
+                    TextField("", value: bindInt, formatter: NumberFormatter())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Stepper("", value: bindInt)
+                        .labelsHidden()
+                }
+            }
+            
+            Toggle("Automatic", isOn: bindBool)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorPositiveIntegerOrString
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorPositiveIntegerOrString: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindInt = Binding<Int>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            set: { var newValue = $0
+                   if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
+                   globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        let bindString = Binding<String>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getString() ?? "" },
+            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        TextField("", value: bindInt, formatter: NumberFormatter())
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+        Stepper("", value: bindInt)
+            .labelsHidden()
+
+        Picker("",selection: bindString) {
+            ForEach(option.getValidStrings(), id: \.self) { string in Text(string) }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .labelsHidden()
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorPercentage
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorPercentage: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindInt = Binding<Int>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            set: { var newValue = $0
+                   if ($0 < 1)   { newValue = 1 }   // An ePercentage can't have a value less than 1
+                   if ($0 > 100) { newValue = 100 } // An ePercentage can't have a value greater than 100
+                globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        TextField("", value: bindInt, formatter: NumberFormatter())
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+        Stepper("", value: bindInt)
+            .labelsHidden()
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorDecimal
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorDecimal: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindDouble = Binding<Double>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? 0.0 },
+            set: { globalVars.vp!.setOptionValue(option.getID(), with: Double($0))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        Slider(value: bindDouble, in: 0...1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, -10)
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorDecimalOrAuto
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorDecimalOrAuto: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    @State private var doubleValue: Double = 0.0
+    
+    var body: some View {
+        
+        let bindDouble = Binding<Double>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? doubleValue },
+            set: { globalVars.vp!.setOptionValue(option.getID(), with: Double($0))
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        let bindBool = Binding<Bool> (
+            get: { return (globalVars.vp!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
+            set: {
+                if ($0 == true) {                                                    // If "auto" is turned on
+                    doubleValue = bindDouble.wrappedValue                            // Save the Double value (so that value is not lost when "auto" is turned off)
+                    globalVars.vp!.setOptionValue(option.getID(), with: "auto");     // Set the option value to be "auto" in vp
+                }
+                
+                if ($0 == false) {                                                   // If "auto" is turned off
+                    globalVars.vp!.setOptionValue(option.getID(), with: doubleValue) // Recover the Double value
+                }
+                
+                globalVars.configUpdateCounter += 1
+            }
+        )
+        
+        VStack {
+            if !bindBool.wrappedValue
+            {
+                Slider(value: bindDouble, in: 0...1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, -10)
+            }
+            
+            Toggle("Automatic", isOn: bindBool)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigEditorString
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigEditorString: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        
+        let bindString = Binding<String>(
+            get: { globalVars.vp!.getOptionValue(option.getID())!.getString() ?? "" },
+            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
+                   globalVars.configUpdateCounter += 1
+                 }
+        )
+        
+        Picker("", selection: bindString) {
+            ForEach(option.getValidStrings(), id: \.self) { string in Text(string) }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .labelsHidden()
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
     MARK: - ConfigRowView
         A ConfigRowView is displayed for each recognised configuration option
         A different display is defined for each possible value of OptionInformation.getValidValues()
@@ -117,155 +421,58 @@ struct ConfigRowView: View {
     @EnvironmentObject
     private var globalVars: GlobalVars
     
-    // Information relating to the configuration option being displayed
-    private var id:           String
-    private var tooltip:      String
-    private let valueType:    NSValidOptionValue
-    private let validStrings: Array<String>
-    
-    init(option: NSOptionInformation) {
-        id           = option.getID()
-        tooltip      = option.getDescription()
-        valueType    = option.getValidValues()
-        validStrings = option.getValidStrings() ?? [String]()
-    }
+    let option: NSOptionInformation
     
     var body: some View {
         
-        // The following Bindings allow me to directly interface the config option values stored
-        // on the backend with the values input into / displayed on the GUI.
-        
-        let bindBool = Binding<Bool> (
-            get: { globalVars.vp!.getOptionValue(id)!.getBool()?.boolValue ?? false },
-            set: { globalVars.vp!.setOptionValue(id, with: $0)
-                   globalVars.configUpdateCounter += 1
-                 }
-        )
-
-        let bindInt = Binding<Int>(
-            get: { globalVars.vp!.getOptionValue(id)!.getInt()?.intValue ?? 0 },
-            set: {
-                var newValue = $0
-                if (valueType == NSValidOptionValue.ePositiveInteger && $0 < 1)         { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
-                if (valueType == NSValidOptionValue.ePositiveIntegerOrString && $0 < 1) { newValue = 1 }   // An ePositiveIntegerOrString can't have a value less than 1
-                if (valueType == NSValidOptionValue.ePercentage && $0 < 1)              { newValue = 1 }   // An ePercentage can't have a value less than 1
-                if (valueType == NSValidOptionValue.ePercentage && $0 > 100)            { newValue = 100 } // An ePercentage can't have a value greater than 100
-
-                globalVars.vp!.setOptionValue(id, with: Int32(newValue))
-                globalVars.configUpdateCounter += 1
-            }
-        )
-        
-        let bindDouble = Binding<Double>(
-            get: { globalVars.vp!.getOptionValue(id)!.getDouble()?.doubleValue ?? 0.0 },
-            set: { globalVars.vp!.setOptionValue(id, with: Double($0))
-                   globalVars.configUpdateCounter += 1
-                 }
-        )
-
-        let bindString = Binding<String>(
-            get: { globalVars.vp!.getOptionValue(id)!.getString() ?? "" },
-            set: { globalVars.vp!.setOptionValue(id, with: $0)
-                   globalVars.configUpdateCounter += 1
-                 }
-        )
-        
-        HStack(alignment: .center) {
-            
-            // Left hand column: option ID
-            Text(id.capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
+        HStack(alignment: .top) {
+            // Left hand column: option name
+            Text(option.getID().capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
                 .foregroundColor(colorFaded)
                 .frame(width: configDescriptionWidth, alignment: .trailing)
-                .toolTip(tooltip)
+                .toolTip(option.getDescription())
                 .contextMenu {
                     Button("Copy id", action: {
                         pasteBoard.clearContents()
-                        pasteBoard.writeObjects([id as NSString])
+                        pasteBoard.writeObjects([option.getID() as NSString])
                     })
                     Button("Copy value", action: {
                         pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp!.getOptionValueString(id) as NSString])
+                        pasteBoard.writeObjects([globalVars.vp!.getOptionValueString(option.getID()) as NSString])
                     })
                     Button("Copy configuration string", action: {
                         pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp!.getOptionConfigString(id) as NSString])
+                        pasteBoard.writeObjects([globalVars.vp!.getOptionConfigString(option.getID()) as NSString])
                     })
                 }
             
-            // Right hand column: option value (editable)
-            switch valueType {
+            // Right hand column: editable option value
+            switch option.getValidValues() {
             
-                /*------------------------------------------------------------
-                    Boolean value
-                 ------------------------------------------------------------*/
                 case NSValidOptionValue.eBoolean:
-
-                    Toggle("", isOn: bindBool)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .labelsHidden()
+                    ConfigEditorBoolean(option: option)
                     
-                /*------------------------------------------------------------
-                    Positive integer value
-                 ------------------------------------------------------------*/
                 case NSValidOptionValue.ePositiveInteger:
-
-                    TextField("", value: bindInt, formatter: NumberFormatter())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Stepper("", value: bindInt)
-                        .labelsHidden()
-
-                /*------------------------------------------------------------
-                    Positive integer OR string value
-                 ------------------------------------------------------------*/
+                    ConfigEditorPositiveInteger(option: option)
+                    
+                case NSValidOptionValue.ePositiveIntegerOrAuto:
+                    ConfigEditorPositiveIntegerOrAuto(option: option)
+                    
                 case NSValidOptionValue.ePositiveIntegerOrString:
-
-                    TextField("", value: bindInt, formatter: NumberFormatter())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Stepper("", value: bindInt)
-                        .labelsHidden()
-
-                    Picker("",selection: bindString) {
-                        ForEach(validStrings, id: \.self) { string in Text(string) }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-
-                /*------------------------------------------------------------
-                    Percentage (integer) value
-                 ------------------------------------------------------------*/
+                    ConfigEditorPositiveIntegerOrString(option: option)
+                    
                 case NSValidOptionValue.ePercentage:
-
-                    TextField("", value: bindInt, formatter: NumberFormatter())
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ConfigEditorPercentage(option: option)
                     
-                    Stepper("", value: bindInt)
-                        .labelsHidden()
-                    
-                /*------------------------------------------------------------
-                    Decimal (number between 0 and 1) value
-                 ------------------------------------------------------------*/
                 case NSValidOptionValue.eDecimal:
-
-                    Slider(value: bindDouble, in: 0...1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, -10)
-
-                /*------------------------------------------------------------
-                    String value
-                 ------------------------------------------------------------*/
+                    ConfigEditorDecimal(option: option)
+                    
+                case NSValidOptionValue.eDecimalOrAuto:
+                    ConfigEditorDecimalOrAuto(option: option)
+                    
                 case NSValidOptionValue.eString:
+                    ConfigEditorString(option: option)
 
-                    Picker("",selection: bindString) {
-                        ForEach(validStrings, id: \.self) { string in Text(string) }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-
-                /*------------------------------------------------------------
-                    Default value (should never be reached)
-                 ------------------------------------------------------------*/
                 default:
                     Spacer()
             }

@@ -22,7 +22,7 @@
 
 - (NSNumber*) getBool   { return boolVal;   }
 - (NSNumber*) getInt    { return intVal;    }
-- (NSNumber*) getDouble  { return doubleVal; }
+- (NSNumber*) getDouble { return doubleVal; }
 - (NSString*) getString { return stringVal; }
 
 @end
@@ -120,6 +120,10 @@
             self->validValues = NSValidOptionValue::ePositiveInteger;
             break;
             
+        case ValidOptionValue::ePositiveIntegerOrAuto:
+            self->validValues = NSValidOptionValue::ePositiveIntegerOrAuto;
+            break;
+            
         case ValidOptionValue::ePositiveIntegerOrString:
             self->validValues = NSValidOptionValue::ePositiveIntegerOrString;
             break;
@@ -130,6 +134,10 @@
             
         case ValidOptionValue::eDecimal:
             self->validValues = NSValidOptionValue::eDecimal;
+            break;
+            
+        case ValidOptionValue::eDecimalOrAuto:
+            self->validValues = NSValidOptionValue::eDecimalOrAuto;
             break;
             
         default:

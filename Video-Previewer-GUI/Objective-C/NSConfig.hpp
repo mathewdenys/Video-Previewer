@@ -15,9 +15,11 @@
 typedef NS_ENUM(NSInteger, NSValidOptionValue){
     eBoolean,
     ePositiveInteger,
+    ePositiveIntegerOrAuto,
     ePositiveIntegerOrString,
     ePercentage,
     eDecimal,
+    eDecimalOrAuto,
     eString,
 };
 

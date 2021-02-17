@@ -93,6 +93,29 @@ private:
 };
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - GUIInformation
+   ----------------------------------------------------------------------------------------------------*/
+
+class GUIInformation
+{
+public:
+    int getRows()                { return rowsInPreview; }
+    int getCols()                { return colsInPreview; }
+    
+    void setRows(const int rows) { rowsInPreview = rows; previewIsUpToDate = false; }
+    void setCols(const int cols) { colsInPreview = cols; previewIsUpToDate = false; }
+    
+    void previewHasBeenUpdated() { previewIsUpToDate = true; }
+    bool isPreviewUpToDate()     { return previewIsUpToDate; }
+    
+private:
+    int rowsInPreview;
+    int colsInPreview;
+    
+    bool previewIsUpToDate = true;
+};
+
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - VideoPreview
@@ -228,6 +251,13 @@ public:
     
     int getVideoNumOfFrames() { return video.getNumberOfFrames(); }
     
+    double getVideoAspectRatio()
+    {
+        cv::Size dims = video.getDimensions();
+        return dims.width / static_cast<double>(dims.height);
+        
+    }
+    
     const static OptionInformation getOptionInformation(const string& optionID) { return ConfigOption::recognisedOptionInfo.at(optionID); } // TODO: make this safe
     
     vector<string> getConfigFilePaths()
@@ -240,7 +270,12 @@ public:
         return filePaths;
     }
     
-    vector<Frame> getFrames()   { return frames; }
+    vector<Frame> getFrames()                      { return frames; }
+    
+    void          setRowsInPreview(const int rows) { guiInfo.setRows(rows); }
+    void          setColsInPreview(const int cols) { guiInfo.setCols(cols); }
+    int           getRowsInPreview()               { return guiInfo.getRows(); }
+    int           getColsInPreview()               { return guiInfo.getCols(); }
     
     ~VideoPreview()
     {
@@ -292,6 +327,7 @@ private:
     ConfigOptionsHandler optionsHandler;
     ConfigOptionVector   currentPreviewConfigOptions; // The configuration options corresponding to the current preview (even if internal options have been changed)
     vector<Frame>        frames;                      // Vector of each Frame in the preview
+    GUIInformation       guiInfo;
 };
 
 #endif /* Preview_hpp */

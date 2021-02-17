@@ -110,7 +110,8 @@
 - (NSString*) getVideoCodecString       { return [NSString fromStdString:  vp->getVideoCodecString()      ]; }
 - (NSString*) getVideoLengthString      { return [NSString fromStdString:  vp->getVideoLengthString()     ]; }
 
-- (NSNumber*) getVideoNumOfFrames       { return [NSNumber numberWithInt:vp->getVideoNumOfFrames()]; }
+- (NSNumber*) getVideoNumOfFrames       { return [NSNumber numberWithInt:    vp->getVideoNumOfFrames()]; }
+- (NSNumber*) getVideoAspectRatio       { return [NSNumber numberWithDouble: vp->getVideoAspectRatio()]; }
 
 - (NSConfigValue*) getOptionValue:(NSString*)optionID
 {
@@ -152,6 +153,12 @@
 - (void) setOptionValue:(NSString*)optionID withString:(NSString *)val { vp->setOption([optionID getStdString], [val getStdString]); }
 
 - (void) saveAllOptions:(NSString*)filePath                            { vp->saveAllOptions([filePath getStdString]); }
+
+- (void) setRows:(const int)rows                                       { vp->setRowsInPreview(rows); }
+- (void) setCols:(const int)cols                                       { vp->setColsInPreview(cols); }
+
+- (NSNumber*) getRows                                                  { return [NSNumber numberWithInt: vp->getRowsInPreview()]; }
+- (NSNumber*) getCols                                                  { return [NSNumber numberWithInt: vp->getColsInPreview()]; }
 
 
 - (NSArray<NSFramePreview*>*) getFrames

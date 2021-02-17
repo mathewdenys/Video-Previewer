@@ -94,7 +94,7 @@ struct PreviewPaneView: View {
                 
                 HStack(alignment: .center) {
                     Spacer()
-                    VStack(alignment:.center){
+                    VStack(alignment:.center, spacing: CGFloat(previewVerticalSpacing)){
                         ForEach(0..<rows, id: \.self) { i in
                             HStack(spacing: 0) {
                                 ForEach(0..<cols, id: \.self) { j in

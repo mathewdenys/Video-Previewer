@@ -24,9 +24,9 @@ struct ConfigurationView: View {
                 Divider()
                 
                 CollapsibleBlockView(title: "Advanced options") {
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
+                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
                 }
                 
                 Divider()

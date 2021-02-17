@@ -6,39 +6,38 @@
 
 // A map from each optionID that the program recognises to an associated NSOptionInformation object
 const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOptionInfo {
-    {"maximum_frames",     OptionInformation("The maximum number of frames to show",
-                                                  ValidOptionValue::ePositiveIntegerOrString,
-                                                  {"maximum"},
-                                                  std::make_shared<ConfigValueString>("maximum") ) }, // TODO: add "auto"
+    {"maximum_frames",     OptionInformation("The maximum number of frames to show. \"auto\" defers to the number of frames allowed by \"minimum_sampling\" and \"maximum_percentage\"",
+                                             ValidOptionValue::ePositiveIntegerOrAuto,
+                                             std::make_shared<ConfigValueString>("auto") ) },
     
     {"minimum_sampling",   OptionInformation("The minimum sampling between frames",
-                                                  ValidOptionValue::ePositiveInteger,
-                                                  std::make_shared<ConfigValueInt>(25) ) },
+                                             ValidOptionValue::ePositiveInteger,
+                                             std::make_shared<ConfigValueInt>(25) ) },
     
     {"maximum_percentage", OptionInformation("The maximum percentage of frames to show",
-                                                  ValidOptionValue::ePercentage,
-                                                  std::make_shared<ConfigValueInt>(20) ) },
+                                             ValidOptionValue::ePercentage,
+                                             std::make_shared<ConfigValueInt>(20) ) },
     
-    {"frames_to_show",     OptionInformation("Number of frames to show in the prevew. Value between 0 (smallest) and 1 (largest).",
-                                                  ValidOptionValue::eDecimal,
-                                                  std::make_shared<ConfigValueDouble>(0.5) ) },
+    {"frames_to_show",     OptionInformation("Number of frames to show in the preview. Value between 0 (smallest) and 1 (largest). \"auto\" shows as many frames as will fit in the window, up to the maximum allowed ",
+                                             ValidOptionValue::eDecimalOrAuto,
+                                             std::make_shared<ConfigValueDouble>(0.5) ) },
     
     {"frame_size",         OptionInformation("Size of the frames in the preview. Value between 0 (smallest) and 1 (largest).",
-                                                  ValidOptionValue::eDecimal,
-                                                  std::make_shared<ConfigValueDouble>(0.25) ) },
+                                             ValidOptionValue::eDecimal,
+                                             std::make_shared<ConfigValueDouble>(0.25) ) },
     
     {"overlay_timestamp",  OptionInformation("Whether to overlay the timestamp of each frame in the preview",
-                                                  ValidOptionValue::eBoolean,
-                                                  std::make_shared<ConfigValueBool>(true) ) },
+                                             ValidOptionValue::eBoolean,
+                                             std::make_shared<ConfigValueBool>(true) ) },
     
     {"overlay_number",     OptionInformation("Whether to overlay the frame number of each frame in the preview",
-                                                  ValidOptionValue::eBoolean,
-                                                  std::make_shared<ConfigValueBool>(false) ) },
+                                             ValidOptionValue::eBoolean,
+                                             std::make_shared<ConfigValueBool>(false) ) },
     
     {"action_on_hover",    OptionInformation("Behaviour when mouse hovers over a frame",
-                                                  ValidOptionValue::eString,
-                                                  {"none", "play"},
-                                                  std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
+                                             ValidOptionValue::eString,
+                                             {"none", "play"},
+                                             std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
@@ -57,6 +56,9 @@ void ConfigOption::determineValidity()
         if (info.getValidValues() == ValidOptionValue::ePositiveInteger)
             hasValidValue = optionValueIsPositiveInteger();
         
+        if (info.getValidValues() == ValidOptionValue::ePositiveIntegerOrAuto)
+            hasValidValue = ( optionValueIsPositiveInteger() || optionValueIsAuto() );
+        
         if (info.getValidValues() == ValidOptionValue::ePositiveIntegerOrString)
             hasValidValue = ( optionValueIsPositiveInteger() || optionValueIsValidString(info.getValidStrings()) );
         
@@ -65,6 +67,9 @@ void ConfigOption::determineValidity()
         
         if (info.getValidValues() == ValidOptionValue::eDecimal)
             hasValidValue = optionValueIsBetweenZeroAndOne();
+        
+        if (info.getValidValues() == ValidOptionValue::eDecimalOrAuto)
+            hasValidValue = ( optionValueIsBetweenZeroAndOne() || optionValueIsAuto() );
 
         if (info.getValidValues() == ValidOptionValue::eString)
             hasValidValue = optionValueIsValidString(info.getValidStrings());

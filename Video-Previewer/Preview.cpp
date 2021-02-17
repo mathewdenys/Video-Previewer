@@ -68,7 +68,9 @@ void VideoPreview::updatePreview()
     if ( configOptionHasBeenChanged("maximum_frames") ||
          configOptionHasBeenChanged("maximum_percentage") ||
          configOptionHasBeenChanged("minimum_sampling") ||
-         configOptionHasBeenChanged("frames_to_show") )
+         configOptionHasBeenChanged("frames_to_show") ||
+         !guiInfo.isPreviewUpToDate()
+        )
     {
         makeFrames();
 
@@ -184,18 +186,21 @@ void VideoPreview::makeFrames()
         maximumFramesToShow   = std::min(maxFramesExplicit, maxFramesFromPercentage);
         maximumFramesToShow   = std::min(maximumFramesToShow, maxFramesFromSampling);
     }
-    else
+    else // maximum_frames value is "auto"
     {
-        string s = getOption("maximum_frames")->getValue()->getString().value();
-        
-        if (s == "maximum")
-            maximumFramesToShow = std::min(maxFramesFromPercentage, maxFramesFromSampling);
-        // TODO: implement case s == "auto"
+        maximumFramesToShow = std::min(maxFramesFromPercentage, maxFramesFromSampling);
     }
     
     // 2. Determine the actual number of frames to display
-    double framesToShow  = getOption("frames_to_show")->getValue()->getDouble().value();
-    int    NFrames       = maximumFramesToShow * framesToShow;
+    int NFrames;
+    
+    if (getOption("frames_to_show")->getValue()->getString().has_value()) // frames_to_show value is "auto"
+    {
+        NFrames = std::min(maximumFramesToShow, guiInfo.getRows()*guiInfo.getCols());
+        guiInfo.previewHasBeenUpdated();
+    }
+    else
+        NFrames = maximumFramesToShow * getOption("frames_to_show")->getValue()->getDouble().value();
     
     if (NFrames == 0)
         NFrames = 1;

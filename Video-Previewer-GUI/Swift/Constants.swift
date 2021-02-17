@@ -22,9 +22,11 @@ let configDescriptionWidth = CGFloat(140)          // The width of the first col
 let minFrameWidth          = 100.0                 // The minimum width of a frame in the preview
 let maxFrameWidth          = 500.0                 // The maximum width of a frame in the preview
 
-let previewPadding         = 15.0                  // The padding around the frames in the video preview
+let previewPadding         = 15.0                  // The padding around the frames in the video preview (the whole preview, not individual frames)
 let scrollBarWidth         = 15.0                  // The width of a scrollbar in a ScrollView
-let sidePanelWidth         = 280.0                 // The miniumum width of the side panel
+let sidePanelWidth         = 300.0                 // The miniumum width of the side panel
+
+let previewVerticalSpacing = 10.0                  // The vertical spacing between rows in the preview
 
 let infoRowVPadding        = CGFloat(5.0)          // The vertical padding around the content of an InfoRowView
 let configRowVPadding      = CGFloat(0.0)          // The vertical padding around the content of an ConfigRowView
