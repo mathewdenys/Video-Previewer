@@ -13,18 +13,21 @@ struct ContentView: View {
     @EnvironmentObject
     private var globalVars: GlobalVars
     
-    // The width of all on-screen elements except the frames that are being previewed
-    // i.e. the side panel and its scrollbar + the preview pane's scrollbar + padding on each side of the preview
-    private let widthOfNonPreviewElements: Double = sidePanelWidth + scrollBarWidth + 2.0*previewPadding
-    
     var body: some View {
         
         GeometryReader { geometry in
-            // Determine the width and height of the preview
+            // Whether frames_to_show is set to "auto" or not
+            let autoFrameNumber : Bool = (globalVars.vp!.getOptionValue("frames_to_show")!.getString() != nil)
+            
+            // Determine the width and height of the window
             let widthOfWindow:    Double = Double(geometry.size.width)
-            let widthOfPreview:   Double = widthOfWindow - widthOfNonPreviewElements
             let heightOfWindow:   Double = Double(geometry.size.height)
-            let heightOfPreview:  Double = heightOfWindow - 2.0*previewPadding + previewVerticalSpacing
+            
+            // Determine the width and height of the actual preview
+            //  Width:  ignore the side panel and its scrollbar + the preview pane's scrollbar + padding around the preview
+            //  Height: ignore the padding around the preview
+            let widthOfPreview:   Double = widthOfWindow - sidePanelWidth - (autoFrameNumber ? 0.0 :scrollBarWidth) - 2.0*previewPadding
+            let heightOfPreview:  Double = heightOfWindow - 2.0*previewPadding
             
             // Determine the maximum number of frames that can fit in the preview
             let frameSize:        Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
@@ -33,15 +36,15 @@ struct ContentView: View {
             let frameHeight:      Double = Double(frameWidth/frameAspectRatio + previewVerticalSpacing)
             
             let maxCols:          Int    = Int(widthOfPreview  / Double(frameWidth))
-            let maxRows:          Int    = Int(heightOfPreview / Double(frameHeight)) // Don't need padding on the bottom row
+            let maxRows:          Int    = Int((heightOfPreview + previewVerticalSpacing) / Double(frameHeight)) // Don't have padding on the bottom row
             var maxFrames:        Int    = maxCols * maxRows
+            
             
             // If the frames_to_show option is set to "auto", we must tell the backend how many frames can fit in
             // the preview, generate the frames, and load them into the front end.
             let _ = Binding<Int> (
                 get: {
-                    if (globalVars.vp!.getOptionValue("frames_to_show")!.getString() != nil &&
-                        (maxRows != globalVars.vp!.getRows().intValue || maxCols != globalVars.vp!.getCols().intValue) )
+                    if (autoFrameNumber && (maxRows != globalVars.vp!.getRows().intValue || maxCols != globalVars.vp!.getCols().intValue) )
                     {
                         globalVars.vp!.setCols(Int32(maxCols))         // Tell the backend how many columns of frames fit in the preview
                         globalVars.vp!.setRows(Int32(maxRows))         // Tell the backend how many rows of frames fit in the preview
@@ -61,7 +64,7 @@ struct ContentView: View {
             
             
             HStack(spacing:0) {
-                PreviewPaneView(cols: cols, rows: rows)
+                PreviewPaneView(cols: cols, rows: rows, showScrollbar: !autoFrameNumber)
                 SidePanelView()
                     .frame(width: CGFloat(sidePanelWidth))
             }
