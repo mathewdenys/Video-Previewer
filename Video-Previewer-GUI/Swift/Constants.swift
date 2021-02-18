@@ -15,9 +15,16 @@ let colorBold              = Color(NSColor(named: NSColor.Name("colorBold"))!)
 let colorFaded             = Color(NSColor(named: NSColor.Name("colorFaded"))!)
 let colorInvisible         = Color(NSColor(named: NSColor.Name("colorInvisible"))!)
 
+let fontHeading            = Font.system(size: 12, weight: .bold,    design: .default)
+let fontRegular            = Font.system(size: 12, weight: .regular, design: .default)
+let fontNote               = Font.system(size: 10, weight: .regular, design: .default)
+
 let frameBorderWidth       = CGFloat(3.0)          // The width of the border displayed around a selected frame
 let infoDescriptionWidth   = CGFloat(80)           // The width of the first column in the information blocks
 let configDescriptionWidth = CGFloat(140)          // The width of the first column in the configuration blocks
+let horiontalRowSpacing    = CGFloat(8.0)          // The horizontal spacing between columns in info row and config rows
+let infoRowVPadding        = CGFloat(5.0)          // The vertical padding around the content of an InfoRowView
+let configRowVPadding      = CGFloat(0.0)          // The vertical padding around the content of an ConfigRowView
 
 let minFrameWidth          = 100.0                 // The minimum width of a frame in the preview
 let maxFrameWidth          = 500.0                 // The maximum width of a frame in the preview
@@ -27,8 +34,5 @@ let scrollBarWidth         = 15.0                  // The width of a scrollbar i
 let sidePanelWidth         = 300.0                 // The miniumum width of the side panel
 
 let previewVerticalSpacing = 10.0                  // The vertical spacing between rows in the preview
-
-let infoRowVPadding        = CGFloat(5.0)          // The vertical padding around the content of an InfoRowView
-let configRowVPadding      = CGFloat(0.0)          // The vertical padding around the content of an ConfigRowView
 
 let pasteBoard             = NSPasteboard.general  // For copy-and-pasting

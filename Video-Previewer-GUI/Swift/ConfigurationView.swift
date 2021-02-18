@@ -33,13 +33,13 @@ struct ConfigurationView: View {
                 
                 CollapsibleBlockView(title: "Configuration Files", expandedByDefault: false) {
                     Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
-                        .font(.caption)                               // small font
+                        .font(fontNote)                               // small font
                         .fixedSize(horizontal: false, vertical: true) // for multi-line text
                         .multilineTextAlignment(.leading)
                         
                     ForEach(globalVars.vp!.getConfigFilePaths(), id: \.self) { configFilePath in
                         HStack {
-                            ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).foregroundColor(colorFaded) })
+                            ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).font(fontRegular).foregroundColor(colorFaded) })
                             Spacer()
                             Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
                                 Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))

@@ -86,12 +86,14 @@ struct InfoRowView: View {
     }
     
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .top, spacing: horiontalRowSpacing) {
             Text(id)
+                .font(fontRegular)
                 .foregroundColor(colorFaded)
                 .frame(width: infoDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
+                .font(fontRegular)
                 .foregroundColor(colorBold)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contextMenu {
@@ -102,6 +104,41 @@ struct InfoRowView: View {
                 }
         }.padding(.vertical, infoRowVPadding)
         
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ConfigIDText
+   ----------------------------------------------------------------------------------------------------*/
+
+struct ConfigIDText: View {
+    
+    @EnvironmentObject
+    private var globalVars: GlobalVars
+    
+    var option: NSOptionInformation
+    
+    var body: some View {
+        Text(option.getID().capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
+            .font(fontRegular)
+            .foregroundColor(colorFaded)
+            .frame(width: configDescriptionWidth, alignment: .trailing)
+            .toolTip(option.getDescription())
+            .contextMenu {
+                Button("Copy id", action: {
+                    pasteBoard.clearContents()
+                    pasteBoard.writeObjects([option.getID() as NSString])
+                })
+                Button("Copy value", action: {
+                    pasteBoard.clearContents()
+                    pasteBoard.writeObjects([globalVars.vp!.getOptionValueString(option.getID()) as NSString])
+                })
+                Button("Copy configuration string", action: {
+                    pasteBoard.clearContents()
+                    pasteBoard.writeObjects([globalVars.vp!.getOptionConfigString(option.getID()) as NSString])
+                })
+            }
     }
 }
 
@@ -126,9 +163,12 @@ struct ConfigEditorBoolean: View {
                          }
                 )
         
-        Toggle("", isOn: bindBool)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .labelsHidden()
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            Toggle("", isOn: bindBool)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .labelsHidden()
+        }
     }
 }
 
@@ -155,11 +195,15 @@ struct ConfigEditorPositiveInteger: View {
                  }
         )
         
-        TextField("", value: bindInt, formatter: NumberFormatter())
-            .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            TextField("", value: bindInt, formatter: NumberFormatter())
+                .font(fontRegular)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-        Stepper("", value: bindInt)
-            .labelsHidden()
+            Stepper("", value: bindInt)
+                .labelsHidden()
+        }
     }
 }
 
@@ -206,20 +250,25 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
         )
         
         VStack {
+            HStack(spacing: horiontalRowSpacing) {
+                ConfigIDText(option: option)
+                Toggle("Automatic", isOn: bindBool)
+                    .font(fontRegular)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             
             if !bindBool.wrappedValue
             {
-                HStack {
+                HStack(spacing: horiontalRowSpacing) {
+                    Spacer().frame(width: configDescriptionWidth)
                     TextField("", value: bindInt, formatter: NumberFormatter())
+                        .font(fontRegular)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Stepper("", value: bindInt)
                         .labelsHidden()
                 }
             }
-            
-            Toggle("Automatic", isOn: bindBool)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -254,17 +303,22 @@ struct ConfigEditorPositiveIntegerOrString: View {
                  }
         )
         
-        TextField("", value: bindInt, formatter: NumberFormatter())
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            
+            TextField("", value: bindInt, formatter: NumberFormatter())
+                .font(fontRegular)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Stepper("", value: bindInt)
+                .labelsHidden()
+
+            Picker("",selection: bindString) {
+                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).font(fontRegular) }
+            }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-        Stepper("", value: bindInt)
             .labelsHidden()
-
-        Picker("",selection: bindString) {
-            ForEach(option.getValidStrings(), id: \.self) { string in Text(string) }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .labelsHidden()
     }
 }
 
@@ -292,11 +346,16 @@ struct ConfigEditorPercentage: View {
                  }
         )
         
-        TextField("", value: bindInt, formatter: NumberFormatter())
-            .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            
+            TextField("", value: bindInt, formatter: NumberFormatter())
+                .font(fontRegular)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-        Stepper("", value: bindInt)
-            .labelsHidden()
+            Stepper("", value: bindInt)
+                .labelsHidden()
+        }
     }
 }
 
@@ -321,9 +380,13 @@ struct ConfigEditorDecimal: View {
                  }
         )
         
-        Slider(value: bindDouble, in: 0...1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, -10)
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            
+            Slider(value: bindDouble, in: 0...1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, -6)
+        }
     }
 }
 
@@ -367,15 +430,23 @@ struct ConfigEditorDecimalOrAuto: View {
         )
         
         VStack {
-            if !bindBool.wrappedValue
-            {
-                Slider(value: bindDouble, in: 0...1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, -10)
+            
+            HStack(spacing: horiontalRowSpacing) {
+                ConfigIDText(option: option)
+                Toggle("Automatic", isOn: bindBool)
+                    .font(fontRegular)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            Toggle("Automatic", isOn: bindBool)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: horiontalRowSpacing) {
+                Spacer().frame(width: configDescriptionWidth)
+                if !bindBool.wrappedValue
+                {
+                    Slider(value: bindDouble, in: 0...1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, -6)
+                }
+            }
         }
     }
 }
@@ -401,11 +472,15 @@ struct ConfigEditorString: View {
                  }
         )
         
-        Picker("", selection: bindString) {
-            ForEach(option.getValidStrings(), id: \.self) { string in Text(string) }
+        HStack(spacing: horiontalRowSpacing) {
+            ConfigIDText(option: option)
+            
+            Picker("", selection: bindString) {
+                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).font(fontRegular) }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .labelsHidden()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .labelsHidden()
     }
 }
 
@@ -424,61 +499,35 @@ struct ConfigRowView: View {
     let option: NSOptionInformation
     
     var body: some View {
+        switch option.getValidValues() {
         
-        HStack(alignment: .top) {
-            // Left hand column: option name
-            Text(option.getID().capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
-                .foregroundColor(colorFaded)
-                .frame(width: configDescriptionWidth, alignment: .trailing)
-                .toolTip(option.getDescription())
-                .contextMenu {
-                    Button("Copy id", action: {
-                        pasteBoard.clearContents()
-                        pasteBoard.writeObjects([option.getID() as NSString])
-                    })
-                    Button("Copy value", action: {
-                        pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp!.getOptionValueString(option.getID()) as NSString])
-                    })
-                    Button("Copy configuration string", action: {
-                        pasteBoard.clearContents()
-                        pasteBoard.writeObjects([globalVars.vp!.getOptionConfigString(option.getID()) as NSString])
-                    })
-                }
-            
-            // Right hand column: editable option value
-            switch option.getValidValues() {
-            
-                case NSValidOptionValue.eBoolean:
-                    ConfigEditorBoolean(option: option)
-                    
-                case NSValidOptionValue.ePositiveInteger:
-                    ConfigEditorPositiveInteger(option: option)
-                    
-                case NSValidOptionValue.ePositiveIntegerOrAuto:
-                    ConfigEditorPositiveIntegerOrAuto(option: option)
-                    
-                case NSValidOptionValue.ePositiveIntegerOrString:
-                    ConfigEditorPositiveIntegerOrString(option: option)
-                    
-                case NSValidOptionValue.ePercentage:
-                    ConfigEditorPercentage(option: option)
-                    
-                case NSValidOptionValue.eDecimal:
-                    ConfigEditorDecimal(option: option)
-                    
-                case NSValidOptionValue.eDecimalOrAuto:
-                    ConfigEditorDecimalOrAuto(option: option)
-                    
-                case NSValidOptionValue.eString:
-                    ConfigEditorString(option: option)
+            case NSValidOptionValue.eBoolean:
+                ConfigEditorBoolean(option: option)
+                
+            case NSValidOptionValue.ePositiveInteger:
+                ConfigEditorPositiveInteger(option: option)
+                
+            case NSValidOptionValue.ePositiveIntegerOrAuto:
+                ConfigEditorPositiveIntegerOrAuto(option: option)
+                
+            case NSValidOptionValue.ePositiveIntegerOrString:
+                ConfigEditorPositiveIntegerOrString(option: option)
+                
+            case NSValidOptionValue.ePercentage:
+                ConfigEditorPercentage(option: option)
+                
+            case NSValidOptionValue.eDecimal:
+                ConfigEditorDecimal(option: option)
+                
+            case NSValidOptionValue.eDecimalOrAuto:
+                ConfigEditorDecimalOrAuto(option: option)
+                
+            case NSValidOptionValue.eString:
+                ConfigEditorString(option: option)
 
-                default:
-                    Spacer()
-            }
+            default:
+                Spacer()
         }
-        .padding(.vertical, configRowVPadding)
-        .foregroundColor(colorBold)
     }
 }
 
@@ -520,7 +569,7 @@ struct CollapsibleBlockView<Content: View>: View {
         VStack {
             HStack {
                 Text(title)
-                    .fontWeight(.bold)
+                    .font(fontHeading)
                     .foregroundColor(colorBold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
@@ -602,6 +651,7 @@ struct SidePanelView: View {
                         CollapsibleBlockView(title: "Frame Information") {
                             if (globalVars.selectedFrame == nil) {
                                 Text("No frame selected")
+                                    .font(fontRegular)
                                     .foregroundColor(colorFaded)
                             } else {
                                 InfoRowView(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )

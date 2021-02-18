@@ -37,20 +37,22 @@ struct FramePreviewView: View {
                 if let showNumber = globalVars.vp!.getOptionValue("overlay_timestamp")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getTimeStampString())")
-                                                    .foregroundColor(colorOverlayForeground)
-                                                    .padding(.all, 2.0)
-                                                    .background(colorOverlayBackground)
-                                                    .padding(.all, frameBorderWidth)
+                            .font(fontRegular)
+                            .foregroundColor(colorOverlayForeground)
+                            .padding(.all, 2.0)
+                            .background(colorOverlayBackground)
+                            .padding(.all, frameBorderWidth)
                     }
                 }
                 
                 if let showNumber = globalVars.vp!.getOptionValue("overlay_number")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getFrameNumber())")
-                                                    .foregroundColor(colorOverlayForeground)
-                                                    .padding(.all, 2.0)
-                                                    .background(colorOverlayBackground)
-                                                    .padding(.all, frameBorderWidth)
+                            .font(fontRegular)
+                            .foregroundColor(colorOverlayForeground)
+                            .padding(.all, 2.0)
+                            .background(colorOverlayBackground)
+                            .padding(.all, frameBorderWidth)
                     }
                 }
             }
