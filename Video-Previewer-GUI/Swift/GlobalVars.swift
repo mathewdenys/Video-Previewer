@@ -9,7 +9,7 @@ import SwiftUI
 
 class GlobalVars: ObservableObject {
     @Published var vp:            NSVideoPreview?    = nil
-    @Published var frames:        [NSFramePreview?]? = nil
+    @Published var frames:        [NSFramePreview?]? = nil { didSet{ selectedFrame = nil } } // When changed, unselect the currently selected frame
     @Published var selectedFrame: NSFramePreview?    = nil
     
     // configUpdateCounter is incremented any time configuration options are updated in the GUI
