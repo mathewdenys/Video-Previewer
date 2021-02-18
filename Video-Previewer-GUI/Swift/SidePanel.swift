@@ -639,11 +639,11 @@ struct SidePanelView: View {
                                     Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
                                 }.buttonStyle(BorderlessButtonStyle())
                             }
-                            InfoRowView(id: "Encoding",    value: globalVars.vp!.getVideoCodecString())
-                            InfoRowView(id: "Frame rate",  value: globalVars.vp!.getVideoFPSString())
-                            InfoRowView(id: "Length",      value: globalVars.vp!.getVideoLengthString())
-                            InfoRowView(id: "# of frames", value: globalVars.vp!.getVideoNumOfFramesString())
-                            InfoRowView(id: "Dimensions",  value: globalVars.vp!.getVideoDimensionsString())
+                            InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString())
+                            InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString())
+                            InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString())
+                            InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString())
+                            InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString())
                         }
                         
                         Divider()
@@ -654,8 +654,8 @@ struct SidePanelView: View {
                                     .font(fontRegular)
                                     .foregroundColor(colorFaded)
                             } else {
-                                InfoRowView(id: "Time stamp", value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
-                                InfoRowView(id: "Frame #",    value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
+                                InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
+                                InfoRowView(id: "Frame Number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
                             }
                         }
                         

@@ -20,7 +20,7 @@ let fontRegular            = Font.system(size: 12, weight: .regular, design: .de
 let fontNote               = Font.system(size: 10, weight: .regular, design: .default)
 
 let frameBorderWidth       = CGFloat(3.0)          // The width of the border displayed around a selected frame
-let infoDescriptionWidth   = CGFloat(80)           // The width of the first column in the information blocks
+let infoDescriptionWidth   = CGFloat(90)           // The width of the first column in the information blocks
 let configDescriptionWidth = CGFloat(140)          // The width of the first column in the configuration blocks
 let horiontalRowSpacing    = CGFloat(8.0)          // The horizontal spacing between columns in info row and config rows
 let infoRowVPadding        = CGFloat(5.0)          // The vertical padding around the content of an InfoRowView

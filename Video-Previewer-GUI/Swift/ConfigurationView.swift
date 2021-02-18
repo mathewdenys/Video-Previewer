@@ -19,11 +19,11 @@ struct ConfigurationView: View {
             Text("No video is being previewed")
         } else {
             VStack {
-                BasicConfigBlockView(title: "Basic options", expandedByDefault: false)
+                BasicConfigBlockView(title: "Basic Options", expandedByDefault: false)
                 
                 Divider()
                 
-                CollapsibleBlockView(title: "Advanced options") {
+                CollapsibleBlockView(title: "Advanced Options") {
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)

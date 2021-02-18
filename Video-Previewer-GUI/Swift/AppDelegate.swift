@@ -52,7 +52,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func loadVideoFile(_ sender: Any?) {
-        print("\n\nload video file\n\n")
         let dialog = NSOpenPanel();
         
         dialog.title                   = "Open a video to preview"
