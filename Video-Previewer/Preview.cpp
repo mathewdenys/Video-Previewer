@@ -8,7 +8,7 @@ string secondsToTimeStamp(const double seconds)
 {
     int iseconds = static_cast<int>(seconds);
     
-    int h = iseconds / 60*60;
+    int h = iseconds / (60*60);
     int m = iseconds / 60;
     int s = iseconds % 60;
     int r = int(seconds*100 - (floor(seconds))*100); // First two decimal places of `seconds`
