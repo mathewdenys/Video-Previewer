@@ -75,19 +75,15 @@ struct PreviewPaneView: View {
     @EnvironmentObject
     private var globalVars: GlobalVars
     
-    private let cols: Int
-    private let rows: Int
-    
-    init(cols: Int, rows: Int) {
-        self.cols = cols
-        self.rows = rows
-    }
+    let cols:          Int
+    let rows:          Int
+    let showScrollbar: Bool
     
     var body: some View {
         ZStack {
             Color(colorBackground).edgesIgnoringSafeArea(.all)
             
-            ScrollView {
+            ScrollView(showsIndicators: showScrollbar) {
                 
                 let frameSize:  Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
                 let frameWidth: Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
