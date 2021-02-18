@@ -138,7 +138,7 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                                     <items>
-                                        <menuItem title="Documentation" keyEquivalent="?" id="FKE-Sm-Kum">
+                                        <menuItem title="README" keyEquivalent="?" id="FKE-Sm-Kum">
                                             <connections>
                                                 <action selector="openGithubReadme:" target="Ady-hI-5gd" id="w7N-Z2-O7s"/>
                                             </connections>
