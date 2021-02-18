@@ -52,6 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func loadVideoFile(_ sender: Any?) {
+        print("\n\nload video file\n\n")
         let dialog = NSOpenPanel();
         
         dialog.title                   = "Open a video to preview"
@@ -149,6 +150,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.tabbingMode = .disallowed
             window.contentView = NSHostingView(rootView: contentView)
         }
+        
+        // Clear the selected frame (in the case that a frame is selected when the user opens a new file)
+        globalVars.selectedFrame = nil
+        
+        // Show the window
         window.makeKeyAndOrderFront(nil)
     }
     
