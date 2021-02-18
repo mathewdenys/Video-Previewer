@@ -174,4 +174,6 @@
     return nsFrames;
 }
 
+- (NSNumber*) getNumOfFrames                                           { return [NSNumber numberWithUnsignedLong: vp->getNumOfFrames()]; }
+
 @end

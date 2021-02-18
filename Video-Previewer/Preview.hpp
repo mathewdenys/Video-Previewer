@@ -271,6 +271,7 @@ public:
     }
     
     vector<Frame> getFrames()                      { return frames; }
+    size_t        getNumOfFrames()                 { return frames.size(); }
     
     void          setRowsInPreview(const int rows) { guiInfo.setRows(rows); }
     void          setColsInPreview(const int cols) { guiInfo.setCols(cols); }
