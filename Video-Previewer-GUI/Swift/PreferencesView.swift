@@ -17,8 +17,6 @@ struct SettingsView: View {
     @EnvironmentObject private var globalVars: GlobalVars
     @EnvironmentObject private var settings:   UserSettings
     
-    var defaultSettings = UserSettings()
-    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -26,12 +24,12 @@ struct SettingsView: View {
                     .font(fontSubheading)
                 Spacer()
                 Button(action: {
-                    settings.videoInfoPath       = defaultSettings.videoInfoPath
-                    settings.videoInfoEncoding   = defaultSettings.videoInfoEncoding
-                    settings.videoInfoFramerate  = defaultSettings.videoInfoFramerate
-                    settings.videoInfoLength     = defaultSettings.videoInfoLength
-                    settings.videoInfoFrames     = defaultSettings.videoInfoFrames
-                    settings.videoInfoDimensions = defaultSettings.videoInfoDimensions
+                    settings.videoInfoPath       = defaultSettingsVideoInfoPath
+                    settings.videoInfoEncoding   = defaultSettingsVideoInfoEncoding
+                    settings.videoInfoFramerate  = defaultSettingsVideoInfoFramerate
+                    settings.videoInfoLength     = defaultSettingsVideoInfoLength
+                    settings.videoInfoFrames     = defaultSettingsVideoInfoFrames
+                    settings.videoInfoDimensions = defaultSettingsVideoInfoDimensions
                 }) {
                     Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -73,8 +71,8 @@ struct SettingsView: View {
                     .font(fontSubheading)
                 Spacer()
                 Button(action: {
-                    settings.frameInfoTimestamp = defaultSettings.frameInfoTimestamp
-                    settings.frameInfoNumber    = defaultSettings.frameInfoNumber
+                    settings.frameInfoTimestamp = defaultSettingsFrameInfoTimestamp
+                    settings.frameInfoNumber    = defaultSettingsFrameInfoNumber
                 }) {
                     Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -98,8 +96,8 @@ struct SettingsView: View {
                     .font(fontSubheading)
                 Spacer()
                 Button(action: {
-                    settings.frameBorderColor     = defaultSettings.frameBorderColor
-                    settings.frameBorderThickness = defaultSettings.frameBorderThickness
+                    settings.frameBorderColor     = defaultSettingsFrameBorderColor
+                    settings.frameBorderThickness = defaultSettingsFrameBorderThickness
                 }) {
                     Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -113,14 +111,13 @@ struct SettingsView: View {
                     .frame(width: settingsDescriptionWidth, alignment: .trailing)
                 
                 Picker(selection: $settings.frameBorderColor, label: Text("")) {
-                    Text("Red")    .tag(Color.red)
-                    Text("Blue")   .tag(Color.blue)
-                    Text("Green")  .tag(Color.green)
-                    Text("Yellow") .tag(Color.yellow)
-                    Text("Orange") .tag(Color.orange)
-                    Text("Purple") .tag(Color.purple)
-                    Text("Pink")   .tag(Color.pink)
-                    Text("Gray")   .tag(Color.gray)
+                    Text("Red")    .tag(NSColor.red)
+                    Text("Blue")   .tag(NSColor.blue)
+                    Text("Green")  .tag(NSColor.green)
+                    Text("Yellow") .tag(NSColor.yellow)
+                    Text("Orange") .tag(NSColor.orange)
+                    Text("Purple") .tag(NSColor.purple)
+                    Text("Gray")   .tag(NSColor.gray)
                 }.labelsHidden()
             }
             
@@ -138,7 +135,7 @@ struct SettingsView: View {
                     .font(fontSubheading)
                 Spacer()
                 Button(action: {
-                    settings.previewSpaceBetweenRows = defaultSettings.previewSpaceBetweenRows
+                    settings.previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
                 }) {
                     Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))

@@ -31,7 +31,7 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
-                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? settings.frameBorderColor : Color.white.opacity(0.0), width: CGFloat(settings.frameBorderThickness))
+                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color(settings.frameBorderColor) : Color.white.opacity(0.0), width: CGFloat(settings.frameBorderThickness))
             
             VStack(alignment: .trailing) {
                 if let showNumber = globalVars.vp!.getOptionValue("overlay_timestamp")?.getBool() {

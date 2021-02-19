@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+let defaultSettingsFrameBorderColor        = NSColor.gray
+let defaultSettingsFrameBorderThickness    = 5.0
+let defaultSettingsPreviewSpaceBetweenRows = 10.0
+let defaultSettingsVideoInfoPath           = true
+let defaultSettingsVideoInfoEncoding       = false
+let defaultSettingsVideoInfoFramerate      = true
+let defaultSettingsVideoInfoLength         = true
+let defaultSettingsVideoInfoFrames         = true
+let defaultSettingsVideoInfoDimensions     = false
+let defaultSettingsFrameInfoTimestamp      = true
+let defaultSettingsFrameInfoNumber         = true
+
 // Colors are defined in Assets.xassets for light and dark themes
 let colorBackground          = NSColor(named: NSColor.Name("colorBackground"))!
 let colorOverlayForeground   = Color(NSColor(named: NSColor.Name("colorOverlayForeground"))!)
