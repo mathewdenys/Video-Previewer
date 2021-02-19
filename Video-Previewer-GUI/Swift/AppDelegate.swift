@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var settings   = UserSettings()
     
     var window:              NSWindow!
-    var configurationWindow: NSWindow!
+    var preferencesWindow: NSWindow!
     
     /*------------------------------------------------------------
      MARK: - Menu bar
@@ -104,30 +104,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
-    // Setup and then display a window containing a ConfigurationView
+    // Setup and then display a window containing a PreferencesView
     // Adapted from https://stackoverflow.com/a/62780829
-    @IBAction func openConfigurationWindow(_ sender: Any?) {
+    @IBAction func openPreferencesWindow(_ sender: Any?) {
         // Only create once
-        if configurationWindow == nil
+        if preferencesWindow == nil
         {
-            // Create an instance of the ConfigurationView
-            let configurationView = ConfigurationView()
+            // Create an instance of the PreferencesView
+            let preferencesView = PreferencesView()
                 .environmentObject(globalVars)
                 .environmentObject(settings)
             
             // Create the window and set the content
-            configurationWindow = NSWindow(
+            preferencesWindow = NSWindow(
                 contentRect: NSRect(x: 20, y: 20, width: 480, height: 300),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered,
                 defer: false)
-            configurationWindow.center()
-            configurationWindow.setFrameAutosaveName("Preferences")
-            configurationWindow.isReleasedWhenClosed = false
-            configurationWindow.contentView = NSHostingView(rootView: configurationView)
-            configurationWindow.title = "Configuration options"
+            preferencesWindow.center()
+            preferencesWindow.setFrameAutosaveName("Preferences")
+            preferencesWindow.isReleasedWhenClosed = false
+            preferencesWindow.contentView = NSHostingView(rootView: preferencesView)
+            preferencesWindow.title = "Preferences"
         }
-        configurationWindow.makeKeyAndOrderFront(nil)
+        preferencesWindow.makeKeyAndOrderFront(nil)
     }
     
     // Setup and then display a window containing a ContentView

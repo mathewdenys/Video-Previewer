@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF48AFF025DF30B5000B468C /* UserSettings.swift */; };
+		AF48AFF525DF475D000B468C /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF48AFF425DF475D000B468C /* PreferencesView.swift */; };
 		AF5101B325AE48B000B8B5E6 /* NSPreview.mm in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B125AE48B000B8B5E6 /* NSPreview.mm */; };
 		AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */; };
 		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
@@ -18,7 +19,6 @@
 		AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A24125BF531800B50756 /* NSConfig.mm */; };
 		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AFE460002591397E00DB3402 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
-		AFE6659E25CA562600A41E35 /* ConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE6659D25CA562600A41E35 /* ConfigurationView.swift */; };
 		AFE665B125CA594F00A41E35 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B025CA594F00A41E35 /* Constants.swift */; };
 		AFE665B525CA598B00A41E35 /* GlobalVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B425CA598B00A41E35 /* GlobalVars.swift */; };
 		AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFB215125AE392A008B2295 /* AppDelegate.swift */; };
@@ -42,6 +42,7 @@
 
 /* Begin PBXFileReference section */
 		AF48AFF025DF30B5000B468C /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		AF48AFF425DF475D000B468C /* PreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		AF5101B125AE48B000B8B5E6 /* NSPreview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSPreview.mm; sourceTree = "<group>"; };
 		AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSPreview.hpp; sourceTree = "<group>"; };
 		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
@@ -58,7 +59,6 @@
 		AFE45FEC2590581D00DB3402 /* Configuration.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Configuration.hpp; sourceTree = "<group>"; };
 		AFE45FF525905CC300DB3402 /* Preview.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Preview.hpp; sourceTree = "<group>"; };
 		AFE45FFF2591397E00DB3402 /* Preview.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Preview.cpp; sourceTree = "<group>"; };
-		AFE6659D25CA562600A41E35 /* ConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationView.swift; sourceTree = "<group>"; };
 		AFE665B025CA594F00A41E35 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		AFE665B425CA598B00A41E35 /* GlobalVars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVars.swift; sourceTree = "<group>"; };
 		AFFB214F25AE392A008B2295 /* Video-Previewer-GUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Video-Previewer-GUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,7 +128,7 @@
 				AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */,
 				AFFB215125AE392A008B2295 /* AppDelegate.swift */,
 				AFFB215325AE392A008B2295 /* ContentView.swift */,
-				AFE6659D25CA562600A41E35 /* ConfigurationView.swift */,
+				AF48AFF425DF475D000B468C /* PreferencesView.swift */,
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
 				AFE665B025CA594F00A41E35 /* Constants.swift */,
 				AFE665B425CA598B00A41E35 /* GlobalVars.swift */,
@@ -286,10 +286,10 @@
 				AFE3A23D25BF493400B50756 /* NSString.mm in Sources */,
 				AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */,
 				AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */,
-				AFE6659E25CA562600A41E35 /* ConfigurationView.swift in Sources */,
 				AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */,
 				AF5101B325AE48B000B8B5E6 /* NSPreview.mm in Sources */,
 				AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */,
+				AF48AFF525DF475D000B468C /* PreferencesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

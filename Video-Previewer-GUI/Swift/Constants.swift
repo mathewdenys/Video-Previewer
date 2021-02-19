@@ -22,7 +22,7 @@ let fontNote                 = Font.system(size: 10, weight: .regular,  design: 
 
 let infoDescriptionWidth     = CGFloat(90)           // The width of the first column in the information blocks
 let configDescriptionWidth   = CGFloat(140)          // The width of the first column in the configuration blocks
-let settingsDescriptionWidth = CGFloat(80)         // The width of the first column in the settings block
+let settingsDescriptionWidth = CGFloat(80)           // The width of the first column in the settings block
 let horiontalRowSpacing      = CGFloat(8.0)          // The horizontal spacing between columns in info row and config rows
 let infoRowVPadding          = CGFloat(5.0)          // The vertical padding around the content of an InfoRowView
 let configRowVPadding        = CGFloat(0.0)          // The vertical padding around the content of an ConfigRowView
