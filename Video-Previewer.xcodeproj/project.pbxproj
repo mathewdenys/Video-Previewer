@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF48AFF025DF30B5000B468C /* UserSettings.swift */; };
 		AF5101B325AE48B000B8B5E6 /* NSPreview.mm in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B125AE48B000B8B5E6 /* NSPreview.mm */; };
 		AF5101B725AE4C8500B8B5E6 /* SidePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */; };
 		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
@@ -40,6 +41,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF48AFF025DF30B5000B468C /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		AF5101B125AE48B000B8B5E6 /* NSPreview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSPreview.mm; sourceTree = "<group>"; };
 		AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSPreview.hpp; sourceTree = "<group>"; };
 		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
 				AFE665B025CA594F00A41E35 /* Constants.swift */,
 				AFE665B425CA598B00A41E35 /* GlobalVars.swift */,
+				AF48AFF025DF30B5000B468C /* UserSettings.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 				AFE665B125CA594F00A41E35 /* Constants.swift in Sources */,
 				AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */,
 				AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */,
+				AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */,
 				AFE665B525CA598B00A41E35 /* GlobalVars.swift in Sources */,
 				AFE3A23D25BF493400B50756 /* NSString.mm in Sources */,
 				AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */,

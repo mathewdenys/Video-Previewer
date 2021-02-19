@@ -14,8 +14,8 @@ import SwiftUI
 
 struct FramePreviewView: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var settings:   UserSettings
     
     private let frame: NSFramePreview
     
@@ -31,7 +31,7 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
-                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color.red : Color.white.opacity(0.0), width: frameBorderWidth)
+                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? settings.frameBorderColor : Color.white.opacity(0.0), width: CGFloat(settings.frameBorderThickness))
             
             VStack(alignment: .trailing) {
                 if let showNumber = globalVars.vp!.getOptionValue("overlay_timestamp")?.getBool() {
@@ -41,7 +41,7 @@ struct FramePreviewView: View {
                             .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
                             .background(colorOverlayBackground)
-                            .padding(.all, frameBorderWidth)
+                            .padding(.all, CGFloat(settings.frameBorderThickness))
                     }
                 }
                 
@@ -52,7 +52,7 @@ struct FramePreviewView: View {
                             .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
                             .background(colorOverlayBackground)
-                            .padding(.all, frameBorderWidth)
+                            .padding(.all, CGFloat(settings.frameBorderThickness))
                     }
                 }
             }
@@ -74,8 +74,8 @@ struct FramePreviewView: View {
 
 struct PreviewPaneView: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var settings:   UserSettings
     
     let cols:          Int
     let rows:          Int
@@ -92,7 +92,7 @@ struct PreviewPaneView: View {
                 
                 HStack(alignment: .center) {
                     Spacer()
-                    VStack(alignment:.center, spacing: CGFloat(previewVerticalSpacing)){
+                    VStack(alignment:.center, spacing: CGFloat(settings.previewSpaceBetweenRows)){
                         ForEach(0..<rows, id: \.self) { i in
                             HStack(spacing: 0) {
                                 ForEach(0..<cols, id: \.self) { j in

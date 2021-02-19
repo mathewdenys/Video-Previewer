@@ -10,8 +10,8 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var settings:   UserSettings
     
     var body: some View {
         
@@ -33,10 +33,10 @@ struct ContentView: View {
             let frameSize:        Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
             let frameAspectRatio: Double = globalVars.vp!.getVideoAspectRatio().doubleValue
             let frameWidth:       Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
-            let frameHeight:      Double = Double(frameWidth/frameAspectRatio + previewVerticalSpacing)
+            let frameHeight:      Double = Double(frameWidth/frameAspectRatio + settings.previewSpaceBetweenRows)
             
             let maxCols:          Int    = Int(widthOfPreview  / Double(frameWidth))
-            let maxRows:          Int    = Int((heightOfPreview + previewVerticalSpacing) / Double(frameHeight)) // Don't have padding on the bottom row
+            let maxRows:          Int    = Int((heightOfPreview + settings.previewSpaceBetweenRows) / Double(frameHeight)) // Don't have padding on the bottom row
             var maxFrames:        Int    = maxCols * maxRows
             
             

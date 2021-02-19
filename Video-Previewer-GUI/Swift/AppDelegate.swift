@@ -13,6 +13,7 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var globalVars = GlobalVars()
+    var settings   = UserSettings()
     
     var window:              NSWindow!
     var configurationWindow: NSWindow!
@@ -112,6 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Create an instance of the ConfigurationView
             let configurationView = ConfigurationView()
                 .environmentObject(globalVars)
+                .environmentObject(settings)
             
             // Create the window and set the content
             configurationWindow = NSWindow(
@@ -136,6 +138,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Create an instance of the ContentView
             let contentView = ContentView()
                 .environmentObject(globalVars)
+                .environmentObject(settings)
                 .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
 
             // Create the window and set the content

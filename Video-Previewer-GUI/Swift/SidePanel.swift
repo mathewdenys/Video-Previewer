@@ -621,8 +621,8 @@ struct BasicConfigBlockView: View {
 
 struct SidePanelView: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var settings:   UserSettings
     
     var body: some View {
         HStack(spacing:0) {
@@ -633,17 +633,19 @@ struct SidePanelView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         CollapsibleBlockView(title: "Video Information") {
-                            HStack{
-                                InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
-                                Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
-                                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
-                                }.buttonStyle(BorderlessButtonStyle())
+                            if (settings.videoInfoPath) {
+                                HStack{
+                                    InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                                    Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
+                                        Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
+                                    }.buttonStyle(BorderlessButtonStyle())
+                                }
                             }
-                            InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString())
-                            InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString())
-                            InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString())
-                            InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString())
-                            InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString())
+                            if (settings.videoInfoEncoding)   {InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString()) }
+                            if (settings.videoInfoFramerate)  {InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString()) }
+                            if (settings.videoInfoLength)     {InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString()) }
+                            if (settings.videoInfoFrames)     {InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString()) }
+                            if (settings.videoInfoDimensions) {InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString()) }
                         }
                         
                         Divider()
@@ -654,8 +656,8 @@ struct SidePanelView: View {
                                     .font(fontRegular)
                                     .foregroundColor(colorFaded)
                             } else {
-                                InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     )
-                                InfoRowView(id: "Frame Number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) )
+                                if (settings.frameInfoTimestamp) {InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ) }
+                                if (settings.frameInfoNumber) {InfoRowView(id: "Frame number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ) }
                             }
                         }
                         
