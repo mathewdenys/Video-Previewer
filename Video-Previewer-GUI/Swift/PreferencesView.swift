@@ -17,10 +17,27 @@ struct SettingsView: View {
     @EnvironmentObject private var globalVars: GlobalVars
     @EnvironmentObject private var settings:   UserSettings
     
+    var defaultSettings = UserSettings()
+    
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Video information")
-                .font(fontSubheading)
+            HStack {
+                Text("Video information")
+                    .font(fontSubheading)
+                Spacer()
+                Button(action: {
+                    settings.videoInfoPath       = defaultSettings.videoInfoPath
+                    settings.videoInfoEncoding   = defaultSettings.videoInfoEncoding
+                    settings.videoInfoFramerate  = defaultSettings.videoInfoFramerate
+                    settings.videoInfoLength     = defaultSettings.videoInfoLength
+                    settings.videoInfoFrames     = defaultSettings.videoInfoFrames
+                    settings.videoInfoDimensions = defaultSettings.videoInfoDimensions
+                }) {
+                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .toolTip("Reset")
+                }.buttonStyle(BorderlessButtonStyle())
+            }
             
             HStack {
                 Spacer()
@@ -51,8 +68,19 @@ struct SettingsView: View {
                 }
             }
             
-            Text("Frame information")
-                .font(fontSubheading)
+            HStack {
+                Text("Frame information")
+                    .font(fontSubheading)
+                Spacer()
+                Button(action: {
+                    settings.frameInfoTimestamp = defaultSettings.frameInfoTimestamp
+                    settings.frameInfoNumber    = defaultSettings.frameInfoNumber
+                }) {
+                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .toolTip("Reset")
+                }.buttonStyle(BorderlessButtonStyle())
+            }
             
             HStack {
                 Spacer()
@@ -65,8 +93,19 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            Text("Frame selection")
-                .font(fontSubheading)
+            HStack {
+                Text("Frame selection")
+                    .font(fontSubheading)
+                Spacer()
+                Button(action: {
+                    settings.frameBorderColor     = defaultSettings.frameBorderColor
+                    settings.frameBorderThickness = defaultSettings.frameBorderThickness
+                }) {
+                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .toolTip("Reset")
+                }.buttonStyle(BorderlessButtonStyle())
+            }
             
             HStack {
                 Text("Color")
@@ -94,8 +133,18 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            Text("Vertical spacing between frames in preview")
-                .font(fontSubheading)
+            HStack {
+                Text("Vertical spacing between frames in preview")
+                    .font(fontSubheading)
+                Spacer()
+                Button(action: {
+                    settings.previewSpaceBetweenRows = defaultSettings.previewSpaceBetweenRows
+                }) {
+                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .toolTip("Reset")
+                }.buttonStyle(BorderlessButtonStyle())
+            }
             
             HStack {
                 Spacer()
@@ -186,8 +235,6 @@ struct PreferencesView: View {
     
     @EnvironmentObject private var globalVars: GlobalVars
     @EnvironmentObject private var settings:   UserSettings
-    
-    var defaultUserSettings = UserSettings()
     
     var body: some View {
         TabView {
