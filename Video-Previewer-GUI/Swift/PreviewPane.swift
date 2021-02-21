@@ -33,26 +33,26 @@ struct FramePreviewView: View {
                 .border(frame.getFrameNumber() == preview.selectedFrame?.getFrameNumber() ? Color(settings.frameBorderColor) : Color.clear, width: CGFloat(settings.frameBorderThickness))
             
             VStack(alignment: .trailing) {
-                if let showNumber = preview.backend!.getOptionValue("overlay_timestamp")?.getBool() {
-                    if (showNumber.boolValue) {
-                        Text("\(frame.getTimeStampString())")
-                            .regularFont()
-                            .foregroundColor(colorOverlayForeground)
-                            .padding(.all, 2.0)
-                            .background(colorOverlayBackground)
-                            .padding(.all, CGFloat(settings.frameBorderThickness))
-                    }
+                let showTimestamp = preview.backend!.getOptionValue("overlay_timestamp")!.getBool()
+                let showNumber    = preview.backend!.getOptionValue("overlay_number")!.getBool()
+                
+                if (showTimestamp != nil && showTimestamp!.boolValue) {
+                    Text("\(frame.getTimeStampString())")
+                        .regularFont()
+                        .foregroundColor(colorOverlayForeground)
+                        .padding(.all, 2.0)
+                        .background(colorOverlayBackground)
+                        .padding([.top, .trailing], CGFloat(settings.frameBorderThickness))
                 }
                 
-                if let showNumber = preview.backend!.getOptionValue("overlay_number")?.getBool() {
-                    if (showNumber.boolValue) {
-                        Text("\(frame.getFrameNumber())")
-                            .regularFont()
-                            .foregroundColor(colorOverlayForeground)
-                            .padding(.all, 2.0)
-                            .background(colorOverlayBackground)
-                            .padding(.all, CGFloat(settings.frameBorderThickness))
-                    }
+                if (showNumber != nil && showNumber!.boolValue) {
+                    Text("\(frame.getFrameNumber())")
+                        .regularFont()
+                        .foregroundColor(colorOverlayForeground)
+                        .padding(.all, 2.0)
+                        .background(colorOverlayBackground)
+                        .padding(.trailing, CGFloat(settings.frameBorderThickness))
+                        .padding(.top, (showTimestamp != nil && showTimestamp!.boolValue) ? 3 : CGFloat(settings.frameBorderThickness))
                 }
             }
         }
