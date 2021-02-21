@@ -588,7 +588,7 @@ struct SidePanelView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        CollapsibleSection(title: "Video Information") {
+                        CollapsibleSection(title: "Video information") {
                             if (settings.videoInfoPath) {
                                 HStack{
                                     InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
@@ -606,7 +606,7 @@ struct SidePanelView: View {
                         
                         Divider()
                         
-                        CollapsibleSection(title: "Frame Information") {
+                        CollapsibleSection(title: "Frame information") {
                             if (globalVars.selectedFrame == nil) {
                                 Text("No frame selected")
                                     .font(fontRegular)
@@ -621,7 +621,7 @@ struct SidePanelView: View {
                         
                         Divider()
                         
-                        BasicConfigSection(title: "Configuration Options", isCollapsible: true)
+                        BasicConfigSection(title: "Configuration options", isCollapsible: true)
                         
                     }
                     .padding(.vertical, 10.0)

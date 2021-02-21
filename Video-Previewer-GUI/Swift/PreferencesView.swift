@@ -37,7 +37,7 @@ struct GUISettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             
-            ResettableSection(title: "Side Panel", resetAction: resetSettingsToDefaultsSidePanel) {
+            ResettableSection(title: "Side panel", resetAction: resetSettingsToDefaultsSidePanel) {
                 VStack {
                     HStack(alignment: .top) {
                         Text("Video information")
@@ -187,11 +187,11 @@ struct ConfigurationView: View {
             Text("No video is being previewed")
         } else {
             VStack {
-                BasicConfigSection(title: "Basic Options", isCollapsible: false)
+                BasicConfigSection(title: "Basic options", isCollapsible: false)
                 
                 Divider()
                 
-                Section(title: "Advanced Options") {
+                Section(title: "Advanced options") {
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
