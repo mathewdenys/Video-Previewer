@@ -38,10 +38,11 @@ extension String {
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - Tooltip
-        - From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
+        From: https://stackoverflow.com/questions/63217860/how-to-add-tooltip-on-macos-10-15-with-swiftui
    ----------------------------------------------------------------------------------------------------*/
 
 struct Tooltip: NSViewRepresentable {
+    
     let tooltip: String
     
     func makeNSView(context: NSViewRepresentableContext<Tooltip>) -> NSView {
@@ -88,12 +89,11 @@ struct InfoRowView: View {
     var body: some View {
         HStack(alignment: .top, spacing: horiontalRowSpacing) {
             Text(id)
-                .font(fontRegular)
-                .foregroundColor(colorFaded)
+                .regularFont()
                 .frame(width: infoDescriptionWidth, alignment: .trailing)
                 .toolTip(tooltip)
             Text(value)
-                .font(fontRegular)
+                .regularFont()
                 .foregroundColor(colorBold)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contextMenu {
@@ -114,15 +114,13 @@ struct InfoRowView: View {
 
 struct ConfigIDText: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         Text(option.getID().capitalizingFirstLetter().replacingOccurrences(of: "_", with: " "))
-            .font(fontRegular)
-            .foregroundColor(colorFaded)
+            .regularFont()
             .frame(width: configDescriptionWidth, alignment: .trailing)
             .toolTip(option.getDescription())
             .contextMenu {
@@ -132,11 +130,11 @@ struct ConfigIDText: View {
                 })
                 Button("Copy value", action: {
                     pasteBoard.clearContents()
-                    pasteBoard.writeObjects([globalVars.vp!.getOptionValueString(option.getID()) as NSString])
+                    pasteBoard.writeObjects([preview.backend!.getOptionValueString(option.getID()) as NSString])
                 })
                 Button("Copy configuration string", action: {
                     pasteBoard.clearContents()
-                    pasteBoard.writeObjects([globalVars.vp!.getOptionConfigString(option.getID()) as NSString])
+                    pasteBoard.writeObjects([preview.backend!.getOptionConfigString(option.getID()) as NSString])
                 })
             }
     }
@@ -149,17 +147,16 @@ struct ConfigIDText: View {
 
 struct ConfigEditorBoolean: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindBool = Binding<Bool> (
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getBool()?.boolValue ?? false },
-            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
-                           globalVars.configUpdateCounter += 1
+            get: { preview.backend!.getOptionValue(option.getID())!.getBool()?.boolValue ?? false },
+            set: { preview.backend!.setOptionValue(option.getID(), with: $0)
+                           preview.updateCounter += 1
                          }
                 )
         
@@ -179,26 +176,25 @@ struct ConfigEditorBoolean: View {
 
 struct ConfigEditorPositiveInteger: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindInt = Binding<Int>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            get: { preview.backend!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
             set: { var newValue = $0
                    if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
-                globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
-                   globalVars.configUpdateCounter += 1
+                preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
+                   preview.updateCounter += 1
                  }
         )
         
         HStack(spacing: horiontalRowSpacing) {
             ConfigIDText(option: option)
             TextField("", value: bindInt, formatter: NumberFormatter())
-                .font(fontRegular)
+                .regularFont()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Stepper("", value: bindInt)
@@ -214,8 +210,7 @@ struct ConfigEditorPositiveInteger: View {
 
 struct ConfigEditorPositiveIntegerOrAuto: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
@@ -224,28 +219,28 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
     var body: some View {
         
         let bindInt = Binding<Int>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? intValue },
+            get: { preview.backend!.getOptionValue(option.getID())!.getInt()?.intValue ?? intValue },
             set: { var newValue = Int32($0)
                    if (newValue < 1) { newValue = 1 } // An ePositiveInteger can't have a value less than 1
-                   globalVars.vp!.setOptionValue(option.getID(), with: newValue)
-                   globalVars.configUpdateCounter += 1
+                   preview.backend!.setOptionValue(option.getID(), with: newValue)
+                   preview.updateCounter += 1
             }
         )
         
         let bindBool = Binding<Bool> (
-            get: { return (globalVars.vp!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
+            get: { return (preview.backend!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
             set: {
                 if ( $0 == true)  {                                                      // If "auto" is turned on
                     intValue = bindInt.wrappedValue                                      // Save the Int value (so that value is not lost when "auto" is turned off)
-                    globalVars.vp!.setOptionValue(option.getID(), with: "auto")          // Set the option value to be "auto" in vp
+                    preview.backend!.setOptionValue(option.getID(), with: "auto")          // Set the option value to be "auto" in vp
                     
                 }
                 
                 if ( $0 == false) {                                                      // If "auto" is turned off
-                    globalVars.vp!.setOptionValue(option.getID(), with: Int32(intValue)) // Recover the Int value
+                    preview.backend!.setOptionValue(option.getID(), with: Int32(intValue)) // Recover the Int value
                     
                 }
-                globalVars.configUpdateCounter += 1
+                preview.updateCounter += 1
             }
         )
         
@@ -253,7 +248,7 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
             HStack(spacing: horiontalRowSpacing) {
                 ConfigIDText(option: option)
                 Toggle("Automatic", isOn: bindBool)
-                    .font(fontRegular)
+                    .regularFont()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
@@ -262,7 +257,7 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
                 HStack(spacing: horiontalRowSpacing) {
                     Spacer().frame(width: configDescriptionWidth)
                     TextField("", value: bindInt, formatter: NumberFormatter())
-                        .font(fontRegular)
+                        .regularFont()
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Stepper("", value: bindInt)
@@ -280,26 +275,25 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
 
 struct ConfigEditorPositiveIntegerOrString: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindInt = Binding<Int>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            get: { preview.backend!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
             set: { var newValue = $0
                    if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
-                   globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
-                   globalVars.configUpdateCounter += 1
+                   preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
+                   preview.updateCounter += 1
                  }
         )
         
         let bindString = Binding<String>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getString() ?? "" },
-            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
-                   globalVars.configUpdateCounter += 1
+            get: { preview.backend!.getOptionValue(option.getID())!.getString() ?? "" },
+            set: { preview.backend!.setOptionValue(option.getID(), with: $0)
+                   preview.updateCounter += 1
                  }
         )
         
@@ -307,14 +301,14 @@ struct ConfigEditorPositiveIntegerOrString: View {
             ConfigIDText(option: option)
             
             TextField("", value: bindInt, formatter: NumberFormatter())
-                .font(fontRegular)
+                .regularFont()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Stepper("", value: bindInt)
                 .labelsHidden()
 
             Picker("",selection: bindString) {
-                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).font(fontRegular) }
+                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).regularFont() }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .labelsHidden()
@@ -329,20 +323,19 @@ struct ConfigEditorPositiveIntegerOrString: View {
 
 struct ConfigEditorPercentage: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindInt = Binding<Int>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
+            get: { preview.backend!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
             set: { var newValue = $0
                    if ($0 < 1)   { newValue = 1 }   // An ePercentage can't have a value less than 1
                    if ($0 > 100) { newValue = 100 } // An ePercentage can't have a value greater than 100
-                globalVars.vp!.setOptionValue(option.getID(), with: Int32(newValue))
-                   globalVars.configUpdateCounter += 1
+                preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
+                   preview.updateCounter += 1
                  }
         )
         
@@ -350,7 +343,7 @@ struct ConfigEditorPercentage: View {
             ConfigIDText(option: option)
             
             TextField("", value: bindInt, formatter: NumberFormatter())
-                .font(fontRegular)
+                .regularFont()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Stepper("", value: bindInt)
@@ -366,17 +359,16 @@ struct ConfigEditorPercentage: View {
 
 struct ConfigEditorDecimal: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindDouble = Binding<Double>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? 0.0 },
-            set: { globalVars.vp!.setOptionValue(option.getID(), with: Double($0))
-                   globalVars.configUpdateCounter += 1
+            get: { preview.backend!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? 0.0 },
+            set: { preview.backend!.setOptionValue(option.getID(), with: Double($0))
+                   preview.updateCounter += 1
                  }
         )
         
@@ -397,8 +389,7 @@ struct ConfigEditorDecimal: View {
 
 struct ConfigEditorDecimalOrAuto: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
@@ -407,25 +398,25 @@ struct ConfigEditorDecimalOrAuto: View {
     var body: some View {
         
         let bindDouble = Binding<Double>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? doubleValue },
-            set: { globalVars.vp!.setOptionValue(option.getID(), with: Double($0))
-                   globalVars.configUpdateCounter += 1
+            get: { preview.backend!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? doubleValue },
+            set: { preview.backend!.setOptionValue(option.getID(), with: Double($0))
+                   preview.updateCounter += 1
                  }
         )
         
         let bindBool = Binding<Bool> (
-            get: { return (globalVars.vp!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
+            get: { return (preview.backend!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
             set: {
                 if ($0 == true) {                                                    // If "auto" is turned on
                     doubleValue = bindDouble.wrappedValue                            // Save the Double value (so that value is not lost when "auto" is turned off)
-                    globalVars.vp!.setOptionValue(option.getID(), with: "auto");     // Set the option value to be "auto" in vp
+                    preview.backend!.setOptionValue(option.getID(), with: "auto");     // Set the option value to be "auto" in vp
                 }
                 
                 if ($0 == false) {                                                   // If "auto" is turned off
-                    globalVars.vp!.setOptionValue(option.getID(), with: doubleValue) // Recover the Double value
+                    preview.backend!.setOptionValue(option.getID(), with: doubleValue) // Recover the Double value
                 }
                 
-                globalVars.configUpdateCounter += 1
+                preview.updateCounter += 1
             }
         )
         
@@ -434,7 +425,7 @@ struct ConfigEditorDecimalOrAuto: View {
             HStack(spacing: horiontalRowSpacing) {
                 ConfigIDText(option: option)
                 Toggle("Automatic", isOn: bindBool)
-                    .font(fontRegular)
+                    .regularFont()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
@@ -458,17 +449,16 @@ struct ConfigEditorDecimalOrAuto: View {
 
 struct ConfigEditorString: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var option: NSOptionInformation
     
     var body: some View {
         
         let bindString = Binding<String>(
-            get: { globalVars.vp!.getOptionValue(option.getID())!.getString() ?? "" },
-            set: { globalVars.vp!.setOptionValue(option.getID(), with: $0)
-                   globalVars.configUpdateCounter += 1
+            get: { preview.backend!.getOptionValue(option.getID())!.getString() ?? "" },
+            set: { preview.backend!.setOptionValue(option.getID(), with: $0)
+                   preview.updateCounter += 1
                  }
         )
         
@@ -476,7 +466,7 @@ struct ConfigEditorString: View {
             ConfigIDText(option: option)
             
             Picker("", selection: bindString) {
-                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).font(fontRegular) }
+                ForEach(option.getValidStrings(), id: \.self) { string in Text(string).regularFont() }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .labelsHidden()
@@ -493,8 +483,7 @@ struct ConfigEditorString: View {
 
 struct ConfigRowView: View {
     
-    @EnvironmentObject
-    private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     let option: NSOptionInformation
     
@@ -543,7 +532,7 @@ struct ConfigRowView: View {
 struct BasicConfigSection: View {
     
     @EnvironmentObject
-    private var globalVars: GlobalVars
+    private var preview: PreviewData
     
     let title:          String
     let isCollapsible:  Bool
@@ -552,19 +541,19 @@ struct BasicConfigSection: View {
         
         if (isCollapsible) {
             CollapsibleSection(title: title) {
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
             }
         } else {
             Section(title: title) {
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
+                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
             }
         }
     }
@@ -577,7 +566,7 @@ struct BasicConfigSection: View {
 
 struct SidePanelView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     @EnvironmentObject private var settings:   UserSettings
     
     var body: some View {
@@ -592,17 +581,17 @@ struct SidePanelView: View {
                             CollapsibleSection(title: "Video information") {
                                 if (settings.videoInfoPath) {
                                     HStack{
-                                        InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
-                                        Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
+                                        InfoRowView(id: "File path",   value: preview.backend!.getVideoNameString())
+                                        Button(action: { NSWorkspace.shared.openFile(preview.backend!.getVideoNameString()) }) {
                                             Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
                                         }.buttonStyle(BorderlessButtonStyle())
                                     }
                                 }
-                                if (settings.videoInfoEncoding)   {InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString()) }
-                                if (settings.videoInfoFramerate)  {InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString()) }
-                                if (settings.videoInfoLength)     {InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString()) }
-                                if (settings.videoInfoFrames)     {InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString()) }
-                                if (settings.videoInfoDimensions) {InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString()) }
+                                if (settings.videoInfoEncoding)   { InfoRowView(id: "Encoding",   value: preview.backend!.getVideoCodecString()) }
+                                if (settings.videoInfoFramerate)  { InfoRowView(id: "Frame rate", value: preview.backend!.getVideoFPSString()) }
+                                if (settings.videoInfoLength)     { InfoRowView(id: "Length",     value: preview.backend!.getVideoLengthString()) }
+                                if (settings.videoInfoFrames)     { InfoRowView(id: "Frames",     value: preview.backend!.getVideoNumOfFramesString()) }
+                                if (settings.videoInfoDimensions) { InfoRowView(id: "Dimensions", value: preview.backend!.getVideoDimensionsString()) }
                             }
                         }
                         
@@ -612,13 +601,13 @@ struct SidePanelView: View {
                         
                         if (settings.sidePanelVisibleFrame) {
                             CollapsibleSection(title: "Frame information") {
-                                if (globalVars.selectedFrame == nil) {
+                                if (preview.selectedFrame == nil) {
                                     Text("No frame selected")
-                                        .font(fontRegular)
+                                        .regularFont()
                                         .foregroundColor(colorFaded)
                                 } else {
-                                    if (settings.frameInfoTimestamp) {InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ) }
-                                    if (settings.frameInfoNumber) {InfoRowView(id: "Frame number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ) }
+                                    if (settings.frameInfoTimestamp) { InfoRowView(id: "Time stamp",   value: preview.selectedFrame == nil ? "-" : preview.selectedFrame!.getTimeStampString()     ) }
+                                    if (settings.frameInfoNumber)    { InfoRowView(id: "Frame number", value: preview.selectedFrame == nil ? "-" : String(preview.selectedFrame!.getFrameNumber()) ) }
                                 }
                             }
                         }

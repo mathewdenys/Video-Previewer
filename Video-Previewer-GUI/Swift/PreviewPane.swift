@@ -10,18 +10,19 @@ import SwiftUI
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - FramePreviewView
+        Dislaying a single frame in the preview
    ----------------------------------------------------------------------------------------------------*/
 
 struct FramePreviewView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
-    @EnvironmentObject private var settings:   UserSettings
+    @EnvironmentObject private var preview:  PreviewData
+    @EnvironmentObject private var settings: UserSettings
     
     let frame: NSFramePreview
     
     var body: some View {
         
-        let frameSize:  Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
+        let frameSize:  Double = preview.backend!.getOptionValue("frame_size")!.getDouble()!.doubleValue
         let frameWidth: Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
         
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
@@ -29,13 +30,13 @@ struct FramePreviewView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: CGFloat(frameWidth))
-                .border(frame.getFrameNumber() == globalVars.selectedFrame?.getFrameNumber() ? Color(settings.frameBorderColor) : Color.white.opacity(0.0), width: CGFloat(settings.frameBorderThickness))
+                .border(frame.getFrameNumber() == preview.selectedFrame?.getFrameNumber() ? Color(settings.frameBorderColor) : Color.clear, width: CGFloat(settings.frameBorderThickness))
             
             VStack(alignment: .trailing) {
-                if let showNumber = globalVars.vp!.getOptionValue("overlay_timestamp")?.getBool() {
+                if let showNumber = preview.backend!.getOptionValue("overlay_timestamp")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getTimeStampString())")
-                            .font(fontRegular)
+                            .regularFont()
                             .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
                             .background(colorOverlayBackground)
@@ -43,10 +44,10 @@ struct FramePreviewView: View {
                     }
                 }
                 
-                if let showNumber = globalVars.vp!.getOptionValue("overlay_number")?.getBool() {
+                if let showNumber = preview.backend!.getOptionValue("overlay_number")?.getBool() {
                     if (showNumber.boolValue) {
                         Text("\(frame.getFrameNumber())")
-                            .font(fontRegular)
+                            .regularFont()
                             .foregroundColor(colorOverlayForeground)
                             .padding(.all, 2.0)
                             .background(colorOverlayBackground)
@@ -56,11 +57,11 @@ struct FramePreviewView: View {
             }
         }
         .onTapGesture {
-            if (globalVars.selectedFrame != nil && globalVars.selectedFrame?.getFrameNumber() == frame.getFrameNumber()) {
-                globalVars.selectedFrame = nil      // If this frame is selected
+            if (preview.selectedFrame != nil && preview.selectedFrame?.getFrameNumber() == frame.getFrameNumber()) {
+                preview.selectedFrame = nil      // If this frame is selected
                 return
             }
-            globalVars.selectedFrame = self.frame  // If either no frame or a different frame is selected
+            preview.selectedFrame = self.frame  // If either no frame or a different frame is selected
         }
     }
 }
@@ -72,8 +73,8 @@ struct FramePreviewView: View {
 
 struct PreviewPaneView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
-    @EnvironmentObject private var settings:   UserSettings
+    @EnvironmentObject private var preview:  PreviewData
+    @EnvironmentObject private var settings: UserSettings
     
     let cols:          Int
     let rows:          Int
@@ -81,11 +82,11 @@ struct PreviewPaneView: View {
     
     var body: some View {
         ZStack {
-            Color(colorBackground).edgesIgnoringSafeArea(.all)
+            colorBackground.edgesIgnoringSafeArea(.all)
             
             ScrollView(showsIndicators: showScrollbar) {
                 
-                let frameSize:  Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
+                let frameSize:  Double = preview.backend!.getOptionValue("frame_size")!.getDouble()!.doubleValue
                 let frameWidth: Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
                 
                 HStack(alignment: .center) {
@@ -95,8 +96,8 @@ struct PreviewPaneView: View {
                             HStack(spacing: 0) {
                                 ForEach(0..<cols, id: \.self) { j in
                                     let index = i*cols + j
-                                    if (index < globalVars.frames!.count) {
-                                        FramePreviewView(frame: globalVars.frames![index]!)
+                                    if (index < preview.frames!.count) {
+                                        FramePreviewView(frame: preview.frames![index]!)
                                             .padding(.trailing, (j == (cols-1) ? 0 : CGFloat(settings.previewSpaceBetweenCols))) // Spacing between each column (don't put after the last column)
                                     } else {
                                         Spacer().frame(width: CGFloat(frameWidth))

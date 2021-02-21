@@ -16,12 +16,14 @@
 		AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */; };
 		AF8F817B25E205EF00C20706 /* SectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8F817A25E205EF00C20706 /* SectionViews.swift */; };
 		AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFADD2C3255CAAB400D06F8F /* main.cpp */; };
+		AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C225E2F4A700B4A9D6 /* Fonts.swift */; };
+		AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C825E2F4B100B4A9D6 /* Colors.swift */; };
 		AFE3A23D25BF493400B50756 /* NSString.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A23B25BF493400B50756 /* NSString.mm */; };
 		AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A24125BF531800B50756 /* NSConfig.mm */; };
 		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AFE460002591397E00DB3402 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
 		AFE665B125CA594F00A41E35 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B025CA594F00A41E35 /* Constants.swift */; };
-		AFE665B525CA598B00A41E35 /* GlobalVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B425CA598B00A41E35 /* GlobalVars.swift */; };
+		AFE665B525CA598B00A41E35 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B425CA598B00A41E35 /* PreviewData.swift */; };
 		AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFB215125AE392A008B2295 /* AppDelegate.swift */; };
 		AFFB215425AE392A008B2295 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFB215325AE392A008B2295 /* ContentView.swift */; };
 		AFFB215625AE392B008B2295 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFFB215525AE392B008B2295 /* Assets.xcassets */; };
@@ -51,6 +53,8 @@
 		AF8F817A25E205EF00C20706 /* SectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionViews.swift; sourceTree = "<group>"; };
 		AFADD2C0255CAAB400D06F8F /* Video-Previewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Video-Previewer"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFADD2C3255CAAB400D06F8F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		AFB402C225E2F4A700B4A9D6 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		AFB402C825E2F4B100B4A9D6 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		AFE3A23B25BF493400B50756 /* NSString.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSString.mm; sourceTree = "<group>"; };
 		AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSStringCpp.hpp; sourceTree = "<group>"; };
 		AFE3A24025BF531800B50756 /* NSConfig.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSConfig.hpp; sourceTree = "<group>"; };
@@ -62,7 +66,7 @@
 		AFE45FF525905CC300DB3402 /* Preview.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Preview.hpp; sourceTree = "<group>"; };
 		AFE45FFF2591397E00DB3402 /* Preview.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Preview.cpp; sourceTree = "<group>"; };
 		AFE665B025CA594F00A41E35 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		AFE665B425CA598B00A41E35 /* GlobalVars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVars.swift; sourceTree = "<group>"; };
+		AFE665B425CA598B00A41E35 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		AFFB214F25AE392A008B2295 /* Video-Previewer-GUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Video-Previewer-GUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFFB215125AE392A008B2295 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AFFB215325AE392A008B2295 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -115,27 +119,37 @@
 			isa = PBXGroup;
 			children = (
 				AFADD2C3255CAAB400D06F8F /* main.cpp */,
+				AFE45FE72590567100DB3402 /* Exceptions.hpp */,
+				AFE45FEC2590581D00DB3402 /* Configuration.hpp */,
+				AFE45FEB2590581D00DB3402 /* Configuration.cpp */,
 				AFE45FF525905CC300DB3402 /* Preview.hpp */,
 				AFE45FFF2591397E00DB3402 /* Preview.cpp */,
-				AFE45FEB2590581D00DB3402 /* Configuration.cpp */,
-				AFE45FEC2590581D00DB3402 /* Configuration.hpp */,
-				AFE45FE72590567100DB3402 /* Exceptions.hpp */,
 			);
 			path = "Video-Previewer";
+			sourceTree = "<group>";
+		};
+		AFB402C125E2F49100B4A9D6 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				AFB402C825E2F4B100B4A9D6 /* Colors.swift */,
+				AFB402C225E2F4A700B4A9D6 /* Fonts.swift */,
+				AFE665B025CA594F00A41E35 /* Constants.swift */,
+			);
+			name = Constants;
 			sourceTree = "<group>";
 		};
 		AFE665AC25CA58BC00A41E35 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
-				AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */,
+				AFB402C125E2F49100B4A9D6 /* Constants */,
+				AF48AFF025DF30B5000B468C /* UserSettings.swift */,
+				AFE665B425CA598B00A41E35 /* PreviewData.swift */,
+				AF8F817A25E205EF00C20706 /* SectionViews.swift */,
 				AFFB215125AE392A008B2295 /* AppDelegate.swift */,
 				AFFB215325AE392A008B2295 /* ContentView.swift */,
-				AF48AFF425DF475D000B468C /* PreferencesView.swift */,
-				AF8F817A25E205EF00C20706 /* SectionViews.swift */,
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
-				AFE665B025CA594F00A41E35 /* Constants.swift */,
-				AFE665B425CA598B00A41E35 /* GlobalVars.swift */,
-				AF48AFF025DF30B5000B468C /* UserSettings.swift */,
+				AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */,
+				AF48AFF425DF475D000B468C /* PreferencesView.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -144,13 +158,13 @@
 			isa = PBXGroup;
 			children = (
 				AFE3A24025BF531800B50756 /* NSConfig.hpp */,
-				AFE3A24125BF531800B50756 /* NSConfig.mm */,
 				AFE3A24225BF531800B50756 /* NSConfigCpp.hpp */,
-				AFE3A23B25BF493400B50756 /* NSString.mm */,
-				AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */,
+				AFE3A24125BF531800B50756 /* NSConfig.mm */,
 				AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */,
-				AF5101B125AE48B000B8B5E6 /* NSPreview.mm */,
 				AFFDAC4925B8E88A002D8D64 /* NSPreviewCpp.hpp */,
+				AF5101B125AE48B000B8B5E6 /* NSPreview.mm */,
+				AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */,
+				AFE3A23B25BF493400B50756 /* NSString.mm */,
 			);
 			path = "Objective-C";
 			sourceTree = "<group>";
@@ -160,12 +174,12 @@
 			children = (
 				AFE665AD25CA58EC00A41E35 /* Objective-C */,
 				AFE665AC25CA58BC00A41E35 /* Swift */,
+				AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */,
 				AFFB215525AE392B008B2295 /* Assets.xcassets */,
 				AFFB215A25AE392B008B2295 /* Main.storyboard */,
 				AFFB215D25AE392B008B2295 /* Info.plist */,
 				AFFB215E25AE392B008B2295 /* Video_Previewer_GUI.entitlements */,
 				AFFB215725AE392B008B2295 /* Preview Content */,
-				AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */,
 			);
 			path = "Video-Previewer-GUI";
 			sourceTree = "<group>";
@@ -281,13 +295,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFFB215425AE392A008B2295 /* ContentView.swift in Sources */,
+				AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */,
 				AFE665B125CA594F00A41E35 /* Constants.swift in Sources */,
 				AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */,
 				AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */,
 				AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */,
-				AFE665B525CA598B00A41E35 /* GlobalVars.swift in Sources */,
+				AFE665B525CA598B00A41E35 /* PreviewData.swift in Sources */,
 				AF8F817B25E205EF00C20706 /* SectionViews.swift in Sources */,
 				AFE3A23D25BF493400B50756 /* NSString.mm in Sources */,
+				AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */,
 				AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */,
 				AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */,
 				AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */,

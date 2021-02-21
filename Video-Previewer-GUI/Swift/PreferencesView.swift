@@ -10,46 +10,21 @@ import SwiftUI
 
 struct GUISettingsView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
-    @EnvironmentObject private var settings:   UserSettings
-    
-    func resetSettingsToDefaultsSidePanel() {
-        settings.videoInfoPath          = defaultSettingsVideoInfoPath
-        settings.videoInfoEncoding      = defaultSettingsVideoInfoEncoding
-        settings.videoInfoFramerate     = defaultSettingsVideoInfoFramerate
-        settings.videoInfoLength        = defaultSettingsVideoInfoLength
-        settings.videoInfoFrames        = defaultSettingsVideoInfoFrames
-        settings.videoInfoDimensions    = defaultSettingsVideoInfoDimensions
-        settings.frameInfoTimestamp     = defaultSettingsFrameInfoTimestamp
-        settings.frameInfoNumber        = defaultSettingsFrameInfoNumber
-        settings.sidePanelVisibleVideo  = defaultSettingsSidePanelVisibleVideo
-        settings.sidePanelVisibleFrame  = defaultSettingsSidePanelVisibleFrame
-        settings.sidePanelVisibleConfig = defaultSettingsSidePanelVisibleConfig
-    }
-    
-    func resetSettingsToDefaultsSelectedFrames() {
-        settings.frameBorderColor     = defaultSettingsFrameBorderColor
-        settings.frameBorderThickness = defaultSettingsFrameBorderThickness
-    }
-    
-    func resetSettingsToDefaultSpacing() {
-        settings.previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
-        settings.previewSpaceBetweenCols = defaultSettingsPreviewSpaceBetweenCols
-    }
+    @EnvironmentObject private var preview:  PreviewData
+    @EnvironmentObject private var settings: UserSettings
     
     var body: some View {
         VStack(alignment: .leading) {
             
-            ResettableSection(title: "Side panel", resetAction: resetSettingsToDefaultsSidePanel) {
+            ResettableSection(title: "Side panel", resetAction: settings.resetToDefaultsSidePanel) {
                 
                 VStack(spacing: 10) {
                     HStack(alignment: .top) {
                         Text("Video information")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         Toggle("Visible", isOn: $settings.sidePanelVisibleVideo)
-                            .font(fontRegular)
+                            .regularFont()
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     HStack {
@@ -58,26 +33,26 @@ struct GUISettingsView: View {
                         VStack {
                             HStack {
                                 Toggle("File path", isOn: $settings.videoInfoPath)
-                                    .font(fontRegular)
+                                    .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 Toggle("Encoding", isOn: $settings.videoInfoEncoding)
-                                    .font(fontRegular)
+                                .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             HStack {
                                 Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
-                                    .font(fontRegular)
+                                    .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 Toggle("Length", isOn: $settings.videoInfoLength)
-                                    .font(fontRegular)
+                                .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             HStack {
                                 Toggle("Frames", isOn: $settings.videoInfoFrames)
-                                    .font(fontRegular)
+                                    .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
-                                    .font(fontRegular)
+                                .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
@@ -88,21 +63,20 @@ struct GUISettingsView: View {
                     VStack {
                         HStack(alignment: .top) {
                             Text("Frame information")
-                                .font(fontRegular)
-                                .foregroundColor(colorFaded)
+                                .regularFont()
                                 .frame(width: settingsDescriptionWidth, alignment: .trailing)
                             Toggle("Visible", isOn: $settings.sidePanelVisibleFrame)
-                                .font(fontRegular)
+                            .regularFont()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         HStack {
                             Spacer()
                                 .frame(width: settingsDescriptionWidth)
                             Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
-                                .font(fontRegular)
+                                .regularFont()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Toggle("Frame number", isOn: $settings.frameInfoNumber)
-                                .font(fontRegular)
+                            .regularFont()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding(.leading, 20)
@@ -111,83 +85,12 @@ struct GUISettingsView: View {
                     
                     HStack(alignment: .top) {
                         Text("Configuration options")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         Toggle("Visible", isOn: $settings.sidePanelVisibleConfig)
-                            .font(fontRegular)
+                            .regularFont()
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-//
-//
-//
-//                VStack {
-//                    HStack(alignment: .top) {
-//                        Text("Sections")
-//                            .font(fontRegular)
-//                            .foregroundColor(colorFaded)
-//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
-//                        VStack {
-//                            HStack {
-//                                Toggle("Video information", isOn: $settings.sidePanelVisibleVideo)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                Toggle("Frame information", isOn: $settings.sidePanelVisibleFrame)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                            }
-//                            Toggle("Configuration options", isOn: $settings.sidePanelVisibleConfig)
-//                                .font(fontRegular)
-//                                .frame(maxWidth: .infinity, alignment: .leading)
-//                        }
-//                    }
-//
-//                    HStack(alignment: .top) {
-//                        Text("Video information")
-//                            .font(fontRegular)
-//                            .foregroundColor(colorFaded)
-//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
-//                        VStack {
-//                            HStack {
-//                                Toggle("File path", isOn: $settings.videoInfoPath)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                Toggle("Encoding", isOn: $settings.videoInfoEncoding)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                            }
-//                            HStack {
-//                                Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                Toggle("Length", isOn: $settings.videoInfoLength)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                            }
-//                            HStack {
-//                                Toggle("Frames", isOn: $settings.videoInfoFrames)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
-//                                    .font(fontRegular)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                            }
-//                        }
-//                    }
-//
-//
-//                    HStack(alignment: .top) {
-//                        Text("Frame information")
-//                            .font(fontRegular)
-//                            .foregroundColor(colorFaded)
-//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
-//                        Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
-//                            .font(fontRegular)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
-//                        Toggle("Frame number", isOn: $settings.frameInfoNumber)
-//                            .font(fontRegular)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
-//                    }
                 }
             }
             
@@ -195,12 +98,11 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            ResettableSection(title: "Selected frame", resetAction: resetSettingsToDefaultsSelectedFrames) {
+            ResettableSection(title: "Selected frame", resetAction: settings.resetToDefaultsSelectedFrames) {
                 VStack {
                     HStack {
                         Text("Color")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         
                         Picker(selection: $settings.frameBorderColor, label: Text("")) {
@@ -216,8 +118,7 @@ struct GUISettingsView: View {
                     
                     HStack {
                         Text("Thickness")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         
                         Slider(value: $settings.frameBorderThickness, in: 2...10, step: 0.5)
@@ -230,12 +131,11 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            ResettableSection(title: "Spacing between frames", resetAction: resetSettingsToDefaultSpacing) {
+            ResettableSection(title: "Spacing between frames", resetAction: settings.resetToDefaultsSpacing) {
                 VStack {
                     HStack {
                         Text("Vertical")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         
                         Slider(value: $settings.previewSpaceBetweenRows, in: 0...50, step: 5)
@@ -244,8 +144,7 @@ struct GUISettingsView: View {
                     
                     HStack {
                         Text("Horizontal")
-                            .font(fontRegular)
-                            .foregroundColor(colorFaded)
+                            .regularFont()
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         
                         Slider(value: $settings.previewSpaceBetweenCols, in: 0...50, step: 5)
@@ -261,13 +160,7 @@ struct GUISettingsView: View {
             
             HStack {
                 Spacer()
-                Button(action: {
-                    resetSettingsToDefaultsSidePanel()
-                    resetSettingsToDefaultsSelectedFrames()
-                    resetSettingsToDefaultSpacing()
-                }) {
-                    Text("Reset all to Defaults")
-                }
+                Button(action: settings.resetToDefaultsAll) { Text("Reset all to Defaults") }
                 Spacer()
             }
             
@@ -283,10 +176,10 @@ struct GUISettingsView: View {
 
 struct ConfigurationView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var body: some View {
-        if (globalVars.vp == nil) {
+        if (preview.backend == nil) {
             Text("No video is being previewed")
         } else {
             VStack {
@@ -295,9 +188,9 @@ struct ConfigurationView: View {
                 Divider()
                 
                 Section(title: "Advanced options") {
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
-                    ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
+                    ConfigRowView(option: preview.backend!.getOptionInformation("maximum_percentage")!)
+                    ConfigRowView(option: preview.backend!.getOptionInformation("minimum_sampling")!)
+                    ConfigRowView(option: preview.backend!.getOptionInformation("maximum_frames")!)
                 }
                 
                 Spacer()
@@ -313,22 +206,22 @@ struct ConfigurationView: View {
 
 struct ConfigurationFilesView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     
     var body: some View {
         
-        if (globalVars.vp == nil) {
+        if (preview.backend == nil) {
             Text("No video is being previewed")
         } else {
             VStack {
                 Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
-                    .font(fontNote)                               // Small font
+                    .noteFont()                                   // Small font
                     .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
                     .multilineTextAlignment(.leading)
                     
-                ForEach(globalVars.vp!.getConfigFilePaths(), id: \.self) { configFilePath in
+                ForEach(preview.backend!.getConfigFilePaths(), id: \.self) { configFilePath in
                     HStack {
-                        ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).font(fontRegular).foregroundColor(colorFaded) })
+                        ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).regularFont().foregroundColor(colorFaded) })
                         Spacer()
                         Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
                             Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
@@ -349,7 +242,7 @@ struct ConfigurationFilesView: View {
 
 struct PreferencesView: View {
     
-    @EnvironmentObject private var globalVars: GlobalVars
+    @EnvironmentObject private var preview: PreviewData
     @EnvironmentObject private var settings:   UserSettings
     
     var body: some View {

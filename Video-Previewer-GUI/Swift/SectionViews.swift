@@ -14,7 +14,7 @@ import SwiftUI
 
 struct Section<Content: View>: View {
     
-    private let  title: String
+    private let  title:   String
     private let  content: Content
     
     init(title: String, @ViewBuilder content: @escaping () -> Content) {
@@ -26,8 +26,7 @@ struct Section<Content: View>: View {
         VStack {
             HStack {
                 Text(title)
-                    .font(fontHeading)
-                    .foregroundColor(colorBold)
+                    .headingFont()
                 Spacer()
             }
             content
@@ -55,9 +54,9 @@ struct ResetButton: View {
 
 struct ResettableSection<Content: View>: View {
     
-    private let  title: String
+    private let  title:       String
     private let  resetAction: () -> Void
-    private let  content: Content
+    private let  content:     Content
     
     init(title: String, resetAction: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.title       = title
@@ -69,8 +68,7 @@ struct ResettableSection<Content: View>: View {
         VStack {
             HStack {
                 Text(title)
-                    .font(fontHeading)
-                    .foregroundColor(colorBold)
+                    .headingFont()
                 Spacer()
                 ResetButton(action:resetAction)
             }
@@ -105,8 +103,8 @@ struct CollapsibleSection<Content: View>: View {
     // conditionally on the valyeof isExpanded, the value of isExapnded cannot be set directly in the
     // initialiser, but mustbe set in an .onAppear() instead.
     init(title: String, expandedByDefault: Bool, @ViewBuilder content: @escaping () -> Content) {
-        self.title = title
-        self.expandedByDefault = expandedByDefault
+        self.title              = title
+        self.expandedByDefault  = expandedByDefault
         self.collapsibleContent = content()
     }
     
@@ -114,8 +112,7 @@ struct CollapsibleSection<Content: View>: View {
         VStack {
             HStack {
                 Text(title)
-                    .font(fontHeading)
-                    .foregroundColor(colorBold)
+                    .headingFont()
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Triangle()
                     .rotation(Angle(degrees: isExpanded ? 180 : 90))

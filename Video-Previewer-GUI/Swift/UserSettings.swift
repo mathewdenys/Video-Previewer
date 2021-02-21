@@ -7,9 +7,39 @@
 
 import SwiftUI
 
-// userDefaults can only save certain types of data
-// The following extensions to UserDefaults are required to easily save colours (i.e. NSColor)
-// Ideally this would be achieved with SwiftUI Colors, but for now I cna't get it to work, so NSColor will have to do
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Default values
+   ----------------------------------------------------------------------------------------------------*/
+
+let defaultSettingsSidePanelVisibleVideo   = true           // Whether the the "Video information" section is shown in the side panel
+let defaultSettingsSidePanelVisibleFrame   = true           // Whether the the "Frame information" section is shown in the side panel
+let defaultSettingsSidePanelVisibleConfig  = true           // Whether the the "Configuration options" section is shown in the side panel
+
+let defaultSettingsVideoInfoPath           = true           // Whether "Path" is displayed under "Video Information" in the side panel
+let defaultSettingsVideoInfoEncoding       = false          // Whether "Encoding" is displayed under "Video Information" in the side panel
+let defaultSettingsVideoInfoFramerate      = true           // Whether "Frame rate" is displayed under "Video Information" in the side panel
+let defaultSettingsVideoInfoLength         = true           // Whether "Length" is displayed under "Video Information" in the side panel
+let defaultSettingsVideoInfoFrames         = true           // Whether "Frames" is displayed under "Video Information" in the side panel
+let defaultSettingsVideoInfoDimensions     = false          // Whether "Dimensions" is displayed under "Video Information" in the side panel
+
+let defaultSettingsFrameInfoTimestamp      = true           // Whether "Timestamp" is displayed under "Frame Information" in the side panel
+let defaultSettingsFrameInfoNumber         = true           // Whether "Frame number" is displayed under "Frame Information" in the side panel
+
+let defaultSettingsFrameBorderColor        = NSColor.gray   // The color of the border around a selected frame
+let defaultSettingsFrameBorderThickness    = 5.0            // The width of the border around a selected frame
+
+let defaultSettingsPreviewSpaceBetweenRows = 10.0           // The vertical spacing between rows in the preview
+let defaultSettingsPreviewSpaceBetweenCols = 0.0            // The horizontal spacing between columns in the preview
+
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - UserDefaults extension
+        UserDefaults can only save certain types of data. The following extensions to UserDefaults are
+        required to easily save colours (i.e. NSColor). I could not get this to work with Color, hence
+        why NSColor is used for defaultSettingsFrameBorderColor
+   ----------------------------------------------------------------------------------------------------*/
+
 extension UserDefaults {
     
     func color(forKey key: String) -> NSColor? {
@@ -30,44 +60,75 @@ extension UserDefaults {
 }
 
 
+/*----------------------------------------------------------------------------------------------------
+    MARK: - UserSettings
+   ----------------------------------------------------------------------------------------------------*/
+
 class UserSettings: ObservableObject {
     
-    @Published var frameBorderThickness:    Double  { didSet { UserDefaults.standard.set(frameBorderThickness,    forKey: "frameBorderThickness") } }     // The width of the border around a selected frame
-    @Published var frameBorderColor:        NSColor { didSet { UserDefaults.standard.set(color: frameBorderColor, forKey: "frameBorderColor") } }         // The color of the border around a selected frame
-        
-    @Published var previewSpaceBetweenRows: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenRows,  forKey: "previewSpaceBetweenRows") } } // The vertical spacing between rows in the preview
-    @Published var previewSpaceBetweenCols: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenCols,  forKey: "previewSpaceBetweenCols") } } // The horizontal spacing between columns in the preview
+    // Whenever a value is set, it is saved to UserDefaults
+    @Published var sidePanelVisibleVideo:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleVideo,   forKey: "sidePanelVisibleVideo") } }
+    @Published var sidePanelVisibleFrame:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFrame,   forKey: "sidePanelVisibleFrame") } }
+    @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,  forKey: "sidePanelVisiblConfige") } }
+    @Published var videoInfoPath:           Bool    { didSet { UserDefaults.standard.set(videoInfoPath,           forKey: "videoInfoPath") } }
+    @Published var videoInfoEncoding:       Bool    { didSet { UserDefaults.standard.set(videoInfoEncoding,       forKey: "videoInfoEncoding") } }
+    @Published var videoInfoFramerate:      Bool    { didSet { UserDefaults.standard.set(videoInfoFramerate,      forKey: "videoInfoFramerate") } }
+    @Published var videoInfoLength:         Bool    { didSet { UserDefaults.standard.set(videoInfoLength,         forKey: "videoInfoLength") } }
+    @Published var videoInfoFrames:         Bool    { didSet { UserDefaults.standard.set(videoInfoFrames,         forKey: "videoInfoFrames") } }
+    @Published var videoInfoDimensions:     Bool    { didSet { UserDefaults.standard.set(videoInfoDimensions,     forKey: "videoInfoDimensions") } }
+    @Published var frameInfoTimestamp:      Bool    { didSet { UserDefaults.standard.set(frameInfoTimestamp,      forKey: "frameInfoTimestamp") } }
+    @Published var frameInfoNumber:         Bool    { didSet { UserDefaults.standard.set(frameInfoNumber,         forKey: "frameInfoNumber") } }
+    @Published var frameBorderThickness:    Double  { didSet { UserDefaults.standard.set(frameBorderThickness,    forKey: "frameBorderThickness") } }
+    @Published var frameBorderColor:        NSColor { didSet { UserDefaults.standard.set(color: frameBorderColor, forKey: "frameBorderColor") } }
+    @Published var previewSpaceBetweenRows: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenRows, forKey: "previewSpaceBetweenRows") } }
+    @Published var previewSpaceBetweenCols: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenCols, forKey: "previewSpaceBetweenCols") } }
     
-    @Published var videoInfoPath:           Bool    { didSet { UserDefaults.standard.set(videoInfoPath,            forKey: "videoInfoPath") } }           // Whether "Path" is displayed under "Video Information" in the side panel
-    @Published var videoInfoEncoding:       Bool    { didSet { UserDefaults.standard.set(videoInfoEncoding,        forKey: "videoInfoEncoding") } }       // Whether "Encoding" is displayed under "Video Information" in the side panel
-    @Published var videoInfoFramerate:      Bool    { didSet { UserDefaults.standard.set(videoInfoFramerate,       forKey: "videoInfoFramerate") } }      // Whether "Frame rate" is displayed under "Video Information" in the side panel
-    @Published var videoInfoLength:         Bool    { didSet { UserDefaults.standard.set(videoInfoLength,          forKey: "videoInfoLength") } }         // Whether "Length" is displayed under "Video Information" in the side panel
-    @Published var videoInfoFrames:         Bool    { didSet { UserDefaults.standard.set(videoInfoFrames,          forKey: "videoInfoFrames") } }         // Whether "Frames" is displayed under "Video Information" in the side panel
-    @Published var videoInfoDimensions:     Bool    { didSet { UserDefaults.standard.set(videoInfoDimensions,      forKey: "videoInfoDimensions") } }     // Whether "Dimensions" is displayed under "Video Information" in the side panel
+    func resetToDefaultsSidePanel() {
+        videoInfoPath          = defaultSettingsVideoInfoPath
+        videoInfoEncoding      = defaultSettingsVideoInfoEncoding
+        videoInfoFramerate     = defaultSettingsVideoInfoFramerate
+        videoInfoLength        = defaultSettingsVideoInfoLength
+        videoInfoFrames        = defaultSettingsVideoInfoFrames
+        videoInfoDimensions    = defaultSettingsVideoInfoDimensions
+        frameInfoTimestamp     = defaultSettingsFrameInfoTimestamp
+        frameInfoNumber        = defaultSettingsFrameInfoNumber
+        sidePanelVisibleVideo  = defaultSettingsSidePanelVisibleVideo
+        sidePanelVisibleFrame  = defaultSettingsSidePanelVisibleFrame
+        sidePanelVisibleConfig = defaultSettingsSidePanelVisibleConfig
+    }
     
-    @Published var frameInfoTimestamp:      Bool    { didSet { UserDefaults.standard.set(frameInfoTimestamp,       forKey: "frameInfoTimestamp") } }      // Whether "Timestamp" is displayed under "Frame Information" in the side panel
-    @Published var frameInfoNumber:         Bool    { didSet { UserDefaults.standard.set(frameInfoNumber,          forKey: "frameInfoNumber") } }         // Whether "Frame number" is displayed under "Frame Information" in the side panel
+    func resetToDefaultsSelectedFrames() {
+        frameBorderColor     = defaultSettingsFrameBorderColor
+        frameBorderThickness = defaultSettingsFrameBorderThickness
+    }
     
-    @Published var sidePanelVisibleVideo:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleVideo,    forKey: "sidePanelVisibleVideo") } }   // Whether the the "Video information" section is shown in the side panel
-    @Published var sidePanelVisibleFrame:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFrame,    forKey: "sidePanelVisibleFrame") } }   // Whether the the "Frame information" section is shown in the side panel
-    @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,   forKey: "sidePanelVisiblConfige") } }  // Whether the the "Configuration options" section is shown in the side panel
+    func resetToDefaultsSpacing() {
+        previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
+        previewSpaceBetweenCols = defaultSettingsPreviewSpaceBetweenCols
+    }
+    
+    func resetToDefaultsAll() {
+        resetToDefaultsSidePanel()
+        resetToDefaultsSelectedFrames()
+        resetToDefaultsSpacing()
+    }
     
     init() {
         // On initialization, load values that the user has set. If no value has been set, use the default value for each setting
-        self.frameBorderColor        = UserDefaults.standard.color(forKey: "frameBorderColor")                    ?? defaultSettingsFrameBorderColor
-        self.frameBorderThickness    = UserDefaults.standard.object(forKey: "frameBorderThickness")    as? Double ?? defaultSettingsFrameBorderThickness
-        self.previewSpaceBetweenRows = UserDefaults.standard.object(forKey: "previewSpaceBetweenRows") as? Double ?? defaultSettingsPreviewSpaceBetweenRows
-        self.previewSpaceBetweenCols = UserDefaults.standard.object(forKey: "previewSpaceBetweenCols") as? Double ?? defaultSettingsPreviewSpaceBetweenCols
-        self.videoInfoPath           = UserDefaults.standard.object(forKey: "videoInfoPath")           as? Bool   ?? defaultSettingsVideoInfoPath
-        self.videoInfoEncoding       = UserDefaults.standard.object(forKey: "videoInfoEncoding")       as? Bool   ?? defaultSettingsVideoInfoEncoding
-        self.videoInfoFramerate      = UserDefaults.standard.object(forKey: "videoInfoFramerate")      as? Bool   ?? defaultSettingsVideoInfoFramerate
-        self.videoInfoLength         = UserDefaults.standard.object(forKey: "videoInfoLength")         as? Bool   ?? defaultSettingsVideoInfoLength
-        self.videoInfoFrames         = UserDefaults.standard.object(forKey: "videoInfoFrames")         as? Bool   ?? defaultSettingsVideoInfoFrames
-        self.videoInfoDimensions     = UserDefaults.standard.object(forKey: "videoInfoDimensions")     as? Bool   ?? defaultSettingsVideoInfoDimensions
-        self.frameInfoTimestamp      = UserDefaults.standard.object(forKey: "frameInfoTimestamp")      as? Bool   ?? defaultSettingsFrameInfoTimestamp
-        self.frameInfoNumber         = UserDefaults.standard.object(forKey: "frameInfoNumber")         as? Bool   ?? defaultSettingsFrameInfoNumber
-        self.sidePanelVisibleVideo   = UserDefaults.standard.object(forKey: "sidePanelVisibleVideo")   as? Bool   ?? defaultSettingsSidePanelVisibleVideo
-        self.sidePanelVisibleFrame   = UserDefaults.standard.object(forKey: "sidePanelVisibleFrame")   as? Bool   ?? defaultSettingsSidePanelVisibleFrame
-        self.sidePanelVisibleConfig  = UserDefaults.standard.object(forKey: "sidePanelVisibleConfig")  as? Bool   ?? defaultSettingsSidePanelVisibleConfig
+        sidePanelVisibleVideo   = UserDefaults.standard.object(forKey: "sidePanelVisibleVideo")   as? Bool   ?? defaultSettingsSidePanelVisibleVideo
+        sidePanelVisibleFrame   = UserDefaults.standard.object(forKey: "sidePanelVisibleFrame")   as? Bool   ?? defaultSettingsSidePanelVisibleFrame
+        sidePanelVisibleConfig  = UserDefaults.standard.object(forKey: "sidePanelVisibleConfig")  as? Bool   ?? defaultSettingsSidePanelVisibleConfig
+        videoInfoPath           = UserDefaults.standard.object(forKey: "videoInfoPath")           as? Bool   ?? defaultSettingsVideoInfoPath
+        videoInfoEncoding       = UserDefaults.standard.object(forKey: "videoInfoEncoding")       as? Bool   ?? defaultSettingsVideoInfoEncoding
+        videoInfoFramerate      = UserDefaults.standard.object(forKey: "videoInfoFramerate")      as? Bool   ?? defaultSettingsVideoInfoFramerate
+        videoInfoLength         = UserDefaults.standard.object(forKey: "videoInfoLength")         as? Bool   ?? defaultSettingsVideoInfoLength
+        videoInfoFrames         = UserDefaults.standard.object(forKey: "videoInfoFrames")         as? Bool   ?? defaultSettingsVideoInfoFrames
+        videoInfoDimensions     = UserDefaults.standard.object(forKey: "videoInfoDimensions")     as? Bool   ?? defaultSettingsVideoInfoDimensions
+        frameInfoTimestamp      = UserDefaults.standard.object(forKey: "frameInfoTimestamp")      as? Bool   ?? defaultSettingsFrameInfoTimestamp
+        frameInfoNumber         = UserDefaults.standard.object(forKey: "frameInfoNumber")         as? Bool   ?? defaultSettingsFrameInfoNumber
+        frameBorderColor        = UserDefaults.standard.color(forKey:  "frameBorderColor")                   ?? defaultSettingsFrameBorderColor
+        frameBorderThickness    = UserDefaults.standard.object(forKey: "frameBorderThickness")    as? Double ?? defaultSettingsFrameBorderThickness
+        previewSpaceBetweenRows = UserDefaults.standard.object(forKey: "previewSpaceBetweenRows") as? Double ?? defaultSettingsPreviewSpaceBetweenRows
+        previewSpaceBetweenCols = UserDefaults.standard.object(forKey: "previewSpaceBetweenCols") as? Double ?? defaultSettingsPreviewSpaceBetweenCols
     }
 }

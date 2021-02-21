@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
     </dependencies>
     <scenes>
@@ -140,7 +139,7 @@
                                     <items>
                                         <menuItem title="README" keyEquivalent="?" id="FKE-Sm-Kum">
                                             <connections>
-                                                <action selector="openGithubReadme:" target="Ady-hI-5gd" id="w7N-Z2-O7s"/>
+                                                <action selector="openReadme:" target="Ady-hI-5gd" id="w7N-Z2-O7s"/>
                                             </connections>
                                         </menuItem>
                                     </items>
