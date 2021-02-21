@@ -582,7 +582,7 @@ struct CollapsibleBlockView<Content: View>: View {
             
             if isExpanded { collapsibleContent }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, sectionPaddingHorizontal)
         .onAppear(perform: {isExpanded = expandedByDefault})
     }
 }

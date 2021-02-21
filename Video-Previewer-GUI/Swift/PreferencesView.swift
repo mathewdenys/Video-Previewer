@@ -9,150 +9,196 @@ import SwiftUI
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - SettingsView
+    MARK: - GUISettingsView
    ----------------------------------------------------------------------------------------------------*/
 
-struct SettingsView: View {
+struct ResetButton: View {
+    
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
+                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                .toolTip("Reset to defaults")
+        }.buttonStyle(BorderlessButtonStyle())
+    }
+}
+
+struct GUISettingsSection<Content: View>: View {
+    
+    let title: String
+    let resetAction: () -> Void
+    let content: Content
+    
+    init(title: String, resetAction: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+        self.title = title
+        self.resetAction = resetAction
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text(title).font(fontHeading)
+                Spacer()
+                ResetButton(action:resetAction)
+            }
+            content
+        }.padding(.horizontal, sectionPaddingHorizontal)
+    }
+}
+
+
+struct GUISettingsView: View {
     
     @EnvironmentObject private var globalVars: GlobalVars
     @EnvironmentObject private var settings:   UserSettings
     
+    func resetSettingsToDefaultsSidePanel() {
+        settings.videoInfoPath       = defaultSettingsVideoInfoPath
+        settings.videoInfoEncoding   = defaultSettingsVideoInfoEncoding
+        settings.videoInfoFramerate  = defaultSettingsVideoInfoFramerate
+        settings.videoInfoLength     = defaultSettingsVideoInfoLength
+        settings.videoInfoFrames     = defaultSettingsVideoInfoFrames
+        settings.videoInfoDimensions = defaultSettingsVideoInfoDimensions
+        settings.frameInfoTimestamp  = defaultSettingsFrameInfoTimestamp
+        settings.frameInfoNumber     = defaultSettingsFrameInfoNumber
+    }
+    
+    func resetSettingsToDefaultsSelectedFrames() {
+        settings.frameBorderColor     = defaultSettingsFrameBorderColor
+        settings.frameBorderThickness = defaultSettingsFrameBorderThickness
+    }
+    
+    func resetSettingsToDefaultSpacing() {
+        settings.previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text("Video information")
-                    .font(fontSubheading)
-                Spacer()
-                Button(action: {
-                    settings.videoInfoPath       = defaultSettingsVideoInfoPath
-                    settings.videoInfoEncoding   = defaultSettingsVideoInfoEncoding
-                    settings.videoInfoFramerate  = defaultSettingsVideoInfoFramerate
-                    settings.videoInfoLength     = defaultSettingsVideoInfoLength
-                    settings.videoInfoFrames     = defaultSettingsVideoInfoFrames
-                    settings.videoInfoDimensions = defaultSettingsVideoInfoDimensions
-                }) {
-                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
-                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                        .toolTip("Reset")
-                }.buttonStyle(BorderlessButtonStyle())
-            }
             
-            HStack {
-                Spacer()
-                    .frame(width: settingsDescriptionWidth)
+            GUISettingsSection(title: "Side Panel", resetAction: resetSettingsToDefaultsSidePanel) {
                 VStack {
-                    HStack {
-                        Toggle("File path", isOn: $settings.videoInfoPath)
+                    HStack(alignment: .top) {
+                        Text("Video information")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        VStack {
+                            HStack {
+                                Toggle("File path", isOn: $settings.videoInfoPath)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Toggle("Encoding", isOn: $settings.videoInfoEncoding)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            HStack {
+                                Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Toggle("Length", isOn: $settings.videoInfoLength)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            HStack {
+                                Toggle("Frames", isOn: $settings.videoInfoFrames)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
+                                    .font(fontRegular)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }.padding(.bottom, 5) // small gap so that "Video information" and "Frame information" settings are separated
+                    
+                    
+                    HStack(alignment: .top) {
+                        Text("Frame information")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
                             .font(fontRegular)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Toggle("Encoding", isOn: $settings.videoInfoEncoding)
-                            .font(fontRegular)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
-                            .font(fontRegular)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    HStack {
-                        Toggle("Length", isOn: $settings.videoInfoLength)
-                            .font(fontRegular)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Toggle("Frames", isOn: $settings.videoInfoFrames)
-                            .font(fontRegular)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
+                        Toggle("Frame number", isOn: $settings.frameInfoNumber)
                             .font(fontRegular)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }
             
-            HStack {
-                Text("Frame information")
-                    .font(fontSubheading)
-                Spacer()
-                Button(action: {
-                    settings.frameInfoTimestamp = defaultSettingsFrameInfoTimestamp
-                    settings.frameInfoNumber    = defaultSettingsFrameInfoNumber
-                }) {
-                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
-                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                        .toolTip("Reset")
-                }.buttonStyle(BorderlessButtonStyle())
+            Divider()
+            
+            /* ---------------------------------------------------------------------- */
+            
+            GUISettingsSection(title: "Selected frame", resetAction: resetSettingsToDefaultsSelectedFrames) {
+                VStack {
+                    HStack {
+                        Text("Color")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        
+                        Picker(selection: $settings.frameBorderColor, label: Text("")) {
+                            Text("Red")    .tag(NSColor.red)
+                            Text("Blue")   .tag(NSColor.blue)
+                            Text("Green")  .tag(NSColor.green)
+                            Text("Yellow") .tag(NSColor.yellow)
+                            Text("Orange") .tag(NSColor.orange)
+                            Text("Purple") .tag(NSColor.purple)
+                            Text("Gray")   .tag(NSColor.gray)
+                        }.labelsHidden()
+                    }
+                    
+                    HStack {
+                        Text("Thickness")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        
+                        Slider(value: $settings.frameBorderThickness, in: 2...10, step: 0.5)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
             }
             
-            HStack {
-                Spacer()
-                    .frame(width: settingsDescriptionWidth)
-                Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
-                    .font(fontRegular)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Toggle("Frame number", isOn: $settings.frameInfoNumber)
-                    .font(fontRegular)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            Divider()
+            
+            /* ---------------------------------------------------------------------- */
+            
+            GUISettingsSection(title: "Spacing between frames", resetAction: resetSettingsToDefaultSpacing) {
+                HStack {
+                    Text("Vertical")
+                        .font(fontRegular)
+                        .foregroundColor(colorFaded)
+                        .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                    
+                    Slider(value: $settings.previewSpaceBetweenRows, in: 0...50, step: 5)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             
-            HStack {
-                Text("Frame selection")
-                    .font(fontSubheading)
-                Spacer()
-                Button(action: {
-                    settings.frameBorderColor     = defaultSettingsFrameBorderColor
-                    settings.frameBorderThickness = defaultSettingsFrameBorderThickness
-                }) {
-                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
-                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                        .toolTip("Reset")
-                }.buttonStyle(BorderlessButtonStyle())
-            }
             
-            HStack {
-                Text("Color")
-                    .font(fontRegular)
-                    .frame(width: settingsDescriptionWidth, alignment: .trailing)
-                
-                Picker(selection: $settings.frameBorderColor, label: Text("")) {
-                    Text("Red")    .tag(NSColor.red)
-                    Text("Blue")   .tag(NSColor.blue)
-                    Text("Green")  .tag(NSColor.green)
-                    Text("Yellow") .tag(NSColor.yellow)
-                    Text("Orange") .tag(NSColor.orange)
-                    Text("Purple") .tag(NSColor.purple)
-                    Text("Gray")   .tag(NSColor.gray)
-                }.labelsHidden()
-            }
-            
-            HStack {
-                Text("Thickness")
-                    .font(fontRegular)
-                    .frame(width: settingsDescriptionWidth, alignment: .trailing)
-                
-                Slider(value: $settings.frameBorderThickness, in: 2...10, step: 0.5)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            
-            HStack {
-                Text("Vertical spacing between frames in preview")
-                    .font(fontSubheading)
-                Spacer()
-                Button(action: {
-                    settings.previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
-                }) {
-                    Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
-                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                        .toolTip("Reset")
-                }.buttonStyle(BorderlessButtonStyle())
-            }
-            
-            HStack {
-                Spacer()
-                    .frame(width: settingsDescriptionWidth)
-                
-                Slider(value: $settings.previewSpaceBetweenRows, in: 0...50, step: 5)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            /* ---------------------------------------------------------------------- */
             
             Spacer()
-        }.padding(.vertical, 10).padding(.horizontal, horiontalRowSpacing)
+            
+            HStack {
+                Spacer()
+                Button(action: {
+                    resetSettingsToDefaultsSidePanel()
+                    resetSettingsToDefaultsSelectedFrames()
+                    resetSettingsToDefaultSpacing()
+                }) {
+                    Text("Reset all to Defaults")
+                }
+                Spacer()
+            }
+            
+            
+        }.padding(.vertical, 10)
     }
 }
 
@@ -216,9 +262,8 @@ struct ConfigurationFilesView: View {
                         
                     }.padding(.leading)
                 }
-                
                 Spacer()
-            }.padding(.vertical, 10).padding(.horizontal, horiontalRowSpacing)
+            }.padding(.vertical, 10).padding(.horizontal, sectionPaddingHorizontal)
         }
     }
 }
@@ -235,9 +280,9 @@ struct PreferencesView: View {
     
     var body: some View {
         TabView {
-            SettingsView().tabItem{ Text("Settings") }
-            ConfigurationView().tabItem{ Text("Config options") }
+            GUISettingsView()       .tabItem{ Text("Interface") }
+            ConfigurationView()     .tabItem{ Text("Config options") }
             ConfigurationFilesView().tabItem{ Text("Config files") }
-        }.frame(width: 350, height: 400).padding(.all, 20)
+        }.frame(width: 400, height: 450).padding(.all, 15)
     }
 }
