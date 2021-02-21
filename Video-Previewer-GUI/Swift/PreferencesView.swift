@@ -16,7 +16,7 @@ struct GUISettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             
-            ResettableSection(title: "Side panel", resetAction: settings.resetToDefaultsSidePanel) {
+            Section(title: "Side panel", resetAction: settings.resetToDefaultsSidePanel) {
                 
                 VStack(spacing: 10) {
                     HStack(alignment: .top) {
@@ -98,7 +98,7 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            ResettableSection(title: "Selected frame", resetAction: settings.resetToDefaultsSelectedFrames) {
+            Section(title: "Selected frame", resetAction: settings.resetToDefaultsSelectedFrames) {
                 VStack {
                     HStack {
                         Text("Color")
@@ -131,7 +131,7 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            ResettableSection(title: "Spacing between frames", resetAction: settings.resetToDefaultsSpacing) {
+            Section(title: "Spacing between frames", resetAction: settings.resetToDefaultsSpacing) {
                 VStack {
                     HStack {
                         Text("Vertical")

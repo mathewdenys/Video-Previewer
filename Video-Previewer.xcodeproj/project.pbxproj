@@ -14,10 +14,10 @@
 		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
 		AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */; };
-		AF8F817B25E205EF00C20706 /* SectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8F817A25E205EF00C20706 /* SectionViews.swift */; };
 		AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFADD2C3255CAAB400D06F8F /* main.cpp */; };
 		AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C225E2F4A700B4A9D6 /* Fonts.swift */; };
 		AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C825E2F4B100B4A9D6 /* Colors.swift */; };
+		AFB402CF25E3071D00B4A9D6 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402CE25E3071D00B4A9D6 /* Section.swift */; };
 		AFE3A23D25BF493400B50756 /* NSString.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A23B25BF493400B50756 /* NSString.mm */; };
 		AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A24125BF531800B50756 /* NSConfig.mm */; };
 		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
@@ -50,11 +50,11 @@
 		AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSPreview.hpp; sourceTree = "<group>"; };
 		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
 		AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPane.swift; sourceTree = "<group>"; };
-		AF8F817A25E205EF00C20706 /* SectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionViews.swift; sourceTree = "<group>"; };
 		AFADD2C0255CAAB400D06F8F /* Video-Previewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Video-Previewer"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFADD2C3255CAAB400D06F8F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFB402C225E2F4A700B4A9D6 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		AFB402C825E2F4B100B4A9D6 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		AFB402CE25E3071D00B4A9D6 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		AFE3A23B25BF493400B50756 /* NSString.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSString.mm; sourceTree = "<group>"; };
 		AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSStringCpp.hpp; sourceTree = "<group>"; };
 		AFE3A24025BF531800B50756 /* NSConfig.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSConfig.hpp; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 				AFB402C125E2F49100B4A9D6 /* Constants */,
 				AF48AFF025DF30B5000B468C /* UserSettings.swift */,
 				AFE665B425CA598B00A41E35 /* PreviewData.swift */,
-				AF8F817A25E205EF00C20706 /* SectionViews.swift */,
+				AFB402CE25E3071D00B4A9D6 /* Section.swift */,
 				AFFB215125AE392A008B2295 /* AppDelegate.swift */,
 				AFFB215325AE392A008B2295 /* ContentView.swift */,
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
@@ -294,6 +294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFB402CF25E3071D00B4A9D6 /* Section.swift in Sources */,
 				AFFB215425AE392A008B2295 /* ContentView.swift in Sources */,
 				AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */,
 				AFE665B125CA594F00A41E35 /* Constants.swift in Sources */,
@@ -301,7 +302,6 @@
 				AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */,
 				AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */,
 				AFE665B525CA598B00A41E35 /* PreviewData.swift in Sources */,
-				AF8F817B25E205EF00C20706 /* SectionViews.swift in Sources */,
 				AFE3A23D25BF493400B50756 /* NSString.mm in Sources */,
 				AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */,
 				AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */,

@@ -538,23 +538,12 @@ struct BasicConfigSection: View {
     let isCollapsible:  Bool
     
     var body: some View {
-        
-        if (isCollapsible) {
-            CollapsibleSection(title: title) {
-                ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
-            }
-        } else {
-            Section(title: title) {
-                ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
-                ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
-            }
+        Section(title: title, isCollapsible: isCollapsible) {
+            ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
         }
     }
 }
@@ -578,7 +567,7 @@ struct SidePanelView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         if (settings.sidePanelVisibleVideo) {
-                            CollapsibleSection(title: "Video information") {
+                            Section(title: "Video information", isCollapsible: true) {
                                 if (settings.videoInfoPath) {
                                     HStack{
                                         InfoRowView(id: "File path",   value: preview.backend!.getVideoNameString())
@@ -600,7 +589,7 @@ struct SidePanelView: View {
                         }
                         
                         if (settings.sidePanelVisibleFrame) {
-                            CollapsibleSection(title: "Frame information") {
+                            Section(title: "Frame information", isCollapsible: true) {
                                 if (preview.selectedFrame == nil) {
                                     Text("No frame selected")
                                         .regularFont()
