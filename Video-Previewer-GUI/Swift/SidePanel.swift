@@ -532,84 +532,40 @@ struct ConfigRowView: View {
 }
 
 
-/*----------------------------------------------------------------------------------------------------
-    MARK: - CollapsibleBlockView
-   ----------------------------------------------------------------------------------------------------*/
-
-struct CollapsibleBlockView<Content: View>: View {
-    
-    @EnvironmentObject
-    private var globalVars: GlobalVars
-    
-    @State
-    private var isExpanded = true
-    
-    private var expandedByDefault = true
-    
-    private let title:              String
-    private let collapsibleContent: Content
-
-    // Initialise with a title and content
-    init(title: String, @ViewBuilder content: @escaping () -> Content) {
-        self.title = title
-        self.collapsibleContent = content()
-    }
-    
-    // Initialise with a title, content, and an expandedByDefault bool. expandedByDefault determines the
-    // value of isExapnded when the view appears. Unfortunately, because collpsibleContent is shown
-    // conditionally on the valyeof isExpanded, the value of isExapnded cannot be set directly in the
-    // initialiser, but mustbe set in an .onAppear() instead.
-    init(title: String, expandedByDefault: Bool, @ViewBuilder content: @escaping () -> Content) {
-        self.title = title
-        self.expandedByDefault = expandedByDefault
-        self.collapsibleContent = content()
-    }
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text(title)
-                    .font(fontHeading)
-                    .foregroundColor(colorBold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Triangle()
-                    .rotation(Angle(degrees: isExpanded ? 180 : 90))
-                    .fill(colorBold)
-                    .frame(width: 9, height: 6)
-            }
-            .background(colorInvisible) // Hackey way of making the whole HStack clickable
-            .onTapGesture { isExpanded = !isExpanded; }
-            
-            if isExpanded { collapsibleContent }
-        }
-        .padding(.horizontal, sectionPaddingHorizontal)
-        .onAppear(perform: {isExpanded = expandedByDefault})
-    }
-}
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - BasicConfigBlockView
+    MARK: - BasicConfigSection
         This view displays just the "basic" configuration options. It is displayed in the side panel
         and in the configuration options window.
    ----------------------------------------------------------------------------------------------------*/
 
-struct BasicConfigBlockView: View {
+struct BasicConfigSection: View {
     
     @EnvironmentObject
     private var globalVars: GlobalVars
     
-    let title:              String
-    let expandedByDefault:  Bool
+    let title:          String
+    let isCollapsible:  Bool
     
     var body: some View {
-    
-        CollapsibleBlockView(title: self.title, expandedByDefault: self.expandedByDefault) {
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
-            ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+        
+        if (isCollapsible) {
+            CollapsibleSection(title: title) {
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+            }
+        } else {
+            Section(title: title) {
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("frames_to_show")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("frame_size")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("action_on_hover")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_timestamp")!)
+                ConfigRowView(option: globalVars.vp!.getOptionInformation("overlay_number")!)
+            }
         }
     }
 }
@@ -632,7 +588,7 @@ struct SidePanelView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        CollapsibleBlockView(title: "Video Information") {
+                        CollapsibleSection(title: "Video Information") {
                             if (settings.videoInfoPath) {
                                 HStack{
                                     InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
@@ -650,7 +606,7 @@ struct SidePanelView: View {
                         
                         Divider()
                         
-                        CollapsibleBlockView(title: "Frame Information") {
+                        CollapsibleSection(title: "Frame Information") {
                             if (globalVars.selectedFrame == nil) {
                                 Text("No frame selected")
                                     .font(fontRegular)
@@ -665,7 +621,7 @@ struct SidePanelView: View {
                         
                         Divider()
                         
-                        BasicConfigBlockView(title: "Configuration Options", expandedByDefault: true)
+                        BasicConfigSection(title: "Configuration Options", isCollapsible: true)
                         
                     }
                     .padding(.vertical, 10.0)

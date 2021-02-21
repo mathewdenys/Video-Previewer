@@ -8,48 +8,6 @@
 import SwiftUI
 
 
-/*----------------------------------------------------------------------------------------------------
-    MARK: - GUISettingsView
-   ----------------------------------------------------------------------------------------------------*/
-
-struct ResetButton: View {
-    
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(nsImage: NSImage(imageLiteralResourceName: NSImage.refreshTemplateName))
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                .toolTip("Reset to defaults")
-        }.buttonStyle(BorderlessButtonStyle())
-    }
-}
-
-struct GUISettingsSection<Content: View>: View {
-    
-    let title: String
-    let resetAction: () -> Void
-    let content: Content
-    
-    init(title: String, resetAction: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
-        self.title = title
-        self.resetAction = resetAction
-        self.content = content()
-    }
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text(title).font(fontHeading)
-                Spacer()
-                ResetButton(action:resetAction)
-            }
-            content
-        }.padding(.horizontal, sectionPaddingHorizontal)
-    }
-}
-
-
 struct GUISettingsView: View {
     
     @EnvironmentObject private var globalVars: GlobalVars
@@ -79,7 +37,7 @@ struct GUISettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             
-            GUISettingsSection(title: "Side Panel", resetAction: resetSettingsToDefaultsSidePanel) {
+            ResettableSection(title: "Side Panel", resetAction: resetSettingsToDefaultsSidePanel) {
                 VStack {
                     HStack(alignment: .top) {
                         Text("Video information")
@@ -134,7 +92,7 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            GUISettingsSection(title: "Selected frame", resetAction: resetSettingsToDefaultsSelectedFrames) {
+            ResettableSection(title: "Selected frame", resetAction: resetSettingsToDefaultsSelectedFrames) {
                 VStack {
                     HStack {
                         Text("Color")
@@ -169,7 +127,7 @@ struct GUISettingsView: View {
             
             /* ---------------------------------------------------------------------- */
             
-            GUISettingsSection(title: "Spacing between frames", resetAction: resetSettingsToDefaultSpacing) {
+            ResettableSection(title: "Spacing between frames", resetAction: resetSettingsToDefaultSpacing) {
                 VStack {
                     HStack {
                         Text("Vertical")
@@ -229,11 +187,11 @@ struct ConfigurationView: View {
             Text("No video is being previewed")
         } else {
             VStack {
-                BasicConfigBlockView(title: "Basic Options", expandedByDefault: false)
+                BasicConfigSection(title: "Basic Options", isCollapsible: false)
                 
                 Divider()
                 
-                CollapsibleBlockView(title: "Advanced Options") {
+                Section(title: "Advanced Options") {
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_percentage")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("minimum_sampling")!)
                     ConfigRowView(option: globalVars.vp!.getOptionInformation("maximum_frames")!)
