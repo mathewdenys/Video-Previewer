@@ -156,8 +156,8 @@ struct ConfigEditorBoolean: View {
         let bindBool = Binding<Bool> (
             get: { preview.backend!.getOptionValue(option.getID())!.getBool()?.boolValue ?? false },
             set: { preview.backend!.setOptionValue(option.getID(), with: $0)
-                           preview.updateCounter += 1
-                         }
+                   preview.refresh()
+                 }
                 )
         
         HStack(spacing: horiontalRowSpacing) {
@@ -186,8 +186,8 @@ struct ConfigEditorPositiveInteger: View {
             get: { preview.backend!.getOptionValue(option.getID())!.getInt()?.intValue ?? 0 },
             set: { var newValue = $0
                    if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
-                preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
-                   preview.updateCounter += 1
+                   preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
+                   preview.refresh()
                  }
         )
         
@@ -223,7 +223,7 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
             set: { var newValue = Int32($0)
                    if (newValue < 1) { newValue = 1 } // An ePositiveInteger can't have a value less than 1
                    preview.backend!.setOptionValue(option.getID(), with: newValue)
-                   preview.updateCounter += 1
+                   preview.refresh()
             }
         )
         
@@ -240,7 +240,7 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
                     preview.backend!.setOptionValue(option.getID(), with: Int32(intValue)) // Recover the Int value
                     
                 }
-                preview.updateCounter += 1
+                preview.refresh()
             }
         )
         
@@ -286,14 +286,14 @@ struct ConfigEditorPositiveIntegerOrString: View {
             set: { var newValue = $0
                    if ($0 < 1) { newValue = 1 }   // An ePositiveInteger can't have a value less than 1
                    preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
-                   preview.updateCounter += 1
+                   preview.refresh()
                  }
         )
         
         let bindString = Binding<String>(
             get: { preview.backend!.getOptionValue(option.getID())!.getString() ?? "" },
             set: { preview.backend!.setOptionValue(option.getID(), with: $0)
-                   preview.updateCounter += 1
+                   preview.refresh()
                  }
         )
         
@@ -334,8 +334,8 @@ struct ConfigEditorPercentage: View {
             set: { var newValue = $0
                    if ($0 < 1)   { newValue = 1 }   // An ePercentage can't have a value less than 1
                    if ($0 > 100) { newValue = 100 } // An ePercentage can't have a value greater than 100
-                preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
-                   preview.updateCounter += 1
+                   preview.backend!.setOptionValue(option.getID(), with: Int32(newValue))
+                   preview.refresh()
                  }
         )
         
@@ -368,7 +368,7 @@ struct ConfigEditorDecimal: View {
         let bindDouble = Binding<Double>(
             get: { preview.backend!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? 0.0 },
             set: { preview.backend!.setOptionValue(option.getID(), with: Double($0))
-                   preview.updateCounter += 1
+                   preview.refresh()
                  }
         )
         
@@ -400,7 +400,7 @@ struct ConfigEditorDecimalOrAuto: View {
         let bindDouble = Binding<Double>(
             get: { preview.backend!.getOptionValue(option.getID())!.getDouble()?.doubleValue ?? doubleValue },
             set: { preview.backend!.setOptionValue(option.getID(), with: Double($0))
-                   preview.updateCounter += 1
+                   preview.refresh()
                  }
         )
         
@@ -416,7 +416,7 @@ struct ConfigEditorDecimalOrAuto: View {
                     preview.backend!.setOptionValue(option.getID(), with: doubleValue) // Recover the Double value
                 }
                 
-                preview.updateCounter += 1
+                preview.refresh()
             }
         )
         
@@ -458,7 +458,7 @@ struct ConfigEditorString: View {
         let bindString = Binding<String>(
             get: { preview.backend!.getOptionValue(option.getID())!.getString() ?? "" },
             set: { preview.backend!.setOptionValue(option.getID(), with: $0)
-                   preview.updateCounter += 1
+                   preview.refresh()
                  }
         )
         
