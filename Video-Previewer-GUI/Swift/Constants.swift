@@ -10,6 +10,7 @@ import SwiftUI
 let defaultSettingsFrameBorderColor        = NSColor.gray
 let defaultSettingsFrameBorderThickness    = 5.0
 let defaultSettingsPreviewSpaceBetweenRows = 10.0
+let defaultSettingsPreviewSpaceBetweenCols = 0.0
 let defaultSettingsVideoInfoPath           = true
 let defaultSettingsVideoInfoEncoding       = false
 let defaultSettingsVideoInfoFramerate      = true

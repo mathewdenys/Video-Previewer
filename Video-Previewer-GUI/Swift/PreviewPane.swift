@@ -17,9 +17,7 @@ struct FramePreviewView: View {
     @EnvironmentObject private var globalVars: GlobalVars
     @EnvironmentObject private var settings:   UserSettings
     
-    private let frame: NSFramePreview
-    
-    init(frame: NSFramePreview) { self.frame = frame }
+    let frame: NSFramePreview
     
     var body: some View {
         
@@ -99,8 +97,10 @@ struct PreviewPaneView: View {
                                     let index = i*cols + j
                                     if (index < globalVars.frames!.count) {
                                         FramePreviewView(frame: globalVars.frames![index]!)
+                                            .padding(.trailing, (j == (cols-1) ? 0 : CGFloat(settings.previewSpaceBetweenCols))) // Spacing between each column (don't put after the last column)
                                     } else {
                                         Spacer().frame(width: CGFloat(frameWidth))
+                                            .padding(.trailing, (j == (cols-1) ? 0 : CGFloat(settings.previewSpaceBetweenCols))) // Spacing between each column (don't put after the last column)
                                     }
                                 }
                             }

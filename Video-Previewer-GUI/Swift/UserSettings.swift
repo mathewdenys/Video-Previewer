@@ -36,6 +36,7 @@ class UserSettings: ObservableObject {
     @Published var frameBorderColor:        NSColor { didSet { UserDefaults.standard.set(color: frameBorderColor, forKey: "frameBorderColor") } }         // The color of the border around a selected frame
         
     @Published var previewSpaceBetweenRows: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenRows,  forKey: "previewSpaceBetweenRows") } } // The vertical spacing between rows in the preview
+    @Published var previewSpaceBetweenCols: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenCols,  forKey: "previewSpaceBetweenCols") } } // The horizontal spacing between columns in the preview
     
     @Published var videoInfoPath:           Bool    { didSet { UserDefaults.standard.set(videoInfoPath,            forKey: "videoInfoPath") } }           // Whether "Path" is displayed under "Video Information" in the side panel
     @Published var videoInfoEncoding:       Bool    { didSet { UserDefaults.standard.set(videoInfoEncoding,        forKey: "videoInfoEncoding") } }       // Whether "Encoding" is displayed under "Video Information" in the side panel
@@ -52,6 +53,7 @@ class UserSettings: ObservableObject {
         self.frameBorderColor        = UserDefaults.standard.color(forKey: "frameBorderColor")                    ?? defaultSettingsFrameBorderColor
         self.frameBorderThickness    = UserDefaults.standard.object(forKey: "frameBorderThickness")    as? Double ?? defaultSettingsFrameBorderThickness
         self.previewSpaceBetweenRows = UserDefaults.standard.object(forKey: "previewSpaceBetweenRows") as? Double ?? defaultSettingsPreviewSpaceBetweenRows
+        self.previewSpaceBetweenCols = UserDefaults.standard.object(forKey: "previewSpaceBetweenCols") as? Double ?? defaultSettingsPreviewSpaceBetweenCols
         self.videoInfoPath           = UserDefaults.standard.object(forKey: "videoInfoPath")           as? Bool   ?? defaultSettingsVideoInfoPath
         self.videoInfoEncoding       = UserDefaults.standard.object(forKey: "videoInfoEncoding")       as? Bool   ?? defaultSettingsVideoInfoEncoding
         self.videoInfoFramerate      = UserDefaults.standard.object(forKey: "videoInfoFramerate")      as? Bool   ?? defaultSettingsVideoInfoFramerate

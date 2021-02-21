@@ -73,6 +73,7 @@ struct GUISettingsView: View {
     
     func resetSettingsToDefaultSpacing() {
         settings.previewSpaceBetweenRows = defaultSettingsPreviewSpaceBetweenRows
+        settings.previewSpaceBetweenCols = defaultSettingsPreviewSpaceBetweenCols
     }
     
     var body: some View {
@@ -169,14 +170,26 @@ struct GUISettingsView: View {
             /* ---------------------------------------------------------------------- */
             
             GUISettingsSection(title: "Spacing between frames", resetAction: resetSettingsToDefaultSpacing) {
-                HStack {
-                    Text("Vertical")
-                        .font(fontRegular)
-                        .foregroundColor(colorFaded)
-                        .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                VStack {
+                    HStack {
+                        Text("Vertical")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        
+                        Slider(value: $settings.previewSpaceBetweenRows, in: 0...50, step: 5)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     
-                    Slider(value: $settings.previewSpaceBetweenRows, in: 0...50, step: 5)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Text("Horizontal")
+                            .font(fontRegular)
+                            .foregroundColor(colorFaded)
+                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        
+                        Slider(value: $settings.previewSpaceBetweenCols, in: 0...50, step: 5)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
             }
             

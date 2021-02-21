@@ -33,10 +33,12 @@ struct ContentView: View {
             let frameSize:        Double = globalVars.vp!.getOptionValue("frame_size")!.getDouble()!.doubleValue
             let frameAspectRatio: Double = globalVars.vp!.getVideoAspectRatio().doubleValue
             let frameWidth:       Double = maxFrameWidth*frameSize + minFrameWidth*(1.0-frameSize)
-            let frameHeight:      Double = Double(frameWidth/frameAspectRatio + settings.previewSpaceBetweenRows)
+            let frameHeight:      Double = Double(frameWidth/frameAspectRatio)
+            let frameWidthWithSpacing    = Double(frameWidth + settings.previewSpaceBetweenCols)
+            let frameHeightWithSpacing   = Double(frameHeight + settings.previewSpaceBetweenRows)
             
-            let maxCols:          Int    = Int(widthOfPreview  / Double(frameWidth))
-            let maxRows:          Int    = Int((heightOfPreview + settings.previewSpaceBetweenRows) / Double(frameHeight)) // Don't have padding on the bottom row
+            let maxCols:          Int    = Int((widthOfPreview  + settings.previewSpaceBetweenCols) / Double(frameWidthWithSpacing))  // Don't have padding on the last column
+            let maxRows:          Int    = Int((heightOfPreview + settings.previewSpaceBetweenRows) / Double(frameHeightWithSpacing)) // Don't have padding on the bottom row
             var maxFrames:        Int    = maxCols * maxRows
             
             
