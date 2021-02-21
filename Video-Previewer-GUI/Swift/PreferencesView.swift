@@ -14,14 +14,17 @@ struct GUISettingsView: View {
     @EnvironmentObject private var settings:   UserSettings
     
     func resetSettingsToDefaultsSidePanel() {
-        settings.videoInfoPath       = defaultSettingsVideoInfoPath
-        settings.videoInfoEncoding   = defaultSettingsVideoInfoEncoding
-        settings.videoInfoFramerate  = defaultSettingsVideoInfoFramerate
-        settings.videoInfoLength     = defaultSettingsVideoInfoLength
-        settings.videoInfoFrames     = defaultSettingsVideoInfoFrames
-        settings.videoInfoDimensions = defaultSettingsVideoInfoDimensions
-        settings.frameInfoTimestamp  = defaultSettingsFrameInfoTimestamp
-        settings.frameInfoNumber     = defaultSettingsFrameInfoNumber
+        settings.videoInfoPath          = defaultSettingsVideoInfoPath
+        settings.videoInfoEncoding      = defaultSettingsVideoInfoEncoding
+        settings.videoInfoFramerate     = defaultSettingsVideoInfoFramerate
+        settings.videoInfoLength        = defaultSettingsVideoInfoLength
+        settings.videoInfoFrames        = defaultSettingsVideoInfoFrames
+        settings.videoInfoDimensions    = defaultSettingsVideoInfoDimensions
+        settings.frameInfoTimestamp     = defaultSettingsFrameInfoTimestamp
+        settings.frameInfoNumber        = defaultSettingsFrameInfoNumber
+        settings.sidePanelVisibleVideo  = defaultSettingsSidePanelVisibleVideo
+        settings.sidePanelVisibleFrame  = defaultSettingsSidePanelVisibleFrame
+        settings.sidePanelVisibleConfig = defaultSettingsSidePanelVisibleConfig
     }
     
     func resetSettingsToDefaultsSelectedFrames() {
@@ -38,12 +41,20 @@ struct GUISettingsView: View {
         VStack(alignment: .leading) {
             
             ResettableSection(title: "Side panel", resetAction: resetSettingsToDefaultsSidePanel) {
-                VStack {
+                
+                VStack(spacing: 10) {
                     HStack(alignment: .top) {
                         Text("Video information")
                             .font(fontRegular)
                             .foregroundColor(colorFaded)
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                        Toggle("Visible", isOn: $settings.sidePanelVisibleVideo)
+                            .font(fontRegular)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    HStack {
+                        Spacer()
+                            .frame(width: settingsDescriptionWidth)
                         VStack {
                             HStack {
                                 Toggle("File path", isOn: $settings.videoInfoPath)
@@ -70,21 +81,113 @@ struct GUISettingsView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
-                    }.padding(.bottom, 5) // small gap so that "Video information" and "Frame information" settings are separated
+                        .padding(.leading, 20)
+                        .disabled(!settings.sidePanelVisibleVideo)
+                    }
                     
+                    VStack {
+                        HStack(alignment: .top) {
+                            Text("Frame information")
+                                .font(fontRegular)
+                                .foregroundColor(colorFaded)
+                                .frame(width: settingsDescriptionWidth, alignment: .trailing)
+                            Toggle("Visible", isOn: $settings.sidePanelVisibleFrame)
+                                .font(fontRegular)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        HStack {
+                            Spacer()
+                                .frame(width: settingsDescriptionWidth)
+                            Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
+                                .font(fontRegular)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Toggle("Frame number", isOn: $settings.frameInfoNumber)
+                                .font(fontRegular)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.leading, 20)
+                        .disabled(!settings.sidePanelVisibleFrame)
+                    }
                     
                     HStack(alignment: .top) {
-                        Text("Frame information")
+                        Text("Configuration options")
                             .font(fontRegular)
                             .foregroundColor(colorFaded)
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
-                        Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
-                            .font(fontRegular)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Toggle("Frame number", isOn: $settings.frameInfoNumber)
+                        Toggle("Visible", isOn: $settings.sidePanelVisibleConfig)
                             .font(fontRegular)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
+//
+//
+//
+//                VStack {
+//                    HStack(alignment: .top) {
+//                        Text("Sections")
+//                            .font(fontRegular)
+//                            .foregroundColor(colorFaded)
+//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+//                        VStack {
+//                            HStack {
+//                                Toggle("Video information", isOn: $settings.sidePanelVisibleVideo)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                Toggle("Frame information", isOn: $settings.sidePanelVisibleFrame)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                            Toggle("Configuration options", isOn: $settings.sidePanelVisibleConfig)
+//                                .font(fontRegular)
+//                                .frame(maxWidth: .infinity, alignment: .leading)
+//                        }
+//                    }
+//
+//                    HStack(alignment: .top) {
+//                        Text("Video information")
+//                            .font(fontRegular)
+//                            .foregroundColor(colorFaded)
+//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+//                        VStack {
+//                            HStack {
+//                                Toggle("File path", isOn: $settings.videoInfoPath)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                Toggle("Encoding", isOn: $settings.videoInfoEncoding)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                            HStack {
+//                                Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                Toggle("Length", isOn: $settings.videoInfoLength)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                            HStack {
+//                                Toggle("Frames", isOn: $settings.videoInfoFrames)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
+//                                    .font(fontRegular)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                        }
+//                    }
+//
+//
+//                    HStack(alignment: .top) {
+//                        Text("Frame information")
+//                            .font(fontRegular)
+//                            .foregroundColor(colorFaded)
+//                            .frame(width: settingsDescriptionWidth, alignment: .trailing)
+//                        Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
+//                            .font(fontRegular)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                        Toggle("Frame number", isOn: $settings.frameInfoNumber)
+//                            .font(fontRegular)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                    }
                 }
             }
             
@@ -254,6 +357,6 @@ struct PreferencesView: View {
             GUISettingsView()       .tabItem{ Text("Interface") }
             ConfigurationView()     .tabItem{ Text("Config options") }
             ConfigurationFilesView().tabItem{ Text("Config files") }
-        }.frame(width: 400, height: 450).padding(.all, 15)
+        }.frame(width: 400, height: 475).padding(.all, 15)
     }
 }

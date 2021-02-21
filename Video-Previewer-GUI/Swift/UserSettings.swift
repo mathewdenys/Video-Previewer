@@ -48,6 +48,10 @@ class UserSettings: ObservableObject {
     @Published var frameInfoTimestamp:      Bool    { didSet { UserDefaults.standard.set(frameInfoTimestamp,       forKey: "frameInfoTimestamp") } }      // Whether "Timestamp" is displayed under "Frame Information" in the side panel
     @Published var frameInfoNumber:         Bool    { didSet { UserDefaults.standard.set(frameInfoNumber,          forKey: "frameInfoNumber") } }         // Whether "Frame number" is displayed under "Frame Information" in the side panel
     
+    @Published var sidePanelVisibleVideo:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleVideo,    forKey: "sidePanelVisibleVideo") } }   // Whether the the "Video information" section is shown in the side panel
+    @Published var sidePanelVisibleFrame:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFrame,    forKey: "sidePanelVisibleFrame") } }   // Whether the the "Frame information" section is shown in the side panel
+    @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,   forKey: "sidePanelVisiblConfige") } }  // Whether the the "Configuration options" section is shown in the side panel
+    
     init() {
         // On initialization, load values that the user has set. If no value has been set, use the default value for each setting
         self.frameBorderColor        = UserDefaults.standard.color(forKey: "frameBorderColor")                    ?? defaultSettingsFrameBorderColor
@@ -62,5 +66,8 @@ class UserSettings: ObservableObject {
         self.videoInfoDimensions     = UserDefaults.standard.object(forKey: "videoInfoDimensions")     as? Bool   ?? defaultSettingsVideoInfoDimensions
         self.frameInfoTimestamp      = UserDefaults.standard.object(forKey: "frameInfoTimestamp")      as? Bool   ?? defaultSettingsFrameInfoTimestamp
         self.frameInfoNumber         = UserDefaults.standard.object(forKey: "frameInfoNumber")         as? Bool   ?? defaultSettingsFrameInfoNumber
+        self.sidePanelVisibleVideo   = UserDefaults.standard.object(forKey: "sidePanelVisibleVideo")   as? Bool   ?? defaultSettingsSidePanelVisibleVideo
+        self.sidePanelVisibleFrame   = UserDefaults.standard.object(forKey: "sidePanelVisibleFrame")   as? Bool   ?? defaultSettingsSidePanelVisibleFrame
+        self.sidePanelVisibleConfig  = UserDefaults.standard.object(forKey: "sidePanelVisibleConfig")  as? Bool   ?? defaultSettingsSidePanelVisibleConfig
     }
 }

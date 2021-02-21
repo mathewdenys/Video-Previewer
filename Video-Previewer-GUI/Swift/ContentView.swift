@@ -26,7 +26,7 @@ struct ContentView: View {
             // Determine the width and height of the actual preview
             //  Width:  ignore the side panel and its scrollbar + the preview pane's scrollbar + padding around the preview
             //  Height: ignore the padding around the preview
-            let widthOfPreview:   Double = widthOfWindow - sidePanelWidth - (autoFrameNumber ? 0.0 :scrollBarWidth) - 2.0*previewPadding
+            let widthOfPreview:   Double = widthOfWindow - ((settings.sidePanelVisibleVideo || settings.sidePanelVisibleFrame || settings.sidePanelVisibleConfig) ? sidePanelWidth : 0.0) - (autoFrameNumber ? 0.0 : scrollBarWidth) - 2.0*previewPadding
             let heightOfPreview:  Double = heightOfWindow - 2.0*previewPadding
             
             // Determine the maximum number of frames that can fit in the preview
@@ -67,8 +67,10 @@ struct ContentView: View {
             
             HStack(spacing:0) {
                 PreviewPaneView(cols: cols, rows: rows, showScrollbar: !autoFrameNumber)
-                SidePanelView()
-                    .frame(width: CGFloat(sidePanelWidth))
+                if (settings.sidePanelVisibleVideo || settings.sidePanelVisibleFrame || settings.sidePanelVisibleConfig) {
+                    SidePanelView()
+                        .frame(width: CGFloat(sidePanelWidth))
+                }
             }
         }
     }

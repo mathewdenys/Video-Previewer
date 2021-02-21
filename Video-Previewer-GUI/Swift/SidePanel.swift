@@ -588,41 +588,48 @@ struct SidePanelView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        CollapsibleSection(title: "Video information") {
-                            if (settings.videoInfoPath) {
-                                HStack{
-                                    InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
-                                    Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
-                                        Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
-                                    }.buttonStyle(BorderlessButtonStyle())
+                        if (settings.sidePanelVisibleVideo) {
+                            CollapsibleSection(title: "Video information") {
+                                if (settings.videoInfoPath) {
+                                    HStack{
+                                        InfoRowView(id: "File path",   value: globalVars.vp!.getVideoNameString())
+                                        Button(action: { NSWorkspace.shared.openFile(globalVars.vp!.getVideoNameString()) }) {
+                                            Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
+                                        }.buttonStyle(BorderlessButtonStyle())
+                                    }
                                 }
+                                if (settings.videoInfoEncoding)   {InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString()) }
+                                if (settings.videoInfoFramerate)  {InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString()) }
+                                if (settings.videoInfoLength)     {InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString()) }
+                                if (settings.videoInfoFrames)     {InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString()) }
+                                if (settings.videoInfoDimensions) {InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString()) }
                             }
-                            if (settings.videoInfoEncoding)   {InfoRowView(id: "Encoding",   value: globalVars.vp!.getVideoCodecString()) }
-                            if (settings.videoInfoFramerate)  {InfoRowView(id: "Frame rate", value: globalVars.vp!.getVideoFPSString()) }
-                            if (settings.videoInfoLength)     {InfoRowView(id: "Length",     value: globalVars.vp!.getVideoLengthString()) }
-                            if (settings.videoInfoFrames)     {InfoRowView(id: "Frames",     value: globalVars.vp!.getVideoNumOfFramesString()) }
-                            if (settings.videoInfoDimensions) {InfoRowView(id: "Dimensions", value: globalVars.vp!.getVideoDimensionsString()) }
                         }
                         
-                        Divider()
+                        if (settings.sidePanelVisibleVideo && settings.sidePanelVisibleFrame) {
+                            Divider()
+                        }
                         
-                        CollapsibleSection(title: "Frame information") {
-                            if (globalVars.selectedFrame == nil) {
-                                Text("No frame selected")
-                                    .font(fontRegular)
-                                    .foregroundColor(colorFaded)
-                            } else {
-                                if (settings.frameInfoTimestamp) {InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ) }
-                                if (settings.frameInfoNumber) {InfoRowView(id: "Frame number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ) }
+                        if (settings.sidePanelVisibleFrame) {
+                            CollapsibleSection(title: "Frame information") {
+                                if (globalVars.selectedFrame == nil) {
+                                    Text("No frame selected")
+                                        .font(fontRegular)
+                                        .foregroundColor(colorFaded)
+                                } else {
+                                    if (settings.frameInfoTimestamp) {InfoRowView(id: "Time stamp",   value: globalVars.selectedFrame == nil ? "-" : globalVars.selectedFrame!.getTimeStampString()     ) }
+                                    if (settings.frameInfoNumber) {InfoRowView(id: "Frame number", value: globalVars.selectedFrame == nil ? "-" : String(globalVars.selectedFrame!.getFrameNumber()) ) }
+                                }
                             }
                         }
                         
                         Spacer()
                         
-                        Divider()
-                        
-                        BasicConfigSection(title: "Configuration options", isCollapsible: true)
-                        
+                        if (settings.sidePanelVisibleConfig) {
+                            Divider()
+                            
+                            BasicConfigSection(title: "Configuration options", isCollapsible: true)
+                        }
                     }
                     .padding(.vertical, 10.0)
                     .frame(minHeight: geometry.size.height) // Inside the GeometryReader, this keeps the ConfigInfoBlock at the bottom (by default the Spacer() does nothing in a ScrollView)
