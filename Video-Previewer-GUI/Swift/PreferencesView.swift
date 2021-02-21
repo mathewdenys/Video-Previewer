@@ -230,7 +230,7 @@ struct ConfigurationFilesView: View {
                     }.padding(.leading)
                 }
                 Spacer()
-            }.padding(.vertical, 10).padding(.horizontal, sectionPaddingHorizontal)
+            }.padding(.vertical, 10).padding(.horizontal, sectionHorizontalPadding)
         }
     }
 }

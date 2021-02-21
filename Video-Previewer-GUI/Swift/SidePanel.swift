@@ -102,7 +102,7 @@ struct InfoRowView: View {
                         pasteBoard.writeObjects([value as NSString])
                     })
                 }
-        }.padding(.vertical, infoRowVPadding)
+        }.padding(.bottom, infoRowBottomPadding)
         
     }
 }
@@ -492,27 +492,35 @@ struct ConfigRowView: View {
         
             case NSValidOptionValue.eBoolean:
                 ConfigEditorBoolean(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.ePositiveInteger:
                 ConfigEditorPositiveInteger(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.ePositiveIntegerOrAuto:
                 ConfigEditorPositiveIntegerOrAuto(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.ePositiveIntegerOrString:
                 ConfigEditorPositiveIntegerOrString(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.ePercentage:
                 ConfigEditorPercentage(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.eDecimal:
                 ConfigEditorDecimal(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.eDecimalOrAuto:
                 ConfigEditorDecimalOrAuto(option: option)
+                    .padding(.bottom, configRowBottomPadding)
                 
             case NSValidOptionValue.eString:
                 ConfigEditorString(option: option)
+                    .padding(.bottom, configRowBottomPadding)
 
             default:
                 Spacer()

@@ -84,6 +84,6 @@ struct Section<Content: View>: View {
             } else {
                 content
             }
-        }.padding(.horizontal, sectionPaddingHorizontal)
+        }.padding(.horizontal, sectionHorizontalPadding)
     }
 }
