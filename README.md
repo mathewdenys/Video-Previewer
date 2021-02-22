@@ -3,21 +3,25 @@ A GUI for previewing video files on macOS. The intended use case is when looking
 
 ## Requirements
 
-- Video processing is achieved with [OpenCV](https://opencv.org/) dynamic libraries, and [ffmpeg](https://ffmpeg.org/). Both can be installed using `brew`
+Processing of video files on the backend is acheived with  [OpenCV](https://opencv.org/). Dynamic libraries can be installed using
 
-## Configuration Files
+```
+brew install opencv
+```
+
+- If you have `brew` set up to install to a location other than `/usr/local/Cellar`, you will need to adust the build settings in the XCode project. In particular, the *Header Search Paths* and *Library Search Paths*, as well as *Other Linker Flags*
 
 ### Format
 
 - Each line of the configuration file is expected to be of the form 
 
-  ```toml
+  ```
   option_id = option_value
   ```
 
 - All whitespace is ignored, so all of the following are valid, and interpreted as above
 
-  ```toml
+  ```
   option_id =option_value
   option_id= option_value
   option_id=option_value
