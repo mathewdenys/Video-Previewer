@@ -384,17 +384,16 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
-				HEADER_SEARCH_PATHS = "opencv/4.5.0_3/include/**";
+				HEADER_SEARCH_PATHS = "opencv/**";
 				INFOPLIST_FILE = "Video-Previewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "opencv/4.5.0_3/lib/**";
+				LIBRARY_SEARCH_PATHS = "opencv/**";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_LDFLAGS = (
-					"-I/usr/local/Cellar/opencv/4.5.0_3/include/opencv4",
-					"-L/usr/local/Cellar/opencv/4.5.0_3/lib",
+					"-I/usr/local/Cellar/opencv/**",
 					"-lopencv_gapi",
 					"-lopencv_stitching",
 					"-lopencv_alphamat",
@@ -472,17 +471,16 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
-				HEADER_SEARCH_PATHS = "opencv/4.5.0_3/include/**";
+				HEADER_SEARCH_PATHS = "opencv/**";
 				INFOPLIST_FILE = "Video-Previewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "opencv/4.5.0_3/lib/**";
+				LIBRARY_SEARCH_PATHS = "opencv/**";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_LDFLAGS = (
-					"-I/usr/local/Cellar/opencv/4.5.0_3/include/opencv4",
-					"-L/usr/local/Cellar/opencv/4.5.0_3/lib",
+					"-I/usr/local/Cellar/opencv/**",
 					"-lopencv_gapi",
 					"-lopencv_stitching",
 					"-lopencv_alphamat",
