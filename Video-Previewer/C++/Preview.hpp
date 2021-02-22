@@ -300,9 +300,6 @@ private:
     // Read in appropriate configuration options and write over the `frames` vector
     void makeFrames();
 
-    // Exports a "preview video" for each frame in the `frames` vector
-    void exportPreviewVideos();
-
     // Determine if a given configuration option has been changed since the last time the preview was updated
     // Achieved by comparing the relevant `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
     bool configOptionHasBeenChanged(const string& optionID)

@@ -549,7 +549,6 @@ struct BasicConfigSection: View {
         Section(title: title, isCollapsible: isCollapsible) {
             ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
-            ConfigRowView(option: preview.backend!.getOptionInformation("action_on_hover")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
         }

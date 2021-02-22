@@ -73,11 +73,6 @@ void VideoPreview::updatePreview()
         )
     {
         makeFrames();
-
-        // By default, if the "action_on_hover" option doesn't exist, don't export any preview videos
-        // Further, if the "action_on_hover" option has the value "none", there is no need to export any preview videos
-        if ( ConfigOptionPtr actionOnHover = getOption("action_on_hover"); actionOnHover && actionOnHover->getValue()->getString() != "none" )
-            exportPreviewVideos();
     }
 
     // Update `currentPreviewConfigOptions` (we explicitly don't want them to point to the same resource)
@@ -224,24 +219,5 @@ void VideoPreview::makeFrames()
         video.writeCurrentFrame(currentFrameMat);
         frames.emplace_back(currentFrameMat, static_cast<int>(round(frameNumber)), video.getFPS());
         frameNumber += frameSampling;
-    }
-}
-
-void VideoPreview::exportPreviewVideos()
-{
-    fs::create_directories(exportDir); // Make the export directory (and intermediate direcories) if it doesn't exist
-    vector<int> frameNumbers;
-    frameNumbers.reserve(frames.size()+1);
-
-    for (Frame& frame : frames)
-        frameNumbers.push_back(frame.getFrameNumber());
-    frameNumbers.push_back(video.getNumberOfFrames());
-
-    cout << "Exporting video previews\n";
-    int index = 0;
-    while ( index < frameNumbers.size()-1 )
-    {
-        video.exportVideo(exportDir, frameNumbers[index], frameNumbers[index+1]);
-        ++index;
     }
 }

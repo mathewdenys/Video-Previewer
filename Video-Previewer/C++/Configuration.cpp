@@ -33,11 +33,6 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
     {"overlay_number",     OptionInformation("Whether to overlay the frame number of each frame in the preview",
                                              ValidOptionValue::eBoolean,
                                              std::make_shared<ConfigValueBool>(false) ) },
-    
-    {"action_on_hover",    OptionInformation("Behaviour when mouse hovers over a frame",
-                                             ValidOptionValue::eString,
-                                             {"none", "play"},
-                                             std::make_shared<ConfigValueString>("none") ) }, // TODO: add "slideshow","scrub" as validStrings when I support them
 };
 
 
