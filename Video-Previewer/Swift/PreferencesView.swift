@@ -213,25 +213,34 @@ struct ConfigurationFilesView: View {
         if (preview.backend == nil) {
             Text("No video is being previewed")
         } else {
+            let configFilePaths = preview.backend!.getConfigFilePaths()
+            
             VStack {
-                Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
-                    .noteFont()                                   // Small font
-                    .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
-                    .multilineTextAlignment(.leading)
-                    
-                ForEach(preview.backend!.getConfigFilePaths(), id: \.self) { configFilePath in
-                    HStack {
-                        Text(configFilePath).regularFont().foregroundColor(colorFaded)
-                            .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
-                            .multilineTextAlignment(.leading)
-                        Spacer()
-                        Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
-                            Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
-                        }.buttonStyle(BorderlessButtonStyle())
+                if (configFilePaths!.isEmpty) {
+                    Text("No associated configuration files found")
+                        .regularFont()
+                        .foregroundColor(colorFaded)
+                    Spacer()
+                } else {
+                    Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
+                        .noteFont()                                   // Small font
+                        .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
+                        .multilineTextAlignment(.leading)
                         
-                    }.padding(.leading)
+                    ForEach(preview.backend!.getConfigFilePaths(), id: \.self) { configFilePath in
+                        HStack {
+                            Text(configFilePath).regularFont().foregroundColor(colorFaded)
+                                .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
+                                .multilineTextAlignment(.leading)
+                            Spacer()
+                            Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
+                                Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
+                            }.buttonStyle(BorderlessButtonStyle())
+                            
+                        }.padding(.leading)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }.padding(.vertical, 10).padding(.horizontal, sectionHorizontalPadding)
         }
     }
