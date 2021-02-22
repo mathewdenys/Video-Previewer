@@ -231,7 +231,7 @@ struct ConfigurationView: View {
                 Section(title: "Advanced options") {
                     AdvancedConfigSection()
                         .subsection()
-                        .padding(.top, 5)
+                        .padding(.top, 10)
                 }
                 
                 Spacer()

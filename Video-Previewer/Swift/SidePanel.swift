@@ -417,7 +417,6 @@ struct ConfigEditorDecimalOrAuto: View {
         )
         
         VStack {
-            
             HStack(spacing: horiontalRowSpacing) {
                 ConfigIDText(option: option)
                 Toggle("Automatic", isOn: bindBool)
@@ -427,12 +426,10 @@ struct ConfigEditorDecimalOrAuto: View {
             
             HStack(spacing: horiontalRowSpacing) {
                 Spacer().frame(width: configDescriptionWidth)
-                if !bindBool.wrappedValue
-                {
-                    Slider(value: bindDouble, in: 0...1)
+                Slider(value: bindDouble, in: 0...1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, -6)
-                }
+                    .disabled(bindBool.wrappedValue)
             }
         }
     }
@@ -525,8 +522,6 @@ struct ConfigRowView: View {
 }
 
 
-
-
 /*----------------------------------------------------------------------------------------------------
     MARK: - BasicConfigSection
         This view displays just the "basic" configuration options. It is displayed in the side panel
@@ -564,7 +559,7 @@ struct AdvancedConfigSection: View {
         let maximumFramesString = preview.backend!.getOptionValue("maximum_frames")!.getString() // nil if "maximum_frames" is not set of "auto"
             
         VStack {
-            Text("The maximum number of frames that can be shown can be set directly, or determined automatically by setting the maximum percentage of total frames in the video that can be shown and/or the minimum sampling gap between frames.")
+            Text("The maximum number of frames that can be shown (i.e. the upper limit of \"Frames to show\") can be set directly, or determined automatically by setting the maximum percentage of total frames in the video that can be shown and/or the minimum sampling gap between frames.")
                 .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
                 .multilineTextAlignment(.leading)
                 .noteFont()
