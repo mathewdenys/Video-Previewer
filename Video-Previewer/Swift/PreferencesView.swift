@@ -221,7 +221,9 @@ struct ConfigurationFilesView: View {
                     
                 ForEach(preview.backend!.getConfigFilePaths(), id: \.self) { configFilePath in
                     HStack {
-                        ScrollView(.horizontal, showsIndicators: false, content: { Text(configFilePath).regularFont().foregroundColor(colorFaded) })
+                        Text(configFilePath).regularFont().foregroundColor(colorFaded)
+                            .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
+                            .multilineTextAlignment(.leading)
                         Spacer()
                         Button(action: { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: configFilePath)]) }) {
                             Image(nsImage: NSImage(imageLiteralResourceName: NSImage.followLinkFreestandingTemplateName))
