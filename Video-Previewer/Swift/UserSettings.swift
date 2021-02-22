@@ -69,7 +69,7 @@ class UserSettings: ObservableObject {
     // Whenever a value is set, it is saved to UserDefaults
     @Published var sidePanelVisibleVideo:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleVideo,   forKey: "sidePanelVisibleVideo") } }
     @Published var sidePanelVisibleFrame:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFrame,   forKey: "sidePanelVisibleFrame") } }
-    @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,  forKey: "sidePanelVisiblConfige") } }
+    @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,  forKey: "sidePanelVisibleConfig") } }
     @Published var videoInfoPath:           Bool    { didSet { UserDefaults.standard.set(videoInfoPath,           forKey: "videoInfoPath") } }
     @Published var videoInfoEncoding:       Bool    { didSet { UserDefaults.standard.set(videoInfoEncoding,       forKey: "videoInfoEncoding") } }
     @Published var videoInfoFramerate:      Bool    { didSet { UserDefaults.standard.set(videoInfoFramerate,      forKey: "videoInfoFramerate") } }

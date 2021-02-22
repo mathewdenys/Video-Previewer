@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - ResetButton
+   ----------------------------------------------------------------------------------------------------*/
+
 struct ResetButton: View {
 
     let action: () -> Void
@@ -20,6 +25,10 @@ struct ResetButton: View {
     }
 }
 
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Section
+   ----------------------------------------------------------------------------------------------------*/
 
 struct Section<Content: View>: View {
     
@@ -85,5 +94,20 @@ struct Section<Content: View>: View {
                 content
             }
         }.padding(.horizontal, sectionHorizontalPadding)
+    }
+}
+
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - Subsection (modifier)
+   ----------------------------------------------------------------------------------------------------*/
+
+extension View {
+    func subsection() -> some View {
+        self.padding(5)
+            .border(Color.black.opacity(0.07), width: 0.3)
+            .background(Color.black.opacity(0.03))
+            .cornerRadius(4)
+            .padding(.leading, 15)
     }
 }

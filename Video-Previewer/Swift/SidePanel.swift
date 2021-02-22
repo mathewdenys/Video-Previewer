@@ -542,15 +542,32 @@ struct BasicConfigSection: View {
     @EnvironmentObject
     private var preview: PreviewData
     
-    let title:          String
-    let isCollapsible:  Bool
-    
     var body: some View {
-        Section(title: title, isCollapsible: isCollapsible) {
+        VStack {
             ConfigRowView(option: preview.backend!.getOptionInformation("frames_to_show")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("frame_size")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("overlay_timestamp")!)
             ConfigRowView(option: preview.backend!.getOptionInformation("overlay_number")!)
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------------------------------
+    MARK: - AdvancedConfigSection
+        This view displays just the "basic" configuration options. It is displayed in the side panel
+        and in the configuration options window.
+   ----------------------------------------------------------------------------------------------------*/
+
+struct AdvancedConfigSection: View {
+    
+    @EnvironmentObject
+    private var preview: PreviewData
+    
+    var body: some View {
+        VStack {
+            ConfigRowView(option: preview.backend!.getOptionInformation("maximum_percentage")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("minimum_sampling")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("maximum_frames")!)
         }
     }
 }
@@ -574,7 +591,7 @@ struct SidePanelView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         if (settings.sidePanelVisibleVideo) {
-                            Section(title: "Video information", isCollapsible: true) {
+                            Section(title: "File information", isCollapsible: true) {
                                 if (settings.videoInfoPath) {
                                     HStack{
                                         InfoRowView(id: "File path",   value: preview.backend!.getVideoNameString())
@@ -611,7 +628,9 @@ struct SidePanelView: View {
                         if (settings.sidePanelVisibleConfig) {
                             Divider()
                             
-                            BasicConfigSection(title: "Configuration options", isCollapsible: true)
+                            Section(title: "Configuration options", isCollapsible: true) {
+                                BasicConfigSection()
+                            }
                         }
                     }
                     .padding(.vertical, 10.0)

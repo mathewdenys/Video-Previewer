@@ -9,7 +9,7 @@ import SwiftUI
 
 let infoDescriptionWidth     = CGFloat(90)           // The width of the first column in Information sections
 let configDescriptionWidth   = CGFloat(140)          // The width of the first column in Configuration sections
-let settingsDescriptionWidth = CGFloat(130)          // The width of the first column in Settings sections
+let settingsDescriptionWidth = CGFloat(75)           // The width of the first column in Settings sections
 
 let horiontalRowSpacing      = CGFloat(8.0)          // The spacing between columns in InfoRowViews and ConfigRowViews
 
@@ -24,5 +24,6 @@ let sidePanelWidth           = 300.0                 // The miniumum width of th
 
 let minFrameWidth            = 100.0                 // The minimum width of a frame in the preview
 let maxFrameWidth            = 500.0                 // The maximum width of a frame in the preview
+
 
 let pasteBoard               = NSPasteboard.general  // For copy-and-pasting
