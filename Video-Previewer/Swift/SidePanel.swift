@@ -244,26 +244,22 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
             }
         )
         
-        VStack {
-            HStack(spacing: horiontalRowSpacing) {
-                ConfigIDText(option: option)
-                Toggle("Automatic", isOn: bindBool)
-                    .regularFont()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        HStack {
+            ConfigIDText(option: option)
             
-            if !bindBool.wrappedValue
-            {
-                HStack(spacing: horiontalRowSpacing) {
-                    Spacer().frame(width: configDescriptionWidth)
-                    TextField("", value: bindInt, formatter: NumberFormatter())
-                        .regularFont()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+            TextField("", value: bindInt, formatter: NumberFormatter())
+                .regularFont()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .disabled(bindBool.wrappedValue)
+                .foregroundColor(bindBool.wrappedValue ? colorFaded : colorBold)
 
-                    Stepper("", value: bindInt)
-                        .labelsHidden()
-                }
-            }
+            Stepper("", value: bindInt)
+                .labelsHidden()
+                .disabled(bindBool.wrappedValue)
+            
+            Toggle("Automatic", isOn: bindBool)
+                .regularFont()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -539,8 +535,7 @@ struct ConfigRowView: View {
 
 struct BasicConfigSection: View {
     
-    @EnvironmentObject
-    private var preview: PreviewData
+    @EnvironmentObject private var preview: PreviewData
     
     var body: some View {
         VStack {
@@ -560,14 +555,27 @@ struct BasicConfigSection: View {
 
 struct AdvancedConfigSection: View {
     
-    @EnvironmentObject
-    private var preview: PreviewData
+    @EnvironmentObject private var preview: PreviewData
+    
+    
     
     var body: some View {
+        
+        let maximumFramesString = preview.backend!.getOptionValue("maximum_frames")!.getString() // nil if "maximum_frames" is not set of "auto"
+            
         VStack {
-            ConfigRowView(option: preview.backend!.getOptionInformation("maximum_percentage")!)
-            ConfigRowView(option: preview.backend!.getOptionInformation("minimum_sampling")!)
+            Text("The maximum number of frames that can be shown can be set directly, or determined automatically by setting the maximum percentage of total frames in the video that can be shown and/or the minimum sampling gap between frames.")
+                .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
+                .multilineTextAlignment(.leading)
+                .noteFont()
+            
             ConfigRowView(option: preview.backend!.getOptionInformation("maximum_frames")!)
+            ConfigRowView(option: preview.backend!.getOptionInformation("maximum_percentage")!)
+                .disabled( maximumFramesString == nil )
+                .foregroundColor(maximumFramesString == nil ? colorFaded : colorBold)
+            ConfigRowView(option: preview.backend!.getOptionInformation("minimum_sampling")!)
+                .disabled( maximumFramesString == nil )
+                .foregroundColor(maximumFramesString == nil ? colorFaded : colorBold)
         }
     }
 }

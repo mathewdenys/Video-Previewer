@@ -231,6 +231,7 @@ struct ConfigurationView: View {
                 Section(title: "Advanced options") {
                     AdvancedConfigSection()
                         .subsection()
+                        .padding(.top, 5)
                 }
                 
                 Spacer()
@@ -263,9 +264,9 @@ struct ConfigurationFilesView: View {
                     Spacer()
                 } else {
                     Text("Note: Editing the configuration files directly is not recommended. Changes to configuration files will not be reflected until a new video file is loaded.")
-                        .noteFont()                                   // Small font
                         .fixedSize(horizontal: false, vertical: true) // For multiline text wrapping
                         .multilineTextAlignment(.leading)
+                        .noteFont()
                         
                     ForEach(preview.backend!.getConfigFilePaths(), id: \.self) { configFilePath in
                         HStack {
@@ -304,7 +305,7 @@ struct PreferencesView: View {
             ConfigurationView()     .tabItem{ Text("Config options") }
             ConfigurationFilesView().tabItem{ Text("Config files") }
         }
-        .frame(width: 450, height: 375)
+        .frame(width: 420, height: 450)
         .padding(.all, 15)
     }
 }
