@@ -25,7 +25,7 @@ let defaultSettingsVideoInfoDimensions     = false          // Whether "Dimensio
 let defaultSettingsFrameInfoTimestamp      = true           // Whether "Timestamp" is displayed under "Frame Information" in the side panel
 let defaultSettingsFrameInfoNumber         = true           // Whether "Frame number" is displayed under "Frame Information" in the side panel
 
-let defaultSettingsFrameBorderColor        = NSColor.gray   // The color of the border around a selected frame
+let defaultSettingsFrameBorderColor        = colorBlue      // The color of the border around a selected frame
 let defaultSettingsFrameBorderThickness    = 5.0            // The width of the border around a selected frame
 
 let defaultSettingsPreviewSpaceBetweenRows = 10.0           // The vertical spacing between rows in the preview

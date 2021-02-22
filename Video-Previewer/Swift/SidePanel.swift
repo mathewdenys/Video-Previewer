@@ -214,7 +214,7 @@ struct ConfigEditorPositiveIntegerOrAuto: View {
     
     var option: NSOptionInformation
     
-    @State private var intValue: Int = 1
+    @State private var intValue: Int = 100 // Default value (this should really be implemented on the backend)
     
     var body: some View {
         
@@ -389,7 +389,7 @@ struct ConfigEditorDecimalOrAuto: View {
     
     var option: NSOptionInformation
     
-    @State private var doubleValue: Double = 0.0
+    @State private var doubleValue: Double = 0.5 // Default value (this should really be implemented on the backend)
     
     var body: some View {
         
@@ -403,12 +403,12 @@ struct ConfigEditorDecimalOrAuto: View {
         let bindBool = Binding<Bool> (
             get: { return (preview.backend!.getOptionValue(option.getID())!.getString()) == nil ? false : true },
             set: {
-                if ($0 == true) {                                                    // If "auto" is turned on
-                    doubleValue = bindDouble.wrappedValue                            // Save the Double value (so that value is not lost when "auto" is turned off)
+                if ($0 == true) {                                                      // If "auto" is turned on
+                    doubleValue = bindDouble.wrappedValue                              // Save the Double value (so that value is not lost when "auto" is turned off)
                     preview.backend!.setOptionValue(option.getID(), with: "auto");     // Set the option value to be "auto" in vp
                 }
                 
-                if ($0 == false) {                                                   // If "auto" is turned off
+                if ($0 == false) {                                                     // If "auto" is turned off
                     preview.backend!.setOptionValue(option.getID(), with: doubleValue) // Recover the Double value
                 }
                 

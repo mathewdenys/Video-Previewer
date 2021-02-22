@@ -20,7 +20,7 @@ const std::unordered_map<string, OptionInformation> ConfigOption::recognisedOpti
     
     {"frames_to_show",     OptionInformation("Number of frames to show in the preview. Value between 0 (smallest) and 1 (largest). \"auto\" shows as many frames as will fit in the window, up to the maximum allowed ",
                                              ValidOptionValue::eDecimalOrAuto,
-                                             std::make_shared<ConfigValueDouble>(0.5) ) },
+                                             std::make_shared<ConfigValueString>("auto") ) },
     
     {"frame_size",         OptionInformation("Size of the frames in the preview. Value between 0 (smallest) and 1 (largest).",
                                              ValidOptionValue::eDecimal,
