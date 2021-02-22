@@ -589,9 +589,6 @@ struct SidePanelView: View {
                                 if (settings.videoInfoFrames)     { InfoRowView(id: "Frames",     value: preview.backend!.getVideoNumOfFramesString()) }
                                 if (settings.videoInfoDimensions) { InfoRowView(id: "Dimensions", value: preview.backend!.getVideoDimensionsString()) }
                             }
-                        }
-                        
-                        if (settings.sidePanelVisibleVideo && settings.sidePanelVisibleFrame) {
                             Divider()
                         }
                         
@@ -606,6 +603,7 @@ struct SidePanelView: View {
                                     if (settings.frameInfoNumber)    { InfoRowView(id: "Frame number", value: preview.selectedFrame == nil ? "-" : String(preview.selectedFrame!.getFrameNumber()) ) }
                                 }
                             }
+                            Divider()
                         }
                         
                         Spacer()
