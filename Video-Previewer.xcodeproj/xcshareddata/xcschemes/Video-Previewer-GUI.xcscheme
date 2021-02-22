@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AFFB214E25AE392A008B2295"
-               BuildableName = "Video-Previewer-GUI.app"
-               BlueprintName = "Video-Previewer-GUI"
+               BuildableName = "Video-Previewer.app"
+               BlueprintName = "Video-Previewer"
                ReferencedContainer = "container:Video-Previewer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -65,8 +65,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AFFB214E25AE392A008B2295"
-            BuildableName = "Video-Previewer-GUI.app"
-            BlueprintName = "Video-Previewer-GUI"
+            BuildableName = "Video-Previewer.app"
+            BlueprintName = "Video-Previewer"
             ReferencedContainer = "container:Video-Previewer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -82,8 +82,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AFFB214E25AE392A008B2295"
-            BuildableName = "Video-Previewer-GUI.app"
-            BlueprintName = "Video-Previewer-GUI"
+            BuildableName = "Video-Previewer.app"
+            BlueprintName = "Video-Previewer"
             ReferencedContainer = "container:Video-Previewer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

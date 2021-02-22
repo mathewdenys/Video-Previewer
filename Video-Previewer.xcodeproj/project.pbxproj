@@ -14,34 +14,18 @@
 		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
 		AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */; };
-		AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFADD2C3255CAAB400D06F8F /* main.cpp */; };
 		AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C225E2F4A700B4A9D6 /* Fonts.swift */; };
 		AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C825E2F4B100B4A9D6 /* Colors.swift */; };
 		AFB402CF25E3071D00B4A9D6 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402CE25E3071D00B4A9D6 /* Section.swift */; };
 		AFE3A23D25BF493400B50756 /* NSString.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A23B25BF493400B50756 /* NSString.mm */; };
 		AFE3A24325BF531800B50756 /* NSConfig.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFE3A24125BF531800B50756 /* NSConfig.mm */; };
-		AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
-		AFE460002591397E00DB3402 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
 		AFE665B125CA594F00A41E35 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B025CA594F00A41E35 /* Constants.swift */; };
 		AFE665B525CA598B00A41E35 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE665B425CA598B00A41E35 /* PreviewData.swift */; };
 		AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFB215125AE392A008B2295 /* AppDelegate.swift */; };
 		AFFB215425AE392A008B2295 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFB215325AE392A008B2295 /* ContentView.swift */; };
 		AFFB215625AE392B008B2295 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFFB215525AE392B008B2295 /* Assets.xcassets */; };
-		AFFB215925AE392B008B2295 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFFB215825AE392B008B2295 /* Preview Assets.xcassets */; };
 		AFFB215C25AE392B008B2295 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFFB215A25AE392B008B2295 /* Main.storyboard */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AFADD2BE255CAAB400D06F8F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		AF48AFF025DF30B5000B468C /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
@@ -50,11 +34,10 @@
 		AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSPreview.hpp; sourceTree = "<group>"; };
 		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
 		AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPane.swift; sourceTree = "<group>"; };
-		AFADD2C0255CAAB400D06F8F /* Video-Previewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Video-Previewer"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AFADD2C3255CAAB400D06F8F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFB402C225E2F4A700B4A9D6 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		AFB402C825E2F4B100B4A9D6 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		AFB402CE25E3071D00B4A9D6 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
+		AFB402F925E3574700B4A9D6 /* Video-Previewer-GUI copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Video-Previewer-GUI copy-Info.plist"; path = "/Users/mathew/Projects/Video-Previewer/Video-Previewer-GUI copy-Info.plist"; sourceTree = "<absolute>"; };
 		AFE3A23B25BF493400B50756 /* NSString.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSString.mm; sourceTree = "<group>"; };
 		AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSStringCpp.hpp; sourceTree = "<group>"; };
 		AFE3A24025BF531800B50756 /* NSConfig.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSConfig.hpp; sourceTree = "<group>"; };
@@ -67,26 +50,17 @@
 		AFE45FFF2591397E00DB3402 /* Preview.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Preview.cpp; sourceTree = "<group>"; };
 		AFE665B025CA594F00A41E35 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		AFE665B425CA598B00A41E35 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
-		AFFB214F25AE392A008B2295 /* Video-Previewer-GUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Video-Previewer-GUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AFFB214F25AE392A008B2295 /* Video-Previewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Video-Previewer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFFB215125AE392A008B2295 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AFFB215325AE392A008B2295 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AFFB215525AE392B008B2295 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AFFB215825AE392B008B2295 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AFFB215B25AE392B008B2295 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		AFFB215D25AE392B008B2295 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AFFB215E25AE392B008B2295 /* Video_Previewer_GUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Video_Previewer_GUI.entitlements; sourceTree = "<group>"; };
-		AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Video-Previewer-GUI-Bridging-Header.h"; sourceTree = "<group>"; };
+		AFFB21C725AE40FC008B2295 /* Video-Previewer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Video-Previewer-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFFDAC4925B8E88A002D8D64 /* NSPreviewCpp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NSPreviewCpp.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		AFADD2BD255CAAB400D06F8F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AFFB214C25AE392A008B2295 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -101,16 +75,15 @@
 			isa = PBXGroup;
 			children = (
 				AFADD2C2255CAAB400D06F8F /* Video-Previewer */,
-				AFFB215025AE392A008B2295 /* Video-Previewer-GUI */,
 				AFADD2C1255CAAB400D06F8F /* Products */,
+				AFB402F925E3574700B4A9D6 /* Video-Previewer-GUI copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
 		AFADD2C1255CAAB400D06F8F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AFADD2C0255CAAB400D06F8F /* Video-Previewer */,
-				AFFB214F25AE392A008B2295 /* Video-Previewer-GUI.app */,
+				AFFB214F25AE392A008B2295 /* Video-Previewer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,12 +91,12 @@
 		AFADD2C2255CAAB400D06F8F /* Video-Previewer */ = {
 			isa = PBXGroup;
 			children = (
-				AFADD2C3255CAAB400D06F8F /* main.cpp */,
-				AFE45FE72590567100DB3402 /* Exceptions.hpp */,
-				AFE45FEC2590581D00DB3402 /* Configuration.hpp */,
-				AFE45FEB2590581D00DB3402 /* Configuration.cpp */,
-				AFE45FF525905CC300DB3402 /* Preview.hpp */,
-				AFE45FFF2591397E00DB3402 /* Preview.cpp */,
+				AFB402FF25E3576900B4A9D6 /* C++ */,
+				AFE665AD25CA58EC00A41E35 /* Objective-C */,
+				AFE665AC25CA58BC00A41E35 /* Swift */,
+				AFFB215A25AE392B008B2295 /* Main.storyboard */,
+				AFFB215D25AE392B008B2295 /* Info.plist */,
+				AFFB215525AE392B008B2295 /* Assets.xcassets */,
 			);
 			path = "Video-Previewer";
 			sourceTree = "<group>";
@@ -136,6 +109,18 @@
 				AFE665B025CA594F00A41E35 /* Constants.swift */,
 			);
 			name = Constants;
+			sourceTree = "<group>";
+		};
+		AFB402FF25E3576900B4A9D6 /* C++ */ = {
+			isa = PBXGroup;
+			children = (
+				AFE45FE72590567100DB3402 /* Exceptions.hpp */,
+				AFE45FEC2590581D00DB3402 /* Configuration.hpp */,
+				AFE45FEB2590581D00DB3402 /* Configuration.cpp */,
+				AFE45FF525905CC300DB3402 /* Preview.hpp */,
+				AFE45FFF2591397E00DB3402 /* Preview.cpp */,
+			);
+			path = "C++";
 			sourceTree = "<group>";
 		};
 		AFE665AC25CA58BC00A41E35 /* Swift */ = {
@@ -165,56 +150,17 @@
 				AF5101B125AE48B000B8B5E6 /* NSPreview.mm */,
 				AFE3A23C25BF493400B50756 /* NSStringCpp.hpp */,
 				AFE3A23B25BF493400B50756 /* NSString.mm */,
+				AFFB21C725AE40FC008B2295 /* Video-Previewer-Bridging-Header.h */,
 			);
 			path = "Objective-C";
-			sourceTree = "<group>";
-		};
-		AFFB215025AE392A008B2295 /* Video-Previewer-GUI */ = {
-			isa = PBXGroup;
-			children = (
-				AFE665AD25CA58EC00A41E35 /* Objective-C */,
-				AFE665AC25CA58BC00A41E35 /* Swift */,
-				AFFB21C725AE40FC008B2295 /* Video-Previewer-GUI-Bridging-Header.h */,
-				AFFB215525AE392B008B2295 /* Assets.xcassets */,
-				AFFB215A25AE392B008B2295 /* Main.storyboard */,
-				AFFB215D25AE392B008B2295 /* Info.plist */,
-				AFFB215E25AE392B008B2295 /* Video_Previewer_GUI.entitlements */,
-				AFFB215725AE392B008B2295 /* Preview Content */,
-			);
-			path = "Video-Previewer-GUI";
-			sourceTree = "<group>";
-		};
-		AFFB215725AE392B008B2295 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				AFFB215825AE392B008B2295 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AFADD2BF255CAAB400D06F8F /* Video-Previewer */ = {
+		AFFB214E25AE392A008B2295 /* Video-Previewer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AFADD2C7255CAAB400D06F8F /* Build configuration list for PBXNativeTarget "Video-Previewer" */;
-			buildPhases = (
-				AFADD2BC255CAAB400D06F8F /* Sources */,
-				AFADD2BD255CAAB400D06F8F /* Frameworks */,
-				AFADD2BE255CAAB400D06F8F /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Video-Previewer";
-			productName = "Video-Previewer";
-			productReference = AFADD2C0255CAAB400D06F8F /* Video-Previewer */;
-			productType = "com.apple.product-type.tool";
-		};
-		AFFB214E25AE392A008B2295 /* Video-Previewer-GUI */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AFFB217B25AE392B008B2295 /* Build configuration list for PBXNativeTarget "Video-Previewer-GUI" */;
+			buildConfigurationList = AFFB217B25AE392B008B2295 /* Build configuration list for PBXNativeTarget "Video-Previewer" */;
 			buildPhases = (
 				AFFB214B25AE392A008B2295 /* Sources */,
 				AFFB214C25AE392A008B2295 /* Frameworks */,
@@ -224,9 +170,9 @@
 			);
 			dependencies = (
 			);
-			name = "Video-Previewer-GUI";
+			name = "Video-Previewer";
 			productName = "Video-Previewer-GUI";
-			productReference = AFFB214F25AE392A008B2295 /* Video-Previewer-GUI.app */;
+			productReference = AFFB214F25AE392A008B2295 /* Video-Previewer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -238,9 +184,6 @@
 				LastSwiftUpdateCheck = 1230;
 				LastUpgradeCheck = 1230;
 				TargetAttributes = {
-					AFADD2BF255CAAB400D06F8F = {
-						CreatedOnToolsVersion = 12.1;
-					};
 					AFFB214E25AE392A008B2295 = {
 						CreatedOnToolsVersion = 12.3;
 						LastSwiftMigration = 1230;
@@ -260,8 +203,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AFADD2BF255CAAB400D06F8F /* Video-Previewer */,
-				AFFB214E25AE392A008B2295 /* Video-Previewer-GUI */,
+				AFFB214E25AE392A008B2295 /* Video-Previewer */,
 			);
 		};
 /* End PBXProject section */
@@ -272,7 +214,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFFB215C25AE392B008B2295 /* Main.storyboard in Resources */,
-				AFFB215925AE392B008B2295 /* Preview Assets.xcassets in Resources */,
 				AFFB215625AE392B008B2295 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -280,16 +221,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		AFADD2BC255CAAB400D06F8F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AFE45FED2590581D00DB3402 /* Configuration.cpp in Sources */,
-				AFADD2C4255CAAB400D06F8F /* main.cpp in Sources */,
-				AFE460002591397E00DB3402 /* Preview.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AFFB214B25AE392A008B2295 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -440,144 +371,6 @@
 			};
 			name = Release;
 		};
-		AFADD2C8255CAAB400D06F8F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				"HEADER_SEARCH_PATHS[arch=*]" = "opencv/4.5.0_3/include/**";
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "opencv/4.5.0_3/lib/**";
-				"OTHER_LDFLAGS[arch=*]" = (
-					"-Iopencv/4.5.0_3/include/opencv4",
-					"-Lopencv/4.5.0_3/lib",
-					"-lopencv_gapi",
-					"-lopencv_stitching",
-					"-lopencv_alphamat",
-					"-lopencv_aruco",
-					"-lopencv_bgsegm",
-					"-lopencv_bioinspired",
-					"-lopencv_ccalib",
-					"-lopencv_dnn_objdetect",
-					"-lopencv_dnn_superres",
-					"-lopencv_dpm",
-					"-lopencv_highgui",
-					"-lopencv_face",
-					"-lopencv_freetype",
-					"-lopencv_fuzzy",
-					"-lopencv_hfs",
-					"-lopencv_img_hash",
-					"-lopencv_intensity_transform",
-					"-lopencv_line_descriptor",
-					"-lopencv_mcc",
-					"-lopencv_quality",
-					"-lopencv_rapid",
-					"-lopencv_reg",
-					"-lopencv_rgbd",
-					"-lopencv_saliency",
-					"-lopencv_sfm",
-					"-lopencv_stereo",
-					"-lopencv_structured_light",
-					"-lopencv_phase_unwrapping",
-					"-lopencv_superres",
-					"-lopencv_optflow",
-					"-lopencv_surface_matching",
-					"-lopencv_tracking",
-					"-lopencv_datasets",
-					"-lopencv_text",
-					"-lopencv_dnn",
-					"-lopencv_plot",
-					"-lopencv_videostab",
-					"-lopencv_videoio",
-					"-lopencv_viz",
-					"-lopencv_xfeatures2d",
-					"-lopencv_shape",
-					"-lopencv_ml",
-					"-lopencv_ximgproc",
-					"-lopencv_video",
-					"-lopencv_xobjdetect",
-					"-lopencv_objdetect",
-					"-lopencv_calib3d",
-					"-lopencv_imgcodecs",
-					"-lopencv_features2d",
-					"-lopencv_flann",
-					"-lopencv_xphoto",
-					"-lopencv_photo",
-					"-lopencv_imgproc",
-					"-lopencv_core",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		AFADD2C9255CAAB400D06F8F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				"HEADER_SEARCH_PATHS[arch=*]" = "opencv/4.5.0_3/include/**";
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "opencv/4.5.0_3/lib/**";
-				"OTHER_LDFLAGS[arch=*]" = (
-					"-Iopencv/4.5.0_3/include/opencv4",
-					"-Lopencv/4.5.0_3/lib",
-					"-lopencv_gapi",
-					"-lopencv_stitching",
-					"-lopencv_alphamat",
-					"-lopencv_aruco",
-					"-lopencv_bgsegm",
-					"-lopencv_bioinspired",
-					"-lopencv_ccalib",
-					"-lopencv_dnn_objdetect",
-					"-lopencv_dnn_superres",
-					"-lopencv_dpm",
-					"-lopencv_highgui",
-					"-lopencv_face",
-					"-lopencv_freetype",
-					"-lopencv_fuzzy",
-					"-lopencv_hfs",
-					"-lopencv_img_hash",
-					"-lopencv_intensity_transform",
-					"-lopencv_line_descriptor",
-					"-lopencv_mcc",
-					"-lopencv_quality",
-					"-lopencv_rapid",
-					"-lopencv_reg",
-					"-lopencv_rgbd",
-					"-lopencv_saliency",
-					"-lopencv_sfm",
-					"-lopencv_stereo",
-					"-lopencv_structured_light",
-					"-lopencv_phase_unwrapping",
-					"-lopencv_superres",
-					"-lopencv_optflow",
-					"-lopencv_surface_matching",
-					"-lopencv_tracking",
-					"-lopencv_datasets",
-					"-lopencv_text",
-					"-lopencv_dnn",
-					"-lopencv_plot",
-					"-lopencv_videostab",
-					"-lopencv_videoio",
-					"-lopencv_viz",
-					"-lopencv_xfeatures2d",
-					"-lopencv_shape",
-					"-lopencv_ml",
-					"-lopencv_ximgproc",
-					"-lopencv_video",
-					"-lopencv_xobjdetect",
-					"-lopencv_objdetect",
-					"-lopencv_calib3d",
-					"-lopencv_imgcodecs",
-					"-lopencv_features2d",
-					"-lopencv_flann",
-					"-lopencv_xphoto",
-					"-lopencv_photo",
-					"-lopencv_imgproc",
-					"-lopencv_core",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		AFFB217525AE392B008B2295 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -585,14 +378,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "Video-Previewer-GUI/Video_Previewer_GUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Video-Previewer-GUI/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				HEADER_SEARCH_PATHS = "opencv/4.5.0_3/include/**";
-				INFOPLIST_FILE = "Video-Previewer-GUI/Info.plist";
+				INFOPLIST_FILE = "Video-Previewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -660,7 +453,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "mdenys.Video-Previewer-GUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OBJC_BRIDGING_HEADER = "Video-Previewer-GUI/Video-Previewer-GUI-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Video-Previewer/Objective-C/Video-Previewer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -673,14 +466,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "Video-Previewer-GUI/Video_Previewer_GUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Video-Previewer-GUI/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				HEADER_SEARCH_PATHS = "opencv/4.5.0_3/include/**";
-				INFOPLIST_FILE = "Video-Previewer-GUI/Info.plist";
+				INFOPLIST_FILE = "Video-Previewer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -748,7 +541,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "mdenys.Video-Previewer-GUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OBJC_BRIDGING_HEADER = "Video-Previewer-GUI/Video-Previewer-GUI-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Video-Previewer/Objective-C/Video-Previewer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
@@ -766,16 +559,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AFADD2C7255CAAB400D06F8F /* Build configuration list for PBXNativeTarget "Video-Previewer" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AFADD2C8255CAAB400D06F8F /* Debug */,
-				AFADD2C9255CAAB400D06F8F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AFFB217B25AE392B008B2295 /* Build configuration list for PBXNativeTarget "Video-Previewer-GUI" */ = {
+		AFFB217B25AE392B008B2295 /* Build configuration list for PBXNativeTarget "Video-Previewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AFFB217525AE392B008B2295 /* Debug */,
