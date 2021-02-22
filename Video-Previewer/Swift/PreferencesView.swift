@@ -106,13 +106,13 @@ struct GUISettingsView: View {
                             .frame(width: settingsDescriptionWidth, alignment: .trailing)
                         
                         Picker(selection: $settings.frameBorderColor, label: Text("")) {
-                            Text("Red")    .tag(NSColor.red)
-                            Text("Blue")   .tag(NSColor.blue)
-                            Text("Green")  .tag(NSColor.green)
-                            Text("Yellow") .tag(NSColor.yellow)
-                            Text("Orange") .tag(NSColor.orange)
-                            Text("Purple") .tag(NSColor.purple)
-                            Text("Gray")   .tag(NSColor.gray)
+                            Text("Red")    .tag(colorRed)
+                            Text("Blue")   .tag(colorBlue)
+                            Text("Green")  .tag(colorGreen)
+                            Text("Yellow") .tag(colorYellow)
+                            Text("Orange") .tag(colorOrange)
+                            Text("Purple") .tag(colorPurple)
+                            Text("Gray")   .tag(colorGray)
                         }.labelsHidden()
                     }
                     
