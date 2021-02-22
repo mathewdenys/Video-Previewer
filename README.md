@@ -11,6 +11,8 @@ brew install opencv
 
 - If you have `brew` set up to install to a location other than `/usr/local/Cellar`, you will need to adust the build settings in the XCode project. In particular, the *Header Search Paths* and *Library Search Paths*, as well as *Other Linker Flags*
 
+## Configuration Files
+
 ### Format
 
 - Each line of the configuration file is expected to be of the form 
@@ -19,7 +21,7 @@ brew install opencv
   option_id = option_value
   ```
 
-- All whitespace is ignored, so all of the following are valid, and interpreted as above
+- All whitespace is ignored (except new lines), so all of the following are valid, and interpreted as above
 
   ```
   option_id =option_value
