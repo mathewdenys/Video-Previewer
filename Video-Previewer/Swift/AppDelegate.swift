@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     preview.frames = frames
                     
                     NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
-                    openPreviewWindow()
+                    openPreviewWindow(fileName: result.lastPathComponent)
                     break
                 }
                 
@@ -67,16 +67,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Called when the user selects an item from the "Open Recent" menu
-    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        print(filename)
-        preview.backend     = NSVideoPreview(filename)
+    func application(_ sender: NSApplication, openFile filePath: String) -> Bool {
+        print(filePath)
+        preview.backend     = NSVideoPreview(filePath)
         preview.frames = preview.backend!.getFrames()
-        openPreviewWindow()
+        openPreviewWindow(fileName: URL(fileURLWithPath: filePath).lastPathComponent)
         return true // Return true to keep the item in the menu
     }
     
     // Setup and then display a window containing a ContentView
-    func openPreviewWindow() {
+    func openPreviewWindow(fileName: String) {
         // Only create once
         if previewWindow == nil
         {
@@ -97,6 +97,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             previewWindow.tabbingMode = .disallowed
             previewWindow.contentView = NSHostingView(rootView: contentView)
         }
+        
+        // Name the window
+        previewWindow.title = fileName
         
         // Clear the selected frame (in the case that a frame is selected when the user opens a new file)
         preview.selectedFrame = nil
@@ -124,9 +127,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 defer: false)
             preferencesWindow.center()
             preferencesWindow.setFrameAutosaveName("Preferences")
+            preferencesWindow.title = "Preferences"
             preferencesWindow.isReleasedWhenClosed = false
             preferencesWindow.contentView = NSHostingView(rootView: preferencesView)
-            preferencesWindow.title = "Preferences"
         }
         preferencesWindow.makeKeyAndOrderFront(nil)
     }

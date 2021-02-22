@@ -220,7 +220,13 @@ public:
         optionsHandler.print();
     }
     
-    string getVideoNameString()        { return videoPath; }
+    string getVideoNameString()
+    {
+        
+        return videoPath;
+    }
+    
+    string getVideoPathString()        { return videoPath; }
     string getVideoNumOfFramesString() { return std::to_string(video.getNumberOfFrames()); }
     
     wstring getVideoDimensionsString() // use wstring to support the unicode times symbol
