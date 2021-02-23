@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 /*----------------------------------------------------------------------------------------------------
     MARK: - PreviewSettingsView
    ----------------------------------------------------------------------------------------------------*/
@@ -18,7 +19,6 @@ struct PreviewSettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             Section(title: "Spacing between frames", resetAction: settings.resetToDefaultsSpacing) {
                 VStack {
                     HStack {
@@ -40,21 +40,7 @@ struct PreviewSettingsView: View {
                     }
                 }
             }
-            
             Spacer()
-            
-            
-            /* ---------------------------------------------------------------------- */
-            
-//            Spacer()
-//
-//            HStack {
-//                Spacer()
-//                Button(action: settings.resetToDefaultsAll) { Text("Reset all to Defaults") }
-//                Spacer()
-//            }
-            
-            
         }.padding(.vertical, 10)
     }
 }
@@ -70,51 +56,49 @@ struct FileSettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             Section(title: "Side panel", resetAction: settings.resetToDefaultsSidePanel) {
-                
                 VStack {
                     HStack(alignment: .top) {
                         Text("Show video file information in side panel")
                             .regularFont()
-                        Toggle("", isOn: $settings.sidePanelVisibleVideo)
+                        Toggle("", isOn: $settings.sidePanelVisibleFile)
                             .regularFont()
                             .labelsHidden()
                         Spacer()
                     }
+                    
                     HStack {
                         VStack {
                             HStack {
-                                Toggle("File path", isOn: $settings.videoInfoPath)
+                                Toggle("File path", isOn: $settings.fileInfoPath)
                                     .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Toggle("Encoding", isOn: $settings.videoInfoEncoding)
+                                Toggle("Encoding", isOn: $settings.fileInfoEncoding)
                                 .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             HStack {
-                                Toggle("Frame rate", isOn: $settings.videoInfoFramerate)
+                                Toggle("Frame rate", isOn: $settings.fileInfoFramerate)
                                     .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Toggle("Length", isOn: $settings.videoInfoLength)
+                                Toggle("Length", isOn: $settings.fileInfoLength)
                                 .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             HStack {
-                                Toggle("Frames", isOn: $settings.videoInfoFrames)
+                                Toggle("Frames", isOn: $settings.fileInfoFrames)
                                     .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Toggle("Dimensions", isOn: $settings.videoInfoDimensions)
+                                Toggle("Dimensions", isOn: $settings.fileInfoDimensions)
                                 .regularFont()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
                         .subsection()
-                        .disabled(!settings.sidePanelVisibleVideo)
+                        .disabled(!settings.sidePanelVisibleFile)
                     }
                 }
             }
-            
             Spacer()
         }.padding(.vertical, 10)
     }
@@ -132,9 +116,7 @@ struct FrameSettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             Section(title: "Side panel", resetAction: settings.resetToDefaultsSidePanel) {
-                
                 VStack {
                     HStack(alignment: .top) {
                         Text("Show selected frame information in side panel")
@@ -144,6 +126,7 @@ struct FrameSettingsView: View {
                             .labelsHidden()
                         Spacer()
                     }
+                    
                     HStack {
                         Toggle("Timestamp", isOn: $settings.frameInfoTimestamp)
                             .regularFont()
@@ -189,19 +172,17 @@ struct FrameSettingsView: View {
                     }
                 }
             }
-            
             Spacer()
-            
         }.padding(.vertical, 10)
     }
 }
 
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - ConfigurationView
+    MARK: - ConfigurationOptionsView
    ----------------------------------------------------------------------------------------------------*/
 
-struct ConfigurationView: View {
+struct ConfigurationOptionsView: View {
     
     @EnvironmentObject private var preview:  PreviewData
     @EnvironmentObject private var settings: UserSettings
@@ -299,11 +280,11 @@ struct PreferencesView: View {
     
     var body: some View {
         TabView {
-            PreviewSettingsView()   .tabItem{ Text("Preview") }
-            FileSettingsView()      .tabItem{ Text("File") }
-            FrameSettingsView()     .tabItem{ Text("Frame") }
-            ConfigurationView()     .tabItem{ Text("Config options") }
-            ConfigurationFilesView().tabItem{ Text("Config files") }
+            PreviewSettingsView()     .tabItem{ Text("Preview") }
+            FileSettingsView()        .tabItem{ Text("File") }
+            FrameSettingsView()       .tabItem{ Text("Frame") }
+            ConfigurationOptionsView().tabItem{ Text("Config options") }
+            ConfigurationFilesView()  .tabItem{ Text("Config files") }
         }
         .frame(width: 420, height: 450)
         .padding(.all, 15)

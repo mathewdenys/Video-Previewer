@@ -7,29 +7,30 @@
 
 import SwiftUI
 
+
 /*----------------------------------------------------------------------------------------------------
     MARK: - Default values
    ----------------------------------------------------------------------------------------------------*/
 
-let defaultSettingsSidePanelVisibleVideo   = true           // Whether the the "Video information" section is shown in the side panel
-let defaultSettingsSidePanelVisibleFrame   = true           // Whether the the "Frame information" section is shown in the side panel
-let defaultSettingsSidePanelVisibleConfig  = true           // Whether the the "Configuration options" section is shown in the side panel
+let defaultSettingsSidePanelVisibleFile    = true      // Whether the the "File information" section is shown in the side panel
+let defaultSettingsSidePanelVisibleFrame   = true      // Whether the the "Frame information" section is shown in the side panel
+let defaultSettingsSidePanelVisibleConfig  = true      // Whether the the "Configuration options" section is shown in the side panel
 
-let defaultSettingsVideoInfoPath           = true           // Whether "Path" is displayed under "Video Information" in the side panel
-let defaultSettingsVideoInfoEncoding       = false          // Whether "Encoding" is displayed under "Video Information" in the side panel
-let defaultSettingsVideoInfoFramerate      = true           // Whether "Frame rate" is displayed under "Video Information" in the side panel
-let defaultSettingsVideoInfoLength         = true           // Whether "Length" is displayed under "Video Information" in the side panel
-let defaultSettingsVideoInfoFrames         = true           // Whether "Frames" is displayed under "Video Information" in the side panel
-let defaultSettingsVideoInfoDimensions     = false          // Whether "Dimensions" is displayed under "Video Information" in the side panel
+let defaultSettingsFileInfoPath            = true      // Whether "Path" is displayed under "File Information" in the side panel
+let defaultSettingsFileInfoEncoding        = false     // Whether "Encoding" is displayed under "File Information" in the side panel
+let defaultSettingsFileInfoFramerate       = true      // Whether "Frame rate" is displayed under "File Information" in the side panel
+let defaultSettingsFileInfoLength          = true      // Whether "Length" is displayed under "File Information" in the side panel
+let defaultSettingsFileInfoFrames          = true      // Whether "Frames" is displayed under "File Information" in the side panel
+let defaultSettingsFileInfoDimensions      = false     // Whether "Dimensions" is displayed under "File Information" in the side panel
 
-let defaultSettingsFrameInfoTimestamp      = true           // Whether "Timestamp" is displayed under "Frame Information" in the side panel
-let defaultSettingsFrameInfoNumber         = true           // Whether "Frame number" is displayed under "Frame Information" in the side panel
+let defaultSettingsFrameInfoTimestamp      = true      // Whether "Timestamp" is displayed under "Frame Information" in the side panel
+let defaultSettingsFrameInfoNumber         = true      // Whether "Frame number" is displayed under "Frame Information" in the side panel
 
-let defaultSettingsFrameBorderColor        = colorBlue      // The color of the border around a selected frame
-let defaultSettingsFrameBorderThickness    = 5.0            // The width of the border around a selected frame
+let defaultSettingsFrameBorderColor        = colorBlue // The color of the border around a selected frame
+let defaultSettingsFrameBorderThickness    = 5.0       // The width of the border around a selected frame
 
-let defaultSettingsPreviewSpaceBetweenRows = 10.0           // The vertical spacing between rows in the preview
-let defaultSettingsPreviewSpaceBetweenCols = 0.0            // The horizontal spacing between columns in the preview
+let defaultSettingsPreviewSpaceBetweenRows = 10.0      // The vertical spacing between rows in the preview
+let defaultSettingsPreviewSpaceBetweenCols = 0.0       // The horizontal spacing between columns in the preview
 
 
 
@@ -45,7 +46,7 @@ extension UserDefaults {
     func color(forKey key: String) -> NSColor? {
         var color: NSColor?
         if let colorData = data(forKey: key) {
-            color = try! NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: colorData)
+            color = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: colorData) ?? defaultSettingsFrameBorderColor
         }
         return color
     }
@@ -67,15 +68,15 @@ extension UserDefaults {
 class UserSettings: ObservableObject {
     
     // Whenever a value is set, it is saved to UserDefaults
-    @Published var sidePanelVisibleVideo:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleVideo,   forKey: "sidePanelVisibleVideo") } }
+    @Published var sidePanelVisibleFile:    Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFile,   forKey: "sidePanelVisibleFile") } }
     @Published var sidePanelVisibleFrame:   Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleFrame,   forKey: "sidePanelVisibleFrame") } }
     @Published var sidePanelVisibleConfig:  Bool    { didSet { UserDefaults.standard.set(sidePanelVisibleConfig,  forKey: "sidePanelVisibleConfig") } }
-    @Published var videoInfoPath:           Bool    { didSet { UserDefaults.standard.set(videoInfoPath,           forKey: "videoInfoPath") } }
-    @Published var videoInfoEncoding:       Bool    { didSet { UserDefaults.standard.set(videoInfoEncoding,       forKey: "videoInfoEncoding") } }
-    @Published var videoInfoFramerate:      Bool    { didSet { UserDefaults.standard.set(videoInfoFramerate,      forKey: "videoInfoFramerate") } }
-    @Published var videoInfoLength:         Bool    { didSet { UserDefaults.standard.set(videoInfoLength,         forKey: "videoInfoLength") } }
-    @Published var videoInfoFrames:         Bool    { didSet { UserDefaults.standard.set(videoInfoFrames,         forKey: "videoInfoFrames") } }
-    @Published var videoInfoDimensions:     Bool    { didSet { UserDefaults.standard.set(videoInfoDimensions,     forKey: "videoInfoDimensions") } }
+    @Published var fileInfoPath:            Bool    { didSet { UserDefaults.standard.set(fileInfoPath,            forKey: "fileInfoPath") } }
+    @Published var fileInfoEncoding:        Bool    { didSet { UserDefaults.standard.set(fileInfoEncoding,        forKey: "fileInfoEncoding") } }
+    @Published var fileInfoFramerate:       Bool    { didSet { UserDefaults.standard.set(fileInfoFramerate,       forKey: "fileInfoFramerate") } }
+    @Published var fileInfoLength:          Bool    { didSet { UserDefaults.standard.set(fileInfoLength,          forKey: "fileInfoLength") } }
+    @Published var fileInfoFrames:          Bool    { didSet { UserDefaults.standard.set(fileInfoFrames,          forKey: "fileInfoFrames") } }
+    @Published var fileInfoDimensions:      Bool    { didSet { UserDefaults.standard.set(fileInfoDimensions,      forKey: "fileInfoDimensions") } }
     @Published var frameInfoTimestamp:      Bool    { didSet { UserDefaults.standard.set(frameInfoTimestamp,      forKey: "frameInfoTimestamp") } }
     @Published var frameInfoNumber:         Bool    { didSet { UserDefaults.standard.set(frameInfoNumber,         forKey: "frameInfoNumber") } }
     @Published var frameBorderThickness:    Double  { didSet { UserDefaults.standard.set(frameBorderThickness,    forKey: "frameBorderThickness") } }
@@ -84,15 +85,15 @@ class UserSettings: ObservableObject {
     @Published var previewSpaceBetweenCols: Double  { didSet { UserDefaults.standard.set(previewSpaceBetweenCols, forKey: "previewSpaceBetweenCols") } }
     
     func resetToDefaultsSidePanel() {
-        videoInfoPath          = defaultSettingsVideoInfoPath
-        videoInfoEncoding      = defaultSettingsVideoInfoEncoding
-        videoInfoFramerate     = defaultSettingsVideoInfoFramerate
-        videoInfoLength        = defaultSettingsVideoInfoLength
-        videoInfoFrames        = defaultSettingsVideoInfoFrames
-        videoInfoDimensions    = defaultSettingsVideoInfoDimensions
+        fileInfoPath           = defaultSettingsFileInfoPath
+        fileInfoEncoding       = defaultSettingsFileInfoEncoding
+        fileInfoFramerate      = defaultSettingsFileInfoFramerate
+        fileInfoLength         = defaultSettingsFileInfoLength
+        fileInfoFrames         = defaultSettingsFileInfoFrames
+        fileInfoDimensions     = defaultSettingsFileInfoDimensions
         frameInfoTimestamp     = defaultSettingsFrameInfoTimestamp
         frameInfoNumber        = defaultSettingsFrameInfoNumber
-        sidePanelVisibleVideo  = defaultSettingsSidePanelVisibleVideo
+        sidePanelVisibleFile  = defaultSettingsSidePanelVisibleFile
         sidePanelVisibleFrame  = defaultSettingsSidePanelVisibleFrame
         sidePanelVisibleConfig = defaultSettingsSidePanelVisibleConfig
     }
@@ -107,23 +108,17 @@ class UserSettings: ObservableObject {
         previewSpaceBetweenCols = defaultSettingsPreviewSpaceBetweenCols
     }
     
-    func resetToDefaultsAll() {
-        resetToDefaultsSidePanel()
-        resetToDefaultsSelectedFrames()
-        resetToDefaultsSpacing()
-    }
-    
     init() {
         // On initialization, load values that the user has set. If no value has been set, use the default value for each setting
-        sidePanelVisibleVideo   = UserDefaults.standard.object(forKey: "sidePanelVisibleVideo")   as? Bool   ?? defaultSettingsSidePanelVisibleVideo
+        sidePanelVisibleFile    = UserDefaults.standard.object(forKey: "sidePanelVisibleFil")     as? Bool   ?? defaultSettingsSidePanelVisibleFile
         sidePanelVisibleFrame   = UserDefaults.standard.object(forKey: "sidePanelVisibleFrame")   as? Bool   ?? defaultSettingsSidePanelVisibleFrame
         sidePanelVisibleConfig  = UserDefaults.standard.object(forKey: "sidePanelVisibleConfig")  as? Bool   ?? defaultSettingsSidePanelVisibleConfig
-        videoInfoPath           = UserDefaults.standard.object(forKey: "videoInfoPath")           as? Bool   ?? defaultSettingsVideoInfoPath
-        videoInfoEncoding       = UserDefaults.standard.object(forKey: "videoInfoEncoding")       as? Bool   ?? defaultSettingsVideoInfoEncoding
-        videoInfoFramerate      = UserDefaults.standard.object(forKey: "videoInfoFramerate")      as? Bool   ?? defaultSettingsVideoInfoFramerate
-        videoInfoLength         = UserDefaults.standard.object(forKey: "videoInfoLength")         as? Bool   ?? defaultSettingsVideoInfoLength
-        videoInfoFrames         = UserDefaults.standard.object(forKey: "videoInfoFrames")         as? Bool   ?? defaultSettingsVideoInfoFrames
-        videoInfoDimensions     = UserDefaults.standard.object(forKey: "videoInfoDimensions")     as? Bool   ?? defaultSettingsVideoInfoDimensions
+        fileInfoPath            = UserDefaults.standard.object(forKey: "fileInfoPath")            as? Bool   ?? defaultSettingsFileInfoPath
+        fileInfoEncoding        = UserDefaults.standard.object(forKey: "fileInfoEncoding")        as? Bool   ?? defaultSettingsFileInfoEncoding
+        fileInfoFramerate       = UserDefaults.standard.object(forKey: "fileInfoFramerate")       as? Bool   ?? defaultSettingsFileInfoFramerate
+        fileInfoLength          = UserDefaults.standard.object(forKey: "fileInfoLength")          as? Bool   ?? defaultSettingsFileInfoLength
+        fileInfoFrames          = UserDefaults.standard.object(forKey: "fileInfoFrames")          as? Bool   ?? defaultSettingsFileInfoFrames
+        fileInfoDimensions      = UserDefaults.standard.object(forKey: "fileInfoDimensions")      as? Bool   ?? defaultSettingsFileInfoDimensions
         frameInfoTimestamp      = UserDefaults.standard.object(forKey: "frameInfoTimestamp")      as? Bool   ?? defaultSettingsFrameInfoTimestamp
         frameInfoNumber         = UserDefaults.standard.object(forKey: "frameInfoNumber")         as? Bool   ?? defaultSettingsFrameInfoNumber
         frameBorderColor        = UserDefaults.standard.color(forKey:  "frameBorderColor")                   ?? defaultSettingsFrameBorderColor

@@ -34,11 +34,12 @@ string secondsToTimeStamp(const double seconds);
 // Rounds down to the nearest integer
 double frameNumberToSeconds(const int frameNumber, const int fps);
 
+
 /*----------------------------------------------------------------------------------------------------
     MARK: - Frame
+        Data and functions relavant to a single frame of a video
    ----------------------------------------------------------------------------------------------------*/
 
-// Data and functions relavant to a single frame of a video
 class Frame
 {
 public:
@@ -46,10 +47,10 @@ public:
         : data{ dataIn }, frameNumber{ frameNumberIn }, seconds{ frameNumberToSeconds(frameNumberIn, fps) }
     {}
     
-    Mat getData()                     const { return data; }
-    int getFrameNumber()              const { return frameNumber; }
-    int getFrameNumberHumanReadable() const { return frameNumber + 1; } // OpenCV indexes frames from 0
-    string gettimeStampString()       const { return secondsToTimeStamp(seconds); }
+    Mat    getData()                     const { return data; }
+    int    getFrameNumber()              const { return frameNumber; }
+    int    getFrameNumberHumanReadable() const { return frameNumber + 1; } // OpenCV indexes frames from 0
+    string gettimeStampString()          const { return secondsToTimeStamp(seconds); }
 
 private:
     Mat    data;
@@ -58,13 +59,12 @@ private:
 };
 
 
-
 /*----------------------------------------------------------------------------------------------------
     MARK: - Video
+      Data and functions relevant to a single video file.
+      Essentially a wrapper class for a cv::VideoCapture object
    ----------------------------------------------------------------------------------------------------*/
 
-// Data and functions relevant to a single video file.
-// Essentially a wrapper class for a cv::VideoCapture object
 class Video
 {
 public:
@@ -83,10 +83,7 @@ public:
     cv::Size getDimensions()            const { return cv::Size(vc.get(cv::CAP_PROP_FRAME_WIDTH),vc.get(cv::CAP_PROP_FRAME_HEIGHT)); }
     
     void     setFrameNumber(const int num)    { vc.set(cv::CAP_PROP_POS_FRAMES, num); }
-    void     writeCurrentFrame(Mat& frameOut) { vc.read(frameOut); }                       // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
-
-    // Exports an MJPG to exportDir consisting of frames frameBegin to frameEnd-1. Used for exporting preview videos
-    void     exportVideo(const string& exportPath, const int frameBegin, const int frameEnd);
+    void     getCurrentFrame(Mat& frameOut) { vc.read(frameOut); }                       // Overwrite `frameOut` with a `Mat` corresponding to the currently selected frame
 
 private:
     cv::VideoCapture vc;
@@ -95,6 +92,7 @@ private:
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - GUIInformation
+        For storing and accessing information passed to the backend from the frontend
    ----------------------------------------------------------------------------------------------------*/
 
 class GUIInformation
@@ -119,16 +117,16 @@ private:
 
 /*----------------------------------------------------------------------------------------------------
     MARK: - VideoPreview
+         The main class associated with previewing a single video. Has three core components:
+              1. `video`:          a `Video` object.            Deals with the core video file which is being previewed
+              2. `frames`:         a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
+              3. `optionsHandler`: a `ConfigOptionsHandler`.    Deals with any options supplied by configuration files
    ----------------------------------------------------------------------------------------------------*/
 
-// The main class associated with previewing a single video. `VideoPreview` has three core components:
-//      1. `video`:          a `Video` object.            Deals with the core video file which is being previewed
-//      2. `frames`:         a vector of `Frame` objects. Deals with the individual frames which are shown in the preview
-//      3. `optionsHandler`: a `ConfigOptionsHandler`.    Deals with any options supplied by configuration files
 class VideoPreview
 {
 public:
-    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { determineExportPath();}
+    VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { }
     
     // Attempts to initialize video with the file at videoPath
     void loadVideo() {
@@ -149,29 +147,7 @@ public:
     // If the option isn't currently set, it is set to the default value as given by ConfigOption::recognisedConfigOptions
     // If `optionID` is invalid (doesn't correspond to a recognised option), nullptr is returned.
     // It is up to the caller to check if nullptr has been returned
-    ConfigOptionPtr getOption(const string& optionID)
-    {
-        // Search for optionID in the video previews current set of config options
-        // ConfigOptionVector.getOption() return nullptr if the option doesn't exist
-        ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
-        if (option)
-            return option;
-        
-        // If the optionID wasn't found, search for it inthe recognised configuration options
-        auto temp = ConfigOption::recognisedOptionInfo.find(optionID);
-
-        // If optionID was found in recognisedOptionInfo, return a ConfigOptionPtr with the corresponding default value
-        if (temp != ConfigOption::recognisedOptionInfo.end())
-        {
-            ConfigValuePtr  defaultValue = ConfigOption::recognisedOptionInfo.at(optionID).getDefaultValue();
-            ConfigOptionPtr newOption    = std::make_shared<ConfigOption>(optionID, defaultValue);
-            optionsHandler.setOption(newOption); // set with a smart pointer
-            return newOption;
-        }
-        
-        // If the optionID wasn't found in the recognised options, return nullptr
-        return nullptr;
-    }
+    ConfigOptionPtr getOption(const string& optionID);
     
     void setOption(const string& optionID, const bool val)
     {
@@ -211,19 +187,13 @@ public:
     void saveAllOptions(const ConfigFilePtr& file)                          { optionsHandler.saveAllOptions(file); }
     void saveAllOptions(const string& filePath)                             { saveOptions(optionsHandler.getOptions(), filePath); }
     
-    void saveOption (ConfigOptionPtr option, const ConfigFilePtr& file)     { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
-    void saveOption (ConfigOptionPtr option, const string& filePath)        { saveOptions(ConfigOptionVector{option}, filePath); }
+    void saveOption(ConfigOptionPtr option, const ConfigFilePtr& file)     { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
+    void saveOption(ConfigOptionPtr option, const string& filePath)        { saveOptions(ConfigOptionVector{option}, filePath); }
 
     void printConfig() const
     {
         cout << "Current configuration options:\n";
         optionsHandler.print();
-    }
-    
-    string getVideoNameString()
-    {
-        
-        return videoPath;
     }
     
     string getVideoPathString()        { return videoPath; }
@@ -255,16 +225,21 @@ public:
         return secondsToTimeStamp(seconds);
     }
     
-    int getVideoNumOfFrames() { return video.getNumberOfFrames(); }
+    int getVideoNumOfFrames()
+    {
+        return video.getNumberOfFrames();
+    }
     
     double getVideoAspectRatio()
     {
         cv::Size dims = video.getDimensions();
         return dims.width / static_cast<double>(dims.height);
-        
     }
     
-    const static OptionInformation getOptionInformation(const string& optionID) { return ConfigOption::recognisedOptionInfo.at(optionID); } // TODO: make this safe
+    const static OptionInformation getOptionInformation(const string& optionID)
+    {
+        return ConfigOption::recognisedOptionInfo.at(optionID);
+    }
     
     vector<string> getConfigFilePaths()
     {
@@ -284,44 +259,13 @@ public:
     int           getRowsInPreview()               { return guiInfo.getRows(); }
     int           getColsInPreview()               { return guiInfo.getCols(); }
     
-    ~VideoPreview()
-    {
-        fs::remove_all(exportDir.erase(exportDir.length())); // Delete the temporary directory assigned to this file (remove trailing slash from exportDir)
-        if (fs::exists("media/.videopreview") && fs::is_empty("media/.videopreview")) // Delete .videopreview directory if it is empty (i.e. no other file is being previewed)
-            fs::remove("media/.videopreview");
-    }
-    
 private:
-    // Parse `videopath` in order to determine the directory to which temporary files should be stored
-    // This is saved to `exportDir`, and also returned from the function
-    // Modified from https://stackoverflow.com/a/8520815
-    string& determineExportPath();
-
     // Read in appropriate configuration options and write over the `frames` vector
     void makeFrames();
 
     // Determine if a given configuration option has been changed since the last time the preview was updated
     // Achieved by comparing the relevant `ConfigOptionPtr`s in `currentPreviewConfigOptions` and `optionsHandler`
-    bool configOptionHasBeenChanged(const string& optionID)
-    {
-        // When the program runs for the first time the configuration options have always, by definition, been "changed"
-        static bool runningForFirstTime = true;
-        if (runningForFirstTime)
-        {
-            runningForFirstTime = false;
-            return true;
-        }
-        
-        ConfigOptionPtr optionInternal{ optionsHandler.getOptions().getOption(optionID) };
-        ConfigOptionPtr optionPreview { currentPreviewConfigOptions.getOption(optionID) };
-        
-        // If the option isn't defined in one of the vectors, it can only be unchanged if they are both equal to each other (i.e. nullptr)
-        if (!optionInternal || !optionPreview)
-            return optionInternal != optionPreview;
-
-        // Knowing that neither option is a nullptr, we can safely compare the actual values stored in each option
-        return optionInternal->getValueAsString() != optionPreview->getValueAsString();
-    }
+    bool configOptionHasBeenChanged(const string& optionID);
 
 private:
     string               videoPath;                   // Path to the video file

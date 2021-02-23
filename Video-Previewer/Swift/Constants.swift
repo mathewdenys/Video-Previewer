@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 let infoDescriptionWidth     = CGFloat(90)           // The width of the first column in Information sections
 let configDescriptionWidth   = CGFloat(140)          // The width of the first column in Configuration sections
 let settingsDescriptionWidth = CGFloat(75)           // The width of the first column in Settings sections

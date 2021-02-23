@@ -23,7 +23,7 @@
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
                                         <menuItem title="Preferences" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
-                                                <action selector="openPreferencesWindow:" target="Ady-hI-5gd" id="5yU-Aq-zht"/>
+                                                <action selector="showPreferencesWindow:" target="Ady-hI-5gd" id="5yU-Aq-zht"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -64,7 +64,7 @@
                                     <items>
                                         <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                             <connections>
-                                                <action selector="loadVideoFile:" target="Ady-hI-5gd" id="ibu-Ut-Ld9"/>
+                                                <action selector="showOpenDialogue:" target="Ady-hI-5gd" id="ibu-Ut-Ld9"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Open Recent" id="tXI-mr-wws">

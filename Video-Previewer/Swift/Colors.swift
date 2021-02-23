@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 // Colours used throughout the user interface
 // Note: Named NSColors are defined in Assets.xassets (for light and dark themes)
 let colorBackground          = Color(NSColor(named: NSColor.Name("colorBackground"))!)

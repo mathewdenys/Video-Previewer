@@ -150,9 +150,7 @@
     {
         vector<string> strings_std { optInfo.getValidStrings() };
         for (string s : strings_std)
-        {
             [strings_ns addObject: [NSString fromStdString:s]];
-        }
     }
     self->validStrings = strings_ns;
     

@@ -19,12 +19,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var preferencesWindow: NSWindow!
     
     
-    /*------------------------------------------------------------
-     MARK: - Menu bar functions
-     ------------------------------------------------------------*/
-    
     // Open an open dialogue for selecting a video file to preview
-    @IBAction func loadVideoFile(_ sender: Any?) {
+    @IBAction func showOpenDialogue(_ sender: Any?) {
         let dialog = NSOpenPanel();
         
         dialog.title                   = "Open a video to preview"
@@ -52,7 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     preview.frames = frames
                     
                     NSDocumentController.shared.noteNewRecentDocumentURL(URL(fileURLWithPath: path))
-                    openPreviewWindow(fileName: result.lastPathComponent)
+                    showPreviewWindow(fileName: result.lastPathComponent)
                     break
                 }
                 
@@ -69,15 +65,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Called when the user selects an item from the "Open Recent" menu
     func application(_ sender: NSApplication, openFile filePath: String) -> Bool {
         print(filePath)
-        preview.backend     = NSVideoPreview(filePath)
-        preview.frames = preview.backend!.getFrames()
-        openPreviewWindow(fileName: URL(fileURLWithPath: filePath).lastPathComponent)
+        preview.backend  = NSVideoPreview(filePath)
+        preview.frames   = preview.backend!.getFrames()
+        showPreviewWindow(fileName: URL(fileURLWithPath: filePath).lastPathComponent)
         return true // Return true to keep the item in the menu
     }
     
     // Setup and then display a window containing a ContentView
-    func openPreviewWindow(fileName: String) {
-        // Only create once
+    func showPreviewWindow(fileName: String) {
+        // Only create the window once
         if previewWindow == nil
         {
             // Create an instance of the ContentView
@@ -109,9 +105,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Setup and then display a window containing a PreferencesView
-    // Adapted from https://stackoverflow.com/a/62780829
-    @IBAction func openPreferencesWindow(_ sender: Any?) {
-        // Only create once
+    @IBAction func showPreferencesWindow(_ sender: Any?) {
+        // Only create the window once
         if preferencesWindow == nil
         {
             // Create an instance of the PreferencesView
@@ -131,6 +126,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             preferencesWindow.isReleasedWhenClosed = false
             preferencesWindow.contentView = NSHostingView(rootView: preferencesView)
         }
+        
+        // Show the window
         preferencesWindow.makeKeyAndOrderFront(nil)
     }
     
@@ -166,24 +163,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSWorkspace.shared.open(url)
         }
     }
-    
 
-    /*------------------------------------------------------------
-        MARK: - Launching and terminating application
-     ------------------------------------------------------------*/
-    
+    // Called when the application finishes launching
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
-        // Show an "open" panel on launch to choose the video to preview
-        // Note that loadVideoFile() is responsible for then opening the window with the preview
-        loadVideoFile(nil)
-        
+        showOpenDialogue(nil)
     }
-
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
-    }
-
 
 }
 

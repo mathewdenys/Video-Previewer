@@ -30,13 +30,11 @@
 
 - (instancetype)              init:(NSString*)filePath;
 
-// Wrapper functions for VideoPreview
 - (void)                      loadConfig;
 - (void)                      loadVideo;
 - (void)                      updatePreview;
 
-// Getter functions for displaying information about the video file
-- (NSString*)                 getVideoNameString;
+- (NSString*)                 getVideoPathString;
 - (NSString*)                 getVideoCodecString;
 - (NSString*)                 getVideoFPSString;
 - (NSString*)                 getVideoLengthString;
@@ -46,7 +44,6 @@
 - (NSNumber*)                 getVideoNumOfFrames;
 - (NSNumber*)                 getVideoAspectRatio;
 
-// Getter & setter functions for the configuration options
 - (NSConfigValue*)            getOptionValue:(NSString*)optionID;        // Returns a NSConfigValue containing the value of the configuration option
 - (NSString*)                 getOptionValueString:(NSString*)optionID;  // Returns a string corresponding to the value of the option corresponding to optionID
 - (NSString*)                 getOptionConfigString:(NSString*)optionID; // Returns a string of the form "id = val" corresponding to optionID
@@ -66,10 +63,8 @@
 - (NSNumber*)                 getRows;
 - (NSNumber*)                 getCols;
 
-
-// Getter function for the preview video frames
+- (NSNumber*)                 getNumOfFrames;
 - (NSArray<NSFramePreview*>*) getFrames;                                 // Returns an array consisting of a NSFramePreview for each frame in the preview
 
-- (NSNumber*)                 getNumOfFrames;
 
 @end

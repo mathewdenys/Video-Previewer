@@ -14,6 +14,7 @@
 		AF5101BE25AE57C600B8B5E6 /* Preview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FFF2591397E00DB3402 /* Preview.cpp */; };
 		AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFE45FEB2590581D00DB3402 /* Configuration.cpp */; };
 		AF5101C725AFE0B800B8B5E6 /* PreviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */; };
+		AFA9CA5425E47EFD0048D7DF /* ConfigEditors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFA9CA5325E47EFD0048D7DF /* ConfigEditors.swift */; };
 		AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C225E2F4A700B4A9D6 /* Fonts.swift */; };
 		AFB402C925E2F4B100B4A9D6 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402C825E2F4B100B4A9D6 /* Colors.swift */; };
 		AFB402CF25E3071D00B4A9D6 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB402CE25E3071D00B4A9D6 /* Section.swift */; };
@@ -34,6 +35,7 @@
 		AF5101B225AE48B000B8B5E6 /* NSPreview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NSPreview.hpp; sourceTree = "<group>"; };
 		AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
 		AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPane.swift; sourceTree = "<group>"; };
+		AFA9CA5325E47EFD0048D7DF /* ConfigEditors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigEditors.swift; sourceTree = "<group>"; };
 		AFB402C225E2F4A700B4A9D6 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		AFB402C825E2F4B100B4A9D6 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		AFB402CE25E3071D00B4A9D6 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				AFFB215125AE392A008B2295 /* AppDelegate.swift */,
 				AFFB215325AE392A008B2295 /* ContentView.swift */,
 				AF5101C625AFE0B800B8B5E6 /* PreviewPane.swift */,
+				AFA9CA5325E47EFD0048D7DF /* ConfigEditors.swift */,
 				AF5101B625AE4C8500B8B5E6 /* SidePanel.swift */,
 				AF48AFF425DF475D000B468C /* PreferencesView.swift */,
 			);
@@ -230,6 +233,7 @@
 				AFB402C325E2F4A700B4A9D6 /* Fonts.swift in Sources */,
 				AFE665B125CA594F00A41E35 /* Constants.swift in Sources */,
 				AFFB215225AE392A008B2295 /* AppDelegate.swift in Sources */,
+				AFA9CA5425E47EFD0048D7DF /* ConfigEditors.swift in Sources */,
 				AF5101C125AE57C900B8B5E6 /* Configuration.cpp in Sources */,
 				AF48AFF125DF30B5000B468C /* UserSettings.swift in Sources */,
 				AFE665B525CA598B00A41E35 /* PreviewData.swift in Sources */,

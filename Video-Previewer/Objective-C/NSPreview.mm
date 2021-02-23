@@ -31,12 +31,13 @@
 
 @implementation NSFramePreview (cpp_compatibility)
 
+// Iitialize an NSFramePreview from a Frame
+// Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
 - (NSFramePreview*) initFromFrame:(const Frame&)frameIn
 {
     frameNumber = frameIn.getFrameNumberHumanReadable();
     timeStamp   = [NSString fromStdString:frameIn.gettimeStampString()];
     
-    // Adapted from https://docs.opencv.org/master/d3/def/tutorial_image_manipulation.html
     Mat cvMat;
     cv::cvtColor(frameIn.getData(), cvMat, cv::COLOR_RGB2BGR); // Convert from BGR to RGB
 
@@ -103,7 +104,7 @@
 - (void)      loadVideo                 { vp->loadVideo();     }
 - (void)      updatePreview             { vp->updatePreview(); }
 
-- (NSString*) getVideoNameString        { return [NSString fromStdString:  vp->getVideoNameString()       ]; }
+- (NSString*) getVideoPathString        { return [NSString fromStdString:  vp->getVideoPathString()       ]; }
 - (NSString*) getVideoFPSString         { return [NSString fromStdString:  vp->getVideoFPSString()        ]; }
 - (NSString*) getVideoDimensionsString  { return [NSString fromStdWString: vp->getVideoDimensionsString() ]; }
 - (NSString*) getVideoNumOfFramesString { return [NSString fromStdString:  vp->getVideoNumOfFramesString()]; }
@@ -136,7 +137,6 @@
     return [[NSOptionInformation alloc] fromOptionInformation:vp->getOptionInformation([optionID getStdString]) withID: [optionID getStdString]];
 }
 
-
 - (NSArray<NSString*>*) getConfigFilePaths
 {
     vector<string> pathsIn { vp->getConfigFilePaths() };
@@ -145,7 +145,6 @@
         [pathsOut addObject: [NSString fromStdString:path]];
     return pathsOut;
 }
-
 
 - (void) setOptionValue:(NSString*)optionID withBool:(bool)val         { vp->setOption([optionID getStdString], val); }
 - (void) setOptionValue:(NSString*)optionID withInt:(int)val           { vp->setOption([optionID getStdString], val); }
@@ -160,6 +159,7 @@
 - (NSNumber*) getRows                                                  { return [NSNumber numberWithInt: vp->getRowsInPreview()]; }
 - (NSNumber*) getCols                                                  { return [NSNumber numberWithInt: vp->getColsInPreview()]; }
 
+- (NSNumber*) getNumOfFrames                                           { return [NSNumber numberWithUnsignedLong: vp->getNumOfFrames()]; }
 
 - (NSArray<NSFramePreview*>*) getFrames
 {
@@ -167,13 +167,9 @@
     NSMutableArray* nsFrames = [NSMutableArray new];
     
     for (Frame frame: frames)
-    {
         [nsFrames addObject: [[NSFramePreview alloc] initFromFrame: frame]];
-    }
     
     return nsFrames;
 }
-
-- (NSNumber*) getNumOfFrames                                           { return [NSNumber numberWithUnsignedLong: vp->getNumOfFrames()]; }
 
 @end

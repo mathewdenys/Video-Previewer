@@ -1,7 +1,7 @@
 #include "Preview.hpp"
 
 /*----------------------------------------------------------------------------------------------------
-    MARK: - Global functions
+    MARK: - Functions
    ----------------------------------------------------------------------------------------------------*/
 
 string secondsToTimeStamp(const double seconds)
@@ -23,35 +23,9 @@ string secondsToTimeStamp(const double seconds)
     return H + ':' + M + ':' + S + ':' + R;
 }
 
-// Convert a frame number to a number of seconds (requires knowledge of the fps of the video)
 double frameNumberToSeconds(const int frameNumber, const int fps)
 {
     return static_cast<double>(frameNumber) / fps;
-}
-
-
-/*----------------------------------------------------------------------------------------------------
-    MARK: - Video
-   ----------------------------------------------------------------------------------------------------*/
-
-void Video::exportVideo(const string& exportPath, const int frameBegin, const int frameEnd)
-{
-    string fileName = exportPath + "frame" + std::to_string(frameBegin+1) + "-" + std::to_string(frameEnd) + ".avi"; // Add 1 to account for zero indexing
-    cv::VideoWriter vw(fileName, cv::VideoWriter::fourcc('M','J','P','G'), getFPS(), getDimensions());
-    setFrameNumber(frameBegin);
-
-    cout << '\t' << fileName << '\n';
-
-    int frameNumber = frameBegin;
-    while(frameNumber < frameEnd)
-    {
-        Mat frame;
-        vc >> frame;
-        if (frame.empty())
-            break;
-        vw.write(frame);
-        ++frameNumber;
-    }
 }
 
 
@@ -64,22 +38,38 @@ void VideoPreview::updatePreview()
     cout << "Updating preview\n";
     printConfig();
 
-    // Update the preview
-    if ( configOptionHasBeenChanged("maximum_frames") ||
-         configOptionHasBeenChanged("maximum_percentage") ||
-         configOptionHasBeenChanged("minimum_sampling") ||
-         configOptionHasBeenChanged("frames_to_show") ||
-         !guiInfo.isPreviewUpToDate()
-        )
-    {
+    // Make a new set of frames if the number of frames has changed
+    if ( configOptionHasBeenChanged("maximum_frames") || configOptionHasBeenChanged("maximum_percentage") || configOptionHasBeenChanged("minimum_sampling") || configOptionHasBeenChanged("frames_to_show") || !guiInfo.isPreviewUpToDate() )
         makeFrames();
-    }
 
     // Update `currentPreviewConfigOptions` (we explicitly don't want them to point to the same resource)
     currentPreviewConfigOptions.clear();
     for (ConfigOptionPtr opt : optionsHandler.getOptions())
         currentPreviewConfigOptions.push_back(std::make_shared<ConfigOption>(opt->getID(),opt->getValue()));
+}
 
+ConfigOptionPtr VideoPreview::getOption(const string& optionID)
+{
+    // Search for optionID in the video previews current set of config options
+    // ConfigOptionVector.getOption() return nullptr if the option doesn't exist
+    ConfigOptionPtr option = optionsHandler.getOptions().getOption(optionID);
+    if (option)
+        return option;
+    
+    // If the optionID wasn't found, search for it inthe recognised configuration options
+    auto temp = ConfigOption::recognisedOptionInfo.find(optionID);
+
+    // If optionID was found in recognisedOptionInfo, return a ConfigOptionPtr with the corresponding default value
+    if (temp != ConfigOption::recognisedOptionInfo.end())
+    {
+        ConfigValuePtr  defaultValue = ConfigOption::recognisedOptionInfo.at(optionID).getDefaultValue();
+        ConfigOptionPtr newOption    = std::make_shared<ConfigOption>(optionID, defaultValue);
+        optionsHandler.setOption(newOption); // set with a smart pointer
+        return newOption;
+    }
+    
+    // If the optionID wasn't found in the recognised options, return nullptr
+    return nullptr;
 }
 
 void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePath)
@@ -104,7 +94,6 @@ void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePat
             {
                 std::cerr << "Could not save option: " << exception.what();
             }
-            
         }
         
     // Case 2: filePath does NOT correspond a preexisting configuration file
@@ -140,25 +129,6 @@ void VideoPreview::saveOptions(ConfigOptionVector options, const string& filePat
     {
         std::cerr << exception.what();
     }
-}
-
-string& VideoPreview::determineExportPath()
-{
-    string directoryPath;
-    string fileName;
-
-    // Extract the directory path and file name from videoPath
-    // These are separated by the last slash in videoPath
-    const size_t lastSlashIndex = videoPath.find_last_of("\\/"); // finds the last character that matches either \ or /
-    if (string::npos != lastSlashIndex)
-    {
-        directoryPath = videoPath.substr(0,lastSlashIndex+1);
-        fileName       = videoPath.substr(lastSlashIndex+1);
-    }
-
-    exportDir = directoryPath + ".videopreview/" + fileName + "/";
-
-    return exportDir;
 }
 
 void VideoPreview::makeFrames()
@@ -216,8 +186,29 @@ void VideoPreview::makeFrames()
             
         Mat currentFrameMat;
         video.setFrameNumber(frameNumberInt);
-        video.writeCurrentFrame(currentFrameMat);
+        video.getCurrentFrame(currentFrameMat);
         frames.emplace_back(currentFrameMat, static_cast<int>(round(frameNumber)), video.getFPS());
         frameNumber += frameSampling;
     }
+}
+
+bool VideoPreview::configOptionHasBeenChanged(const string& optionID)
+{
+    // When the program runs for the first time the configuration options have always, by definition, been "changed"
+    static bool runningForFirstTime = true;
+    if (runningForFirstTime)
+    {
+        runningForFirstTime = false;
+        return true;
+    }
+    
+    ConfigOptionPtr optionInternal{ optionsHandler.getOptions().getOption(optionID) };
+    ConfigOptionPtr optionPreview { currentPreviewConfigOptions.getOption(optionID) };
+    
+    // If the option isn't defined in one of the vectors, it can only be unchanged if they are both equal to each other (i.e. nullptr)
+    if (!optionInternal || !optionPreview)
+        return optionInternal != optionPreview;
+
+    // Knowing that neither option is a nullptr, we can safely compare the actual values stored in each option
+    return optionInternal->getValueAsString() != optionPreview->getValueAsString();
 }
