@@ -93,15 +93,19 @@
     std::string filePathStdStr = [filePath getStdString];
     vp = std::make_shared<VideoPreview>(filePathStdStr);
     
-    [self loadConfig   ];
-    [self loadVideo    ];
-    [self updatePreview];
+    try {
+        [self loadVideo    ]; // Throws a FileException if file could not be loaded
+        [self loadConfig   ];
+        [self updatePreview];
+    } catch (const FileException& exception) {
+        std::cerr<< exception.what();
+    }
     
     return self;
 }
 
-- (void)      loadConfig                { vp->loadConfig();    }
 - (void)      loadVideo                 { vp->loadVideo();     }
+- (void)      loadConfig                { vp->loadConfig();    }
 - (void)      updatePreview             { vp->updatePreview(); }
 
 - (NSString*) getVideoPathString        { return [NSString fromStdString:  vp->getVideoPathString()       ]; }

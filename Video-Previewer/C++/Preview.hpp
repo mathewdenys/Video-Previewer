@@ -129,13 +129,8 @@ public:
     VideoPreview(const string& videoPathIn) : videoPath{ videoPathIn } { }
     
     // Attempts to initialize video with the file at videoPath
-    void loadVideo() {
-        try {
-            video = Video(videoPath);
-        } catch (const FileException& exception) {
-            std::cerr<< exception.what();
-        }
-    }
+    // Throws a FileException if the file could not be loaded (e.g. invalid file type)
+    void loadVideo()  { video = Video(videoPath); }
     
     void loadConfig() { optionsHandler = ConfigOptionsHandler{ videoPath }; }
 

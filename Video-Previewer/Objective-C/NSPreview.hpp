@@ -30,8 +30,8 @@
 
 - (instancetype)              init:(NSString*)filePath;
 
-- (void)                      loadConfig;
 - (void)                      loadVideo;
+- (void)                      loadConfig;
 - (void)                      updatePreview;
 
 - (NSString*)                 getVideoPathString;
