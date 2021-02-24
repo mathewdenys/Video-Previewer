@@ -40,7 +40,7 @@ namespace fs = std::filesystem;
      When adding support for an option with a new underlying data type, ...
         - Add a new "using OptionalX   = std::optional<X>" statement (at start of ConfigValues section)
  
-        - Define a corresponding BaseConfigValue::getX() method
+        - Define a corresponding ConfigValueBase::getX() method
         - Define a corresponding ConfigValueX class
  
         - Define a corresponding ConfigOption constructor
@@ -68,15 +68,15 @@ namespace fs = std::filesystem;
 
 using OptionalBool   = std::optional<bool>;
 using OptionalInt    = std::optional<int>;
-using OptionalDouble  = std::optional<double>;
+using OptionalDouble = std::optional<double>;
 using OptionalString = std::optional<string>;
 
 
-// Abstract base class for storing a configuration value. Can store the value as either a bool, int, or string.
-// The "get" functions return a std::optional of that type. It is up to the caller to verify that this contains
-// a value. This base class is defined such that derived ConfigValueX objects can be stored in shared_ptrs and
-// passed around without knowing at complie time what data type is stored in each object.
-class BaseConfigValue
+// Abstract base class for storing a configuration value. Can store the value as either a bool, int, double,or
+// string. The "get" functions return a std::optional of that type. It is up to the caller to verify that this
+// contains a value. This base class is defined such that derived ConfigValueX objects can be stored in
+// shared_ptrs and passed around without knowing at complie time what data type is stored in each object.
+class ConfigValueBase
 {
 public:
     virtual OptionalBool   getBool()     const { return OptionalBool{};   }
@@ -85,15 +85,15 @@ public:
     virtual OptionalString getString()   const { return OptionalString{}; }
     virtual string         getAsString() const = 0;
 
-    virtual ~BaseConfigValue() = default;
+    virtual ~ConfigValueBase() = default;
 };
 
 
-using ConfigValuePtr = std::shared_ptr<BaseConfigValue>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
+using ConfigValuePtr = std::shared_ptr<ConfigValueBase>; // Using `shared_ptr` allows `ConfigValuePtr`s to be safely returned by functions
 
 
-// Derived classes of BaseConfigValue
-class ConfigValueBool : public BaseConfigValue
+// Derived classes of ConfigValueBase
+class ConfigValueBool : public ConfigValueBase
 {
 public:
     ConfigValueBool(const bool& valIn) : value{ valIn } {}
@@ -106,7 +106,7 @@ private:
 };
 
 
-class ConfigValueInt : public BaseConfigValue
+class ConfigValueInt : public ConfigValueBase
 {
 public:
     ConfigValueInt(const int& valIn) : value{ valIn } {}
@@ -119,7 +119,7 @@ private:
 };
 
 
-class ConfigValueDouble : public BaseConfigValue
+class ConfigValueDouble : public ConfigValueBase
 {
 public:
     ConfigValueDouble(const double& valIn) : value{ valIn } {}
@@ -138,7 +138,7 @@ private:
 };
 
 
-class ConfigValueString : public BaseConfigValue
+class ConfigValueString : public ConfigValueBase
 {
 public:
     ConfigValueString(const string& valIn) : value{ valIn } {}

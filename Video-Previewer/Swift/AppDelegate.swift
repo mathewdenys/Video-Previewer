@@ -135,7 +135,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func saveConfig(_ sender: Any?) {
         let dialog = NSSavePanel();
 
-        dialog.title                   = "Save configuration options"
+        dialog.title                   = "Export configuration options"
         dialog.message                 = "Preexisting configuration files associated with this video will be updated while\nmaintaining formatting. Any other file will be overwritten."
         dialog.nameFieldStringValue    = ".videopreviewconfig"
         dialog.canCreateDirectories    = true

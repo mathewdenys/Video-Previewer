@@ -182,8 +182,8 @@ public:
     void saveAllOptions(const ConfigFilePtr& file)                          { optionsHandler.saveAllOptions(file); }
     void saveAllOptions(const string& filePath)                             { saveOptions(optionsHandler.getOptions(), filePath); }
     
-    void saveOption(ConfigOptionPtr option, const ConfigFilePtr& file)     { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
-    void saveOption(ConfigOptionPtr option, const string& filePath)        { saveOptions(ConfigOptionVector{option}, filePath); }
+    void saveOption(ConfigOptionPtr option, const ConfigFilePtr& file)      { optionsHandler.saveOptions(ConfigOptionVector{option}, file); }
+    void saveOption(ConfigOptionPtr option, const string& filePath)         { saveOptions(ConfigOptionVector{option}, filePath); }
 
     void printConfig() const
     {
